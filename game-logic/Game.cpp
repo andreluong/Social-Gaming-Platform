@@ -1,4 +1,5 @@
-#include "Game.h";
+#include "Game.h"
+#include "User.h"
 
 Game::Game(int id, const std::string& name, int maxP)
     : gameID(id), gameName(name), maxPlayers(maxP), currentRound(0), status("Idle") {}
@@ -14,19 +15,20 @@ void Game::startGame() {
     }
 }
 
-void Game::addPlayer(std::shared_ptr<Player> player) {
+void Game::addPlayer(std::shared_ptr<User> player) {
     if (players.size() < maxPlayers) {
         players.push_back(player);
-        std::cout << player->getName() << " has joined the game!" << std::endl;
+        std::cout << player->getName() << " has joined the game!" << std::endl; // Now this will work
     } else {
         std::cout << "Game is full, cannot add more players." << std::endl;
     }
 }
 
+
 void Game::removePlayer(int playerID) {
     auto it = std::remove_if(players.begin(), players.end(),
-                             [playerID](const std::shared_ptr<Player>& p) {
-                                 return p->getID() == playerID;
+                             [playerID](const std::shared_ptr<User>& p) {
+                                 return p->getId() == playerID;
                              });
     if (it != players.end()) {
         std::cout << (*it)->getName() << " has left the game!" << std::endl;
@@ -48,7 +50,7 @@ void Game::updateScoreBoard(const std::string& playerName, int score) {
 std::string Game::getStatus() const {
     return status;
 }
-oid Game::displayScoreBoard() const {
+void Game::displayScoreBoard() const {
     std::cout << "Scoreboard for game " << gameName << ":" << std::endl;
     for (const auto& entry : scoreBoard) {
         std::cout << entry.first << ": " << entry.second << std::endl;

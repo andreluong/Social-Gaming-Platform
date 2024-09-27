@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgame-logic-lib.a "CMakeFiles/game-logic-lib.dir/User.cpp.o"
+/usr/bin/ranlib libgame-logic-lib.a

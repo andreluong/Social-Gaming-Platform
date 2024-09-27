@@ -1,0 +1,44 @@
+[
+{
+  "directory": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/build/game-logic",
+  "command": "/usr/bin/clang++  -I/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/game-logic/include -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -o CMakeFiles/game-logic-lib.dir/User.cpp.o -c /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/game-logic/User.cpp",
+  "file": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/game-logic/User.cpp",
+  "output": "game-logic/CMakeFiles/game-logic-lib.dir/User.cpp.o"
+},
+{
+  "directory": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/build/game-logic",
+  "command": "/usr/bin/clang++  -I/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/game-logic/include -g -std=gnu++2b -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -o CMakeFiles/game-logic-demo.dir/demo.cpp.o -c /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/game-logic/demo.cpp",
+  "file": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/game-logic/demo.cpp",
+  "output": "game-logic/CMakeFiles/game-logic-demo.dir/demo.cpp.o"
+},
+{
+  "directory": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/build/test",
+  "command": "/usr/bin/clang++  -I/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/game-logic/include -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock/include -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/include -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest -g -std=gnu++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -o CMakeFiles/runAllTests.dir/test_UserRoleManagement.cpp.o -c /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/test_UserRoleManagement.cpp",
+  "file": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/test_UserRoleManagement.cpp",
+  "output": "test/CMakeFiles/runAllTests.dir/test_UserRoleManagement.cpp.o"
+},
+{
+  "directory": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/build/test/gtest/googlemock",
+  "command": "/usr/bin/clang++  -I/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock/include -I/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/include -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest -g -std=c++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock/src/gmock-all.cc",
+  "file": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock/src/gmock-all.cc",
+  "output": "test/gtest/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o"
+},
+{
+  "directory": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/build/test/gtest/googlemock",
+  "command": "/usr/bin/clang++  -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock/include -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/include -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest -g -std=c++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock/src/gmock_main.cc",
+  "file": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googlemock/src/gmock_main.cc",
+  "output": "test/gtest/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
+},
+{
+  "directory": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/build/test/gtest/googletest",
+  "command": "/usr/bin/clang++  -I/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/include -I/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest -g -std=c++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/src/gtest-all.cc",
+  "file": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/src/gtest-all.cc",
+  "output": "test/gtest/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
+},
+{
+  "directory": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/build/test/gtest/googletest",
+  "command": "/usr/bin/clang++  -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/include -isystem /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest -g -std=c++14 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/src/gtest_main.cc",
+  "file": "/Users/Abdul-pc/Desktop/Fall2024/373/project/373-24-jjigae/test/gtest/googletest/src/gtest_main.cc",
+  "output": "test/gtest/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
+}
+]
