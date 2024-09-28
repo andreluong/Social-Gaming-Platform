@@ -24,4 +24,4 @@ cd into it\
 run:\
 cmake ../373-24-jjigae\
 make\
-test/runAllTests\
+test/runAllTests
