@@ -36,3 +36,6 @@ networkbuild/
 
 # vscode
 .vscode/
+
+# script
+script.sh
