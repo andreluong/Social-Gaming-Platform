@@ -40,8 +40,8 @@ public:
 // Player and Audience roles cannot exist simultaneously
 class User {
 public:
-    User(int id, const std::string& name);
-    int getId() const;
+    User(unsigned long int id, const std::string& name);
+    unsigned long int getId() const;
     std::string getName() const;
     void setName(const std::string& name);
     void addRole(std::shared_ptr<Role> role);
@@ -50,7 +50,7 @@ public:
     void swapPlayerAudienceRoles();
     
 private:
-    int id;
+    unsigned long int id;
     std::string name;
     std::vector<std::shared_ptr<Role>> roles;
 };
