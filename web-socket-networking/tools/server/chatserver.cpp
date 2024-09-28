@@ -7,7 +7,7 @@
 
 
 #include "Server.h"
-
+#include "lobby.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -16,6 +16,7 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <cstdlib>
 
 
 using networking::Server;
