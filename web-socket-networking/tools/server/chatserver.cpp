@@ -24,7 +24,6 @@ using networking::Server;
 
 std::vector<Connection> clients;
 
-
 std::vector<int> lobbyIDs;
 std::vector<int> players;
 std::map<unsigned long int, int> playerIdToLobbyIdMap;
@@ -57,6 +56,65 @@ struct MessageResult
   bool shouldShutdown;
 };
 
+void handleLobbyOperation(const Message &message, std::ostringstream &result, const std::string &username, bool &quit)
+{
+  int lobbyid = playerIdToLobbyIdMap[message.connection.id];
+
+  // Quits both the lobby and the game
+  if (message.text == "quit")
+  {
+    playerIdToLobbyIdMap.erase(message.connection.id);
+    // Assuming `server` is accessible here
+    // server.disconnect(message.connection);
+  }
+  else if (message.text == "SVshutdown")
+  {
+    std::cout << "Shutting down.\n";
+    quit = true;
+  }
+  else if (message.text == "leave")
+  {
+    playerIdToLobbyIdMap.erase(message.connection.id);
+    result << "lobby: " << lobbyid << " " << username << "> " << message.text << "\n";
+    result << "leaving lobby " << message.text << "\n";
+  }
+  else
+  {
+    result << "lobby: " << lobbyid << " " << username << "> " << message.text << "\n";
+  }
+};
+
+void handleNonLobbyOperation(const Message &message, std::ostringstream &result, const std::string &username, bool &quit)
+{
+  if (message.text == "quit")
+  {
+    // Assuming `server` is accessible here
+    // server.disconnect(message.connection);
+  }
+  else if (message.text == "SVshutdown")
+  {
+    std::cout << "Shutting down.\n";
+    quit = true;
+  }
+  else if (message.text == "create")
+  {
+    ++lobbyCounter;
+    playerIdToLobbyIdMap.insert(std::make_pair(message.connection.id, lobbyCounter));
+    result << username << "> " << message.text << "\n";
+    result << "creating lobby " << lobbyCounter << "\n";
+  }
+  else if (std::all_of(message.text.begin(), message.text.end(), ::isdigit))
+  {
+    playerIdToLobbyIdMap.insert(std::make_pair(message.connection.id, std::stoi(message.text)));
+    result << username << "> " << message.text << "\n";
+    result << "joining lobby " << std::stoi(message.text) << "\n";
+  }
+  else
+  {
+    result << username << "> " << message.text << "\n";
+  }
+};
+
 MessageResult
 processMessages(Server &server, const std::deque<Message> &incoming)
 {
@@ -72,76 +130,18 @@ processMessages(Server &server, const std::deque<Message> &incoming)
 
     if (userInput.first == "rename" && userInput.second.length() > 0)
     {
-      // Player does not have name yet
-      if (playerIdToUsernameMap.find(message.connection.id) == playerIdToUsernameMap
-                                                                   .end())
-      {
-        playerIdToUsernameMap.insert(std::make_pair(message.connection.id, userInput.second));
-        result << message.connection.id << " renamed to " << userInput.second << "\n";
-      }
+      playerIdToUsernameMap.insert_or_assign(message.connection.id, userInput.second);
+      result << username << " renamed to " << userInput.second << "\n";
     }
     else if (playerIdToLobbyIdMap
                  .find(message.connection.id) != playerIdToLobbyIdMap
                                                      .end())
     {
-      int lobbyid = playerIdToLobbyIdMap
-          [message.connection.id];
-      // quits both the lobby and the game
-      if (message.text == "quit")
-      {
-        playerIdToLobbyIdMap
-            .erase(message.connection.id);
-        server.disconnect(message.connection);
-      }
-      else if (message.text == "SVshutdown")
-      {
-        std::cout << "Shutting down.\n";
-        quit = true;
-        // quits the lobby but not the game, can still join an existing lobby
-      }
-      else if (message.text == "leave")
-      {
-        playerIdToLobbyIdMap
-            .erase(message.connection.id);
-        result << "lobby: " << lobbyid << " " << username << "> " << message.text << "\n";
-        result << "leaving lobby " << message.text << "\n";
-      }
-      else
-      {
-        result << "lobby: " << lobbyid << " " << username << "> " << message.text << "\n";
-      }
+      handleLobbyOperation(message, result, username, quit);
     }
     else
     {
-      if (message.text == "quit")
-      {
-        server.disconnect(message.connection);
-      }
-      else if (message.text == "SVshutdown")
-      {
-        std::cout << "Shutting down.\n";
-        quit = true;
-      }
-      else if (message.text == "create")
-      {
-        ++lobbyCounter;
-        playerIdToLobbyIdMap
-            .insert(std::make_pair(message.connection.id, lobbyCounter));
-        result << username << "> " << message.text << "\n";
-        result << "creating lobby " << lobbyCounter << "\n";
-        // should add the prompt after
-      }
-      else if (std::all_of(message.text.begin(), message.text.end(), isdigit))
-      {
-        playerIdToLobbyIdMap
-            .insert(std::make_pair(message.connection.id, std::stoi(message.text)));
-        result << username << "> " << message.text << "\n";
-        result << "joining lobby " << std::stoi(message.text) << "\n";
-      }
-      else
-      {
-        result << username << "> " << message.text << "\n";
-      }
+      handleNonLobbyOperation(message, result, username, quit);
     }
 
     if (playerIdToLobbyIdMap
