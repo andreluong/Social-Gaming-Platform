@@ -146,8 +146,7 @@ processMessages(Server &server, const std::deque<Message> &incoming)
 
     if (auto found = playerIdToLobbyIdMap.find(message.connection.id); found != playerIdToLobbyIdMap.end())
     {
-      results.push_back(processedMessage{result.str(), playerIdToLobbyIdMap
-                                                           [message.connection.id]});
+      results.push_back(processedMessage{result.str(), found->second});
     }
     else
     {
