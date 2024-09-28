@@ -41,6 +41,7 @@ public:
 class User {
 public:
     User(unsigned long int id, const std::string& name);
+    User(unsigned long int id);
     unsigned long int getId() const;
     std::string getName() const;
     void setName(const std::string& name);
