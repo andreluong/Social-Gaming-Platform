@@ -4,9 +4,10 @@
 #include <algorithm>
 
 // Server should generate a unique id upon User construction
-User::User(int id, const std::string& name) : id(id), name(name) {}
+User::User(unsigned long int id, const std::string& name) : id(id), name(name) {}
+User::User(unsigned long int id) : id(id), name("Unnamed " + std::to_string(id)) {}
 
-int User::getId() const {
+unsigned long int User::getId() const {
     return id;
 }
 
