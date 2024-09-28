@@ -7,6 +7,7 @@
 
 #include "Server.h"
 #include "lobby.h"
+#include "string_utils.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -16,7 +17,6 @@
 #include <algorithm>
 #include <map>
 #include <cstdlib>
-#include "User.h"
 
 using networking::Connection;
 using networking::Message;
@@ -24,10 +24,11 @@ using networking::Server;
 
 std::vector<Connection> clients;
 
+
 std::vector<int> lobbyIDs;
 std::vector<int> players;
 std::map<unsigned long int, int> playerIdToLobbyIdMap;
-std::map<unsigned long int, User> playerIdToInfoMap;
+std::map<unsigned long int, std::string> playerIdToUsernameMap;
 
 unsigned int lobbyCounter = 0;
 
@@ -66,9 +67,22 @@ processMessages(Server &server, const std::deque<Message> &incoming)
   {
     std::ostringstream result;
 
-    if (playerIdToLobbyIdMap
-            .find(message.connection.id) != playerIdToLobbyIdMap
-                                                .end())
+    std::pair<std::string, std::string> userInput = splitCommand(message.text);
+    const std::string username = playerIdToUsernameMap.count(message.connection.id) ? playerIdToUsernameMap.at(message.connection.id) : std::to_string(message.connection.id);
+
+    if (userInput.first == "rename" && userInput.second.length() > 0)
+    {
+      // Player does not have name yet
+      if (playerIdToUsernameMap.find(message.connection.id) == playerIdToUsernameMap
+                                                                   .end())
+      {
+        playerIdToUsernameMap.insert(std::make_pair(message.connection.id, userInput.second));
+        result << message.connection.id << " renamed to " << userInput.second << "\n";
+      }
+    }
+    else if (playerIdToLobbyIdMap
+                 .find(message.connection.id) != playerIdToLobbyIdMap
+                                                     .end())
     {
       int lobbyid = playerIdToLobbyIdMap
           [message.connection.id];
@@ -89,12 +103,12 @@ processMessages(Server &server, const std::deque<Message> &incoming)
       {
         playerIdToLobbyIdMap
             .erase(message.connection.id);
-        result << "lobby: " << lobbyid << " " << message.connection.id << "> " << message.text << "\n";
+        result << "lobby: " << lobbyid << " " << username << "> " << message.text << "\n";
         result << "leaving lobby " << message.text << "\n";
       }
       else
       {
-        result << "lobby: " << lobbyid << " " << message.connection.id << "> " << message.text << "\n";
+        result << "lobby: " << lobbyid << " " << username << "> " << message.text << "\n";
       }
     }
     else
@@ -113,7 +127,7 @@ processMessages(Server &server, const std::deque<Message> &incoming)
         ++lobbyCounter;
         playerIdToLobbyIdMap
             .insert(std::make_pair(message.connection.id, lobbyCounter));
-        result << message.connection.id << "> " << message.text << "\n";
+        result << username << "> " << message.text << "\n";
         result << "creating lobby " << lobbyCounter << "\n";
         // should add the prompt after
       }
@@ -121,12 +135,12 @@ processMessages(Server &server, const std::deque<Message> &incoming)
       {
         playerIdToLobbyIdMap
             .insert(std::make_pair(message.connection.id, std::stoi(message.text)));
-        result << message.connection.id << "> " << message.text << "\n";
+        result << username << "> " << message.text << "\n";
         result << "joining lobby " << std::stoi(message.text) << "\n";
       }
       else
       {
-        result << message.connection.id << "> " << message.text << "\n";
+        result << username << "> " << message.text << "\n";
       }
     }
 
