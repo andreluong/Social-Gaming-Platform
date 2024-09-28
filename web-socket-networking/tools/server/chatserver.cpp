@@ -28,7 +28,7 @@ std::vector<Connection> clients;
 
 std::vector<int> lobbyIDs;
 std::vector<int> players;
-std::map<unsigned long int, int> playerDic;
+std::map<unsigned long int, int> playerIdToLobbyIdMap;
 unsigned int lobbyCounter =  0;
 
 
@@ -68,18 +68,23 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
   for (const auto& message : incoming) {
     std::ostringstream result;
 
-    if (playerDic.find(message.connection.id) != playerDic.end()){
-      int lobbyid = playerDic[message.connection.id];
+    if (playerIdToLobbyIdMap
+  .find(message.connection.id) != playerIdToLobbyIdMap
+  .end()){
+      int lobbyid = playerIdToLobbyIdMap
+    [message.connection.id];
       // quits both the lobby and the game
       if (message.text == "quit") {
-        playerDic.erase(message.connection.id);
+        playerIdToLobbyIdMap
+      .erase(message.connection.id);
         server.disconnect(message.connection);
       } else if (message.text == "SVshutdown") {
         std::cout << "Shutting down.\n";
         quit = true;
       // quits the lobby but not the game, can still join an existing lobby
       } else if (message.text == "leave") {
-        playerDic.erase(message.connection.id);
+        playerIdToLobbyIdMap
+      .erase(message.connection.id);
         result << "lobby: " << lobbyid << " " << message.connection.id << "> " << message.text << "\n";
         result << "leaving lobby " << message.text << "\n";
       } else {
@@ -94,12 +99,14 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
         quit = true;
       } else if (message.text == "create") {
         ++lobbyCounter;
-        playerDic.insert(std::make_pair(message.connection.id, lobbyCounter));
+        playerIdToLobbyIdMap
+      .insert(std::make_pair(message.connection.id, lobbyCounter));
         result << message.connection.id << "> " << message.text << "\n";
         result << "creating lobby " << lobbyCounter << "\n";
         // should add the prompt after
       } else if (std::all_of(message.text.begin(), message.text.end(), isdigit)) {
-        playerDic.insert(std::make_pair(message.connection.id, std::stoi(message.text)));
+        playerIdToLobbyIdMap
+      .insert(std::make_pair(message.connection.id, std::stoi(message.text)));
         result << message.connection.id << "> " << message.text << "\n";
         result << "joining lobby " << std::stoi(message.text) << "\n";
       } else {
@@ -107,8 +114,11 @@ processMessages(Server& server, const std::deque<Message>& incoming) {
       }
     }
 
-    if (playerDic.find(message.connection.id) != playerDic.end()){
-      results.push_back(processedMessage{result.str(), playerDic[message.connection.id]});
+    if (playerIdToLobbyIdMap
+  .find(message.connection.id) != playerIdToLobbyIdMap
+  .end()){
+      results.push_back(processedMessage{result.str(), playerIdToLobbyIdMap
+    [message.connection.id]});
     }
     else{
       results.push_back(processedMessage{result.str(), 0});
@@ -124,8 +134,11 @@ buildOutgoing(const std::vector<processedMessage>& logs) {
   std::deque<Message> outgoing;
   for (auto log : logs){
     for (auto client : clients) {
-      if (playerDic.find(client.id) != playerDic.end()){
-        if(playerDic.at(client.id) == log.lobbyNum){
+      if (playerIdToLobbyIdMap
+    .find(client.id) != playerIdToLobbyIdMap
+    .end()){
+        if(playerIdToLobbyIdMap
+      .at(client.id) == log.lobbyNum){
           outgoing.push_back({client, log.msg});
         }
       }
