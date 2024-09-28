@@ -8,13 +8,16 @@ void inputChoice(Player& player,
                 int timeout,
                 networking::Server* server) {
     // Server should send prompt and choices to player
-    
-    // TODO: Fix choices conversion to string
-    std::string choicePrompt = prompt + ": " + choices.toString
-    networking::Message msg { connection, choicePrompt };
-    std::deque<Message> messages;
-    messages.push_back(choicePrompt);
-    networking::Server::send(messages);
+    std::string allChoices;
+    for (std::string x : choices) {
+        allChoices.append(x + " ");
+    }
+
+    std::string choicePrompt = prompt + ": " + allChoices;
+    networking::Message msg { networking::Connection{1}, choicePrompt }; // Temporary connection
+    std::deque<networking::Message> messages;
+    messages.push_back(msg);
+    server->send(messages);
 
     // TODO: Get input from player to be stored in target
 }

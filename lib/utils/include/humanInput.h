@@ -4,6 +4,8 @@
 #include "dataVariant.h"
 #include "Server.h"
 
+typedef int Player; // Temporary
+
 void inputChoice(Player* player, 
                 std::string prompt, 
                 std::vector<dataVariant> choices,
@@ -31,4 +33,4 @@ void inputVote(Player* player,
                 int timeout,
                 networking::Server* server);
 
-void getInput(Player* player, std::target& target);
+void getInput(Player* player, std::string& target);
