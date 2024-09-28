@@ -7,13 +7,16 @@
 
 
 #include "Server.h"
-
+#include "lobby.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <algorithm>
+#include <map>
+#include <cstdlib>
 
 
 using networking::Server;
@@ -22,6 +25,12 @@ using networking::Message;
 
 
 std::vector<Connection> clients;
+
+std::vector<int> lobbyIDs;
+std::vector<int> players;
+std::map<unsigned long int, int> playerDic;
+unsigned int lobbyCounter =  0;
+
 
 
 void
@@ -38,36 +47,92 @@ onDisconnect(Connection c) {
   clients.erase(eraseBegin, std::end(clients));
 }
 
+struct processedMessage {
+  std::string msg;
+  int lobbyNum;
+};
+
 
 struct MessageResult {
-  std::string result;
+  std::vector<processedMessage> result;
   bool shouldShutdown;
 };
 
 
 MessageResult
 processMessages(Server& server, const std::deque<Message>& incoming) {
-  std::ostringstream result;
   bool quit = false;
+  std::vector<processedMessage> results;
+
+
   for (const auto& message : incoming) {
-    if (message.text == "quit") {
-      server.disconnect(message.connection);
-    } else if (message.text == "shutdown") {
-      std::cout << "Shutting down.\n";
-      quit = true;
-    } else {
-      result << message.connection.id << "> " << message.text << "\n";
+    std::ostringstream result;
+
+    if (playerDic.find(message.connection.id) != playerDic.end()){
+      int lobbyid = playerDic[message.connection.id];
+      // quits both the lobby and the game
+      if (message.text == "quit") {
+        playerDic.erase(message.connection.id);
+        server.disconnect(message.connection);
+      } else if (message.text == "SVshutdown") {
+        std::cout << "Shutting down.\n";
+        quit = true;
+      // quits the lobby but not the game, can still join an existing lobby
+      } else if (message.text == "leave") {
+        playerDic.erase(message.connection.id);
+        result << "lobby: " << lobbyid << " " << message.connection.id << "> " << message.text << "\n";
+        result << "leaving lobby " << message.text << "\n";
+      } else {
+        result << "lobby: " << lobbyid << " " << message.connection.id << "> " << message.text << "\n";
+      }
+    }
+    else{
+      if (message.text == "quit") {
+        server.disconnect(message.connection);
+      } else if (message.text == "SVshutdown") {
+        std::cout << "Shutting down.\n";
+        quit = true;
+      } else if (message.text == "create") {
+        ++lobbyCounter;
+        playerDic.insert(std::make_pair(message.connection.id, lobbyCounter));
+        result << message.connection.id << "> " << message.text << "\n";
+        result << "creating lobby " << lobbyCounter << "\n";
+        // should add the prompt after
+      } else if (std::all_of(message.text.begin(), message.text.end(), isdigit)) {
+        playerDic.insert(std::make_pair(message.connection.id, std::stoi(message.text)));
+        result << message.connection.id << "> " << message.text << "\n";
+        result << "joining lobby " << std::stoi(message.text) << "\n";
+      } else {
+        result << message.connection.id << "> " << message.text << "\n";
+      }
+    }
+
+    if (playerDic.find(message.connection.id) != playerDic.end()){
+      results.push_back(processedMessage{result.str(), playerDic[message.connection.id]});
+    }
+    else{
+      results.push_back(processedMessage{result.str(), 0});
     }
   }
-  return MessageResult{result.str(), quit};
+
+  return MessageResult{results, quit};
 }
 
 
 std::deque<Message>
-buildOutgoing(const std::string& log) {
+buildOutgoing(const std::vector<processedMessage>& logs) {
   std::deque<Message> outgoing;
-  for (auto client : clients) {
-    outgoing.push_back({client, log});
+  for (auto log : logs){
+    for (auto client : clients) {
+      if (playerDic.find(client.id) != playerDic.end()){
+        if(playerDic.at(client.id) == log.lobbyNum){
+          outgoing.push_back({client, log.msg});
+        }
+      }
+      else{ // no lobby
+        outgoing.push_back({client, log.msg});
+      }
+    }
   }
   return outgoing;
 }
@@ -110,8 +175,8 @@ main(int argc, char* argv[]) {
     }
 
     const auto incoming = server.receive();
-    const auto [log, shouldQuit] = processMessages(server, incoming);
-    const auto outgoing = buildOutgoing(log);
+    const auto [logs, shouldQuit] = processMessages(server, incoming);
+    const auto outgoing = buildOutgoing(logs);
     server.send(outgoing);
 
     if (shouldQuit || errorWhileUpdating) {
