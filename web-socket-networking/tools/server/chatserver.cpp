@@ -144,9 +144,7 @@ processMessages(Server &server, const std::deque<Message> &incoming)
       handleNonLobbyOperation(message, result, username, quit);
     }
 
-    if (playerIdToLobbyIdMap
-            .find(message.connection.id) != playerIdToLobbyIdMap
-                                                .end())
+    if (auto found = playerIdToLobbyIdMap.find(message.connection.id); found != playerIdToLobbyIdMap.end())
     {
       results.push_back(processedMessage{result.str(), playerIdToLobbyIdMap
                                                            [message.connection.id]});
