@@ -6,6 +6,7 @@ add_subdirectory(game-logic)
 
 # add here
 #add_subdirectory(your_directory)
+add_subdirectory(lib)
 
 include(CTest)
 add_subdirectory(test)

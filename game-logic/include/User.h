@@ -5,7 +5,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include "Server.h"
+#include "humanInput.h"
 
 enum class RoleType {
     Player,
@@ -49,11 +50,17 @@ public:
     void removeRole(RoleType roleType);
     bool hasRole(RoleType roleType) const;
     void swapPlayerAudienceRoles();
+
+    networking::Connection getConnection() { return connection; };
+    void addResponse(networking::Message msg, HumanInputType inputType) { responses.insert({msg, inputType}); };
     
 private:
     unsigned long int id;
     std::string name;
     std::vector<std::shared_ptr<Role>> roles;
+
+    networking::Connection connection;
+    std::unordered_map<networking::Message, HumanInputType> responses;
 };
 
 #endif
