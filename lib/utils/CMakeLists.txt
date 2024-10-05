@@ -1,4 +1,5 @@
-add_library(utils listOperations.cpp humanInput.cpp controlStructures.cpp)
+add_library(utils listOperations.cpp humanInput.cpp controlStructures.cpp timing.cpp)
+# listOperations and humanInput currently causing build errors
 
 target_include_directories(utils
   PUBLIC
