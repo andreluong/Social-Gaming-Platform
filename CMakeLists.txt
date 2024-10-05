@@ -8,6 +8,7 @@ add_subdirectory(lib)
 
 # add here
 #add_subdirectory(your_directory)
+add_subdirectory(lib)
 
 include(CTest)
 add_subdirectory(test)

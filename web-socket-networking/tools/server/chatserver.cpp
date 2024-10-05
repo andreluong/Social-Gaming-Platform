@@ -17,6 +17,8 @@
 #include <algorithm>
 #include <map>
 #include <cstdlib>
+#include "User.h"
+#include "humanInput.h"
 
 using networking::Connection;
 using networking::Message;
@@ -56,7 +58,7 @@ struct MessageResult
   bool shouldShutdown;
 };
 
-void handleLobbyOperation(const Message &message, std::ostringstream &result, const std::string &username, bool &quit)
+void handleLobbyOperation(Server &server, const Message &message, std::ostringstream &result, const std::string &username, bool &quit)
 {
   int lobbyid = playerIdToLobbyIdMap[message.connection.id];
 
@@ -77,6 +79,10 @@ void handleLobbyOperation(const Message &message, std::ostringstream &result, co
     playerIdToLobbyIdMap.erase(message.connection.id);
     result << "lobby: " << lobbyid << " " << username << "> " << message.text << "\n";
     result << "leaving lobby " << message.text << "\n";
+  }
+  // Process user response to an input request if queue is not empty
+  else if (const auto inputRequestQueue = server.getInputRequestQueue(); !inputRequestQueue.empty()) {
+    processInputRequestQueue(inputRequestQueue, message, result);
   }
   else
   {
@@ -115,6 +121,31 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
   }
 };
 
+// Compares users from the inputRequestQueue with a message connection
+// If theres a match, add the message as a response for the user for an input request
+void processInputRequestQueue(std::unordered_map<User, HumanInputType> inputRequestQueue,
+                              const Message &message,
+                              std::ostringstream &result) 
+{
+  // Returns true if the map pair has the same connection id as message
+  auto userOwnsMessage = [&](std::pair<User, HumanInputType> userInput) -> bool {
+    userInput.first.getConnection().id == message.connection.id;
+  };
+  auto userIt = std::find_if(inputRequestQueue.begin(), inputRequestQueue.end(), userOwnsMessage);
+
+  // Saves response to user and remove user from inputRequestQueue
+  if (userIt != inputRequestQueue.end()) {
+    User owner = userIt->first;
+    owner.addResponse(message, userIt->second);
+    inputRequestQueue.erase(userIt);
+    result << "User chooses " << message.text << " as their response for input type:" << userIt->second << "\n";
+  } 
+  // No user owns message => throw error?
+  else {
+    result << "ERROR: No user owns the message: " << message.text << "\n";
+  }
+};
+
 MessageResult
 processMessages(Server &server, const std::deque<Message> &incoming)
 {
@@ -126,18 +157,22 @@ processMessages(Server &server, const std::deque<Message> &incoming)
     std::ostringstream result;
 
     std::pair<std::string, std::string> userInput = splitCommand(message.text);
-    const std::string username = playerIdToUsernameMap.count(message.connection.id) ? playerIdToUsernameMap.at(message.connection.id) : std::to_string(message.connection.id);
+    const std::string username = playerIdToUsernameMap.count(message.connection.id) 
+      ? playerIdToUsernameMap.at(message.connection.id) 
+      : std::to_string(message.connection.id);
 
+    // Rename command
     if (userInput.first == "rename" && userInput.second.length() > 0)
     {
       playerIdToUsernameMap.insert_or_assign(message.connection.id, userInput.second);
       result << username << " renamed to " << userInput.second << "\n";
     }
+    // Lobby and Global operations
     else if (playerIdToLobbyIdMap
                  .find(message.connection.id) != playerIdToLobbyIdMap
                                                      .end())
     {
-      handleLobbyOperation(message, result, username, quit);
+      handleLobbyOperation(server, message, result, username, quit);
     }
     else
     {

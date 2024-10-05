@@ -30,4 +30,15 @@ public:
     void updateScoreBoard(const std::string& playerName, int score);
     std::string getStatus() const;
     virtual void displayScoreBoard() const;
+
+    //for week 2
+    bool isGameFull() const;
+    int getCurrentRound() const;
+    void resetGame();
+    std::shared_ptr<User> findPlayerByID(int playerID) const;
+    bool isGameFull() const;  
+    void Game::nextRound();
+    int getScoreOfPlayer(const std::string& playerName) const;
+    bool isPlayerInGame(int playerID) const;
+    std::vector<std::string> Game::getPlayerNames() const;
 };

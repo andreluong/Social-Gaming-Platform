@@ -14,6 +14,8 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include "User.h"
+#include "humanInput.h"
 
 
 namespace networking {
@@ -130,6 +132,20 @@ public:
    *  Disconnect the Client specified by the given Connection.
    */
   void disconnect(Connection connection);
+  
+  /**
+   *  Returns the inputRequestQueue
+   */
+  std::unordered_map<User, HumanInputType> getInputRequestQueue() {
+    return inputRequestQueue;
+  };
+
+  /**
+   *  Adds a user and input type to inputRequestQueue
+   */
+  void addInputRequest(User user, HumanInputType inputType) {
+    inputRequestQueue.insert({user, inputType});
+  }
 
 private:
   friend class ServerImpl;
@@ -172,6 +188,9 @@ private:
 
   std::unique_ptr<ConnectionHandler> connectionHandler;
   std::unique_ptr<ServerImpl,ServerImplDeleter> impl;
+
+  // Holds requests for users for an input type
+  std::unordered_map<User, HumanInputType> inputRequestQueue;
 };
 
 #endif
