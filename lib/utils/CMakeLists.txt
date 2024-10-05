@@ -1,4 +1,4 @@
-add_library(utils listOperations.cpp humanInput.cpp)
+add_library(utils listOperations.cpp humanInput.cpp controlStructures.cpp)
 
 target_include_directories(utils
   PUBLIC
