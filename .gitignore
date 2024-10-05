@@ -37,3 +37,6 @@ build/
 
 # vscode
 .vscode/
+
+# script
+script.sh
