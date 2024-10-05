@@ -8,7 +8,7 @@ class Lobby{
     public:
         Lobby();
         ~Lobby();
-        int lobbyNumber;
+        unsigned int lobbyNumber;
         std::string inviteCode;
 
     private:

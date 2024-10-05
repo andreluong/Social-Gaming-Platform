@@ -49,11 +49,14 @@ public:
     void removeRole(RoleType roleType);
     bool hasRole(RoleType roleType) const;
     void swapPlayerAudienceRoles();
+    unsigned int getLobbyID() const;
+    void setLobbyID(unsigned int newLobbyID);
     
 private:
     unsigned long int id;
     std::string name;
     std::vector<std::shared_ptr<Role>> roles;
+    unsigned int lobbyID;
 };
 
 #endif

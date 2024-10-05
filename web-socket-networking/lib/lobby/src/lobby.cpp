@@ -1,10 +1,11 @@
 
 #include "lobby.h"
 
-int nextLobbyId = 1;
+unsigned int nextLobbyId = 1;
 
 Lobby::Lobby()
-:lobbyNumber(nextLobbyId++), inviteCode(tokenGenerator())
+:lobbyNumber(nextLobbyId++), 
+inviteCode(tokenGenerator())
 {
 
 }
