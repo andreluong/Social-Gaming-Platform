@@ -5,7 +5,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include "../../web-socket-networking/lib/lobby/include/lobby.h"
+#include "../../web-socket-networking/lib/lobby/src/lobby.cpp"
 
 enum class RoleType {
     Player,
@@ -49,14 +50,14 @@ public:
     void removeRole(RoleType roleType);
     bool hasRole(RoleType roleType) const;
     void swapPlayerAudienceRoles();
-    unsigned int getLobbyID() const;
-    void setLobbyID(unsigned int newLobbyID);
+    Lobby* getLobby() const;
+    void setLobby(Lobby* newLobby);
     
 private:
     unsigned long int id;
     std::string name;
     std::vector<std::shared_ptr<Role>> roles;
-    unsigned int lobbyID;
+    Lobby* lobby;
 };
 
 #endif

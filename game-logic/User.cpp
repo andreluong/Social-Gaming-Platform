@@ -8,11 +8,11 @@
 User::User(unsigned long int id, const std::string& name) : 
     id(id), 
     name(name),
-    lobbyID(0) {}
+    lobby(nullptr) {}
 User::User(unsigned long int id) : 
     id(id), 
     name("Unnamed " + std::to_string(id)), 
-    lobbyID(0) {}
+    lobby(nullptr) {}
 
 unsigned long int User::getId() const {
     return id;
@@ -22,12 +22,12 @@ std::string User::getName() const {
     return name;
 }
 
-unsigned int User::getLobbyID() const{
-    return lobbyID;
+Lobby* User::getLobby() const{
+    return lobby;
 }
 
-void User::setLobbyID(unsigned int newLobbyID) {
-    lobbyID = newLobbyID;
+void User::setLobby(Lobby* newLobby) {
+    lobby = newLobby;
 }
 
 void User::setName(const std::string& name) {
