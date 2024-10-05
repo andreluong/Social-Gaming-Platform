@@ -33,6 +33,7 @@
 
 # networkbuild folder
 networkbuild/
+build/
 
 # vscode
 .vscode/

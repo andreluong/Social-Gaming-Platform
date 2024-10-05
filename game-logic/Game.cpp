@@ -36,7 +36,9 @@ void Game::removePlayer(int playerID) {
     }
 }
 
-bool Game::canStart() const {}
+bool Game::canStart() const {
+    return players.size() >= 2;
+}
 
 void Game::endGame() {
     status = "Completed";
@@ -56,4 +58,57 @@ void Game::displayScoreBoard() const {
         std::cout << entry.first << ": " << entry.second << std::endl;
     }
 
+}
+//we find if a game is full by comparing no players wtih max
+bool Game::isGameFull() const {
+    return players.size() >= maxPlayers;
+}
+
+//to get the current game round
+int Game::getCurrentRound() const {
+    return currentRound;
+}
+
+//fun to move us to the next round
+void Game::nextRound() {
+    currentRound++;
+    std::cout << "Advancing to round " << currentRound << std::endl;
+}
+//for resetting the game
+void Game::resetGame() {
+    scoreBoard.clear();
+    players.clear();
+    currentRound = 0;
+    status = "Not Playing";
+    std::cout << "the game has been reset" << std::endl;
+}
+//fun to help us find a player by their id
+std::shared_ptr<User> Game::findPlayerByID(int playerID) const {
+    for (const auto& player : players) {
+        if (player->getId() == playerID) {
+            return player;
+        }
+    }
+    return nullptr; 
+}
+//fun to help us check if a particular player is in a game
+bool Game::isPlayerInGame(int playerID) const {
+    return findPlayerByID(playerID) != nullptr;
+}
+
+int Game::getScoreOfPlayer(const std::string& playerName) const {
+    auto it = scoreBoard.find(playerName);
+    if (it != scoreBoard.end()) {
+        return it->second;
+    }
+    return 0;
+}
+
+//another func to get a player by their name
+std::vector<std::string> Game::getPlayerNames() const {
+    std::vector<std::string> names;
+    for (const auto& player : players) {
+        names.push_back(player->getName());
+    }
+    return names;
 }
