@@ -13,10 +13,9 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <unordered_map>
-#include "User.h"
-#include "humanInput.h"
-
+#include <vector>
+// #include "User.h"
+// #include "humanInput.h"
 
 namespace networking {
 
@@ -66,6 +65,29 @@ class ServerImpl;
 struct ServerImplDeleter {
   void operator()(ServerImpl* serverImpl);
 };
+
+
+// Temporay fix before correct external library linking
+// TODO: Remove later
+enum HumanInputType {
+  CHOICE,
+  TEXT,
+  RANGE,
+  VOTE
+};
+
+class User {
+public:
+  Connection getConnection() { return connection; };
+  void addResponse(Message msg, HumanInputType inputType) { 
+    responses.push_back(std::make_pair(msg, inputType)); 
+  };
+
+private:
+  Connection connection;
+  std::vector<std::pair<Message, HumanInputType>> responses;
+};
+
 
 
 /**
@@ -136,7 +158,7 @@ public:
   /**
    *  Returns the inputRequestQueue
    */
-  std::unordered_map<User, HumanInputType> getInputRequestQueue() {
+  std::vector<std::pair<User, HumanInputType>> getInputRequestQueue() {
     return inputRequestQueue;
   };
 
@@ -144,7 +166,7 @@ public:
    *  Adds a user and input type to inputRequestQueue
    */
   void addInputRequest(User user, HumanInputType inputType) {
-    inputRequestQueue.insert({user, inputType});
+    inputRequestQueue.push_back(std::make_pair(user, inputType));
   }
 
 private:
@@ -190,7 +212,7 @@ private:
   std::unique_ptr<ServerImpl,ServerImplDeleter> impl;
 
   // Holds requests for users for an input type
-  std::unordered_map<User, HumanInputType> inputRequestQueue;
+  std::vector<std::pair<User, HumanInputType>> inputRequestQueue;
 };
 
 #endif
