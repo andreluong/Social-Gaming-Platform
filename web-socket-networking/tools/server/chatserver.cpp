@@ -17,8 +17,10 @@
 #include <algorithm>
 #include <map>
 #include <cstdlib>
-#include "User.h"
-#include "humanInput.h"
+#include <unordered_map>
+// TODO: Relook after correct linking
+// #include "User.h"
+// #include "humanInput.h"
 
 using networking::Connection;
 using networking::Message;
@@ -56,6 +58,32 @@ struct MessageResult
 {
   std::vector<processedMessage> result;
   bool shouldShutdown;
+};
+
+// TODO: Modify user and humanInputType after correct linking
+// Compares users from the inputRequestQueue with a message connection
+// If theres a match, add the message as a response for the user for an input request
+void processInputRequestQueue(std::vector<std::pair<networking::User, networking::HumanInputType>> inputRequestQueue,
+                              const Message &message,
+                              std::ostringstream &result) 
+{
+  // Returns true if the map pair has the same connection id as message
+  auto userOwnsMessage = [&](std::pair<networking::User, networking::HumanInputType> userInput) -> bool {
+    return userInput.first.getConnection().id == message.connection.id;
+  };
+  auto userIt = std::find_if(inputRequestQueue.begin(), inputRequestQueue.end(), userOwnsMessage);
+
+  // Saves response to user and remove user from inputRequestQueue
+  if (userIt != inputRequestQueue.end()) {
+    networking::User owner = userIt->first;
+    owner.addResponse(message, userIt->second);
+    inputRequestQueue.erase(userIt);
+    result << "User chooses " << message.text << " as their response for input type:" << userIt->second << "\n";
+  } 
+  // No user owns message => throw error?
+  else {
+    result << "ERROR: No user owns the message: " << message.text << "\n";
+  }
 };
 
 void handleLobbyOperation(Server &server, const Message &message, std::ostringstream &result, const std::string &username, bool &quit)
@@ -118,31 +146,6 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
   else
   {
     result << username << "> " << message.text << "\n";
-  }
-};
-
-// Compares users from the inputRequestQueue with a message connection
-// If theres a match, add the message as a response for the user for an input request
-void processInputRequestQueue(std::unordered_map<User, HumanInputType> inputRequestQueue,
-                              const Message &message,
-                              std::ostringstream &result) 
-{
-  // Returns true if the map pair has the same connection id as message
-  auto userOwnsMessage = [&](std::pair<User, HumanInputType> userInput) -> bool {
-    userInput.first.getConnection().id == message.connection.id;
-  };
-  auto userIt = std::find_if(inputRequestQueue.begin(), inputRequestQueue.end(), userOwnsMessage);
-
-  // Saves response to user and remove user from inputRequestQueue
-  if (userIt != inputRequestQueue.end()) {
-    User owner = userIt->first;
-    owner.addResponse(message, userIt->second);
-    inputRequestQueue.erase(userIt);
-    result << "User chooses " << message.text << " as their response for input type:" << userIt->second << "\n";
-  } 
-  // No user owns message => throw error?
-  else {
-    result << "ERROR: No user owns the message: " << message.text << "\n";
   }
 };
 
