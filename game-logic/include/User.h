@@ -5,7 +5,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "lobby.h"
 
+class Lobby;
 
 enum class RoleType {
     Player,
