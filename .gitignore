@@ -41,5 +41,8 @@ build/
 # script
 script.sh
 
-# .cache
+# cache
 .cache/
+
+# compile_commands from clangd
+app/compile_commands.json

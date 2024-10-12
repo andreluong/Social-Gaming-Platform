@@ -13,7 +13,6 @@
 #include <form.h>
 #include <ncurses.h>
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Hidden ChatWindow implementation
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +36,7 @@ public:
 
   void refreshWindow();
 
-  void displayText(const std::string& text);
+  void displayText(const std::string& text, MessageType type);
 
 private:
   std::function<void(std::string)> onTextEntry;
@@ -61,8 +60,15 @@ ChatWindowImpl::ChatWindowImpl(std::function<void(std::string)> onTextEntry,
                                int updateDelay)
   : onTextEntry{std::move(onTextEntry)} {
   initscr();
+  start_color();
   noecho();
   halfdelay(updateDelay);
+
+  // Initialize color pairs
+  init_pair(static_cast<int>(MessageType::Other), COLOR_BLUE, COLOR_BLACK);    // Other people
+  init_pair(static_cast<int>(MessageType::Self), COLOR_GREEN, COLOR_BLACK);   // Yourself
+  init_pair(static_cast<int>(MessageType::Server), COLOR_YELLOW, COLOR_BLACK);  // Game server announcer
+  init_pair(static_cast<int>(MessageType::GameState), COLOR_WHITE, COLOR_BLACK);   // Game state
 
   getmaxyx(stdscr, parentY, parentX);
 
@@ -157,10 +163,11 @@ ChatWindowImpl::refreshWindow() {
 
 
 void
-ChatWindowImpl::displayText(const std::string& text) {
-  // This variadic function is part of the curses interface.
-  // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg)
+ChatWindowImpl::displayText(const std::string& text, MessageType type) {
+  wattron(view, COLOR_PAIR(static_cast<int>(type)));
   wprintw(view, "%s", text.c_str());
+  wattroff(view, COLOR_PAIR(static_cast<int>(type)));
+  wrefresh(view);
 }
 
 
@@ -201,8 +208,8 @@ ChatWindow::update() {
 
 
 void
-ChatWindow::displayText(const std::string& text) {
-  impl->displayText(text);
+ChatWindow::displayText(const std::string& text, MessageType type) {
+  impl->displayText(text, type);
 }
 
 
