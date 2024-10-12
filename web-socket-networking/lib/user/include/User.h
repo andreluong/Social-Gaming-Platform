@@ -5,7 +5,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "lobby.h"
+// #include "../../web-socket-networking/lib/lobby/src/lobby.cpp"
 
+class Lobby;
 
 enum class RoleType {
     Player,
@@ -49,22 +52,14 @@ public:
     void removeRole(RoleType roleType);
     bool hasRole(RoleType roleType) const;
     void swapPlayerAudienceRoles();
-    Lobby* getLobby() const;
+    Lobby* getLobby();
     void setLobby(Lobby* newLobby);
-
-    // TODO: include after correct linking
-    // Connection getConnection() { return connection; };
-    // void addResponse(Message msg, HumanInputType inputType) { responses.push_back(std::make_pair(msg, inputType)); };
     
 private:
     unsigned long int id;
     std::string name;
     std::vector<std::shared_ptr<Role>> roles;
     Lobby* lobby;
-
-    // TODO: include after correct linking
-    // Connection connection;
-    // std::vector<std::pair<Message, HumanInputType>> responses;
 };
 
 #endif

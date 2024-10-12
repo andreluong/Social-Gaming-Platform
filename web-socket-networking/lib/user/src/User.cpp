@@ -1,7 +1,9 @@
-#include "include/User.h"
+// #include "include/User.h"
 
 #include <stdexcept>
 #include <algorithm>
+#include "User.h"
+#include "lobby.h"
 
 // Server should generate a unique id upon User construction
 // "Main Lobby" is number 0
@@ -22,7 +24,7 @@ std::string User::getName() const {
     return name;
 }
 
-Lobby* User::getLobby() const{
+Lobby* User::getLobby(){
     return lobby;
 }
 

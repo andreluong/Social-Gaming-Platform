@@ -3,18 +3,30 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
+#include "User.h"
+// #include "../../../../game-logic/include/User.h"
+class User;
 
 class Lobby{
     public:
         Lobby();
         ~Lobby();
-        int lobbyNumber;
         std::string inviteCode;
 
+        void addUser(User* user);
+        void removeUser(User* user);
+        std::vector<User*> getUsers();
+        unsigned int getLobbyNum() const;
+
+        bool operator==(const Lobby& other);
     private:
+        unsigned int lobbyNumber;
         char randLetter();
         int randDigit();
         std::string tokenGenerator();
+
+        std::vector<User*> users;
 };
 
 #endif
