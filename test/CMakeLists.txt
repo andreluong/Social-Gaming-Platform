@@ -3,6 +3,7 @@ add_subdirectory(gtest)
 add_executable(runAllTests
   #test_UserRoleManagement.cpp
   test_Timing.cpp
+  test_ListOperations.cpp
   # add here
   
 )

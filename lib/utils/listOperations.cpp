@@ -1,6 +1,5 @@
 #include "listOperations.h"
 #include <algorithm>
-#include <random>
 #include <map>
 
 // Appends the contents of expression to list
@@ -12,9 +11,8 @@ void reverse(std::vector<dataVariant>& list) {
     std::reverse(list.begin(), list.end());
 }
 
-void shuffle(std::vector<dataVariant>& list) {
-    std::random_device rd;
-    std::mt19937 gen(rd()); // Random generated seed
+void shuffle(std::vector<dataVariant>& list, RandomGenerator& rg) {
+    std::mt19937 gen(rg.seed()); // Random generated seed
     std::shuffle(list.begin(), list.end(), gen);
 }
 
