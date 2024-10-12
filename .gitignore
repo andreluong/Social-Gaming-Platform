@@ -40,3 +40,5 @@ build/
 
 # script
 script.sh
+
+.cache/
