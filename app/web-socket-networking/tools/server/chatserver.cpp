@@ -51,12 +51,9 @@ void deleteIfEmptyLobby(Lobby *lobby) {
   }
 }
 
-void onConnect(Connection c, Server server) {
+void onConnect(Connection c) {
   std::cout << "New connection found: " << c.id << "\n";
   User user(c.id);
-
-  // Send the connection ID back to the client
-  std::string connectionIdMessage = "Your ID: " + std::to_string(c.id);
 
   user.setLobby(&reception);
   reception.addUser(&user);
@@ -253,8 +250,7 @@ int main(int argc, char *argv[]) {
   }
 
   const unsigned short port = std::stoi(argv[1]);
-  Server server{port, getHTTPMessage(argv[2]),
-                [&server](Connection c) { onConnect(c, server); }, onDisconnect};
+  Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
 
   while (true) {
     bool errorWhileUpdating = false;
