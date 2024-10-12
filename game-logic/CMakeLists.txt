@@ -8,6 +8,7 @@ target_sources(game-logic-lib
     User.cpp
     Game.cpp
     RPS.cpp
+    lobby.cpp
 )
 target_include_directories(game-logic-lib
   PUBLIC

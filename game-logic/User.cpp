@@ -1,11 +1,18 @@
-#include "User.h"
+#include "include/User.h"
 
 #include <stdexcept>
 #include <algorithm>
 
 // Server should generate a unique id upon User construction
-User::User(unsigned long int id, const std::string& name) : id(id), name(name) {}
-User::User(unsigned long int id) : id(id), name("Unnamed " + std::to_string(id)) {}
+// "Main Lobby" is number 0
+User::User(unsigned long int id, const std::string& name) : 
+    id(id), 
+    name(name),
+    lobby(nullptr) {}
+User::User(unsigned long int id) : 
+    id(id), 
+    name("Unnamed " + std::to_string(id)), 
+    lobby(nullptr) {}
 
 unsigned long int User::getId() const {
     return id;
@@ -13,6 +20,14 @@ unsigned long int User::getId() const {
 
 std::string User::getName() const {
     return name;
+}
+
+Lobby* User::getLobby() const{
+    return lobby;
+}
+
+void User::setLobby(Lobby* newLobby) {
+    lobby = newLobby;
 }
 
 void User::setName(const std::string& name) {
