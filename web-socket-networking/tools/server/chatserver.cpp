@@ -17,6 +17,10 @@
 #include <algorithm>
 #include <map>
 #include <cstdlib>
+#include <unordered_map>
+// TODO: Relook after correct linking
+// #include "User.h"
+// #include "humanInput.h"
 #include "User.h"
 // #include "../../../game-logic/User.cpp"
 
@@ -83,7 +87,33 @@ struct MessageResult
   bool shouldShutdown;
 };
 
-void handleLobbyOperation(const Message &message, std::ostringstream &result, const std::vector<User>::iterator &user, bool &quit)
+// TODO: Modify user and humanInputType after correct linking
+// Compares users from the inputRequestQueue with a message connection
+// If theres a match, add the message as a response for the user for an input request
+void processInputRequestQueue(std::vector<std::pair<networking::User, networking::HumanInputType>> inputRequestQueue,
+                              const Message &message,
+                              std::ostringstream &result) 
+{
+  // Returns true if the map pair has the same connection id as message
+  auto userOwnsMessage = [&](std::pair<networking::User, networking::HumanInputType> userInput) -> bool {
+    return userInput.first.getConnection().id == message.connection.id;
+  };
+  auto userIt = std::find_if(inputRequestQueue.begin(), inputRequestQueue.end(), userOwnsMessage);
+
+  // Saves response to user and remove user from inputRequestQueue
+  if (userIt != inputRequestQueue.end()) {
+    networking::User owner = userIt->first;
+    owner.addResponse(message, userIt->second);
+    inputRequestQueue.erase(userIt);
+    result << "User chooses " << message.text << " as their response for input type:" << userIt->second << "\n";
+  } 
+  // No user owns message => throw error?
+  else {
+    result << "ERROR: No user owns the message: " << message.text << "\n";
+  }
+};
+
+void handleLobbyOperation(Server &server, const Message &message, std::ostringstream &result, const std::vector<User>::iterator &user, bool &quit)
 {
   // int lobbyid = playerIdToLobbyIdMap[message.connection.id];
   // auto user = std::find_if(users.begin(), users.end(), findUser(message.connection.id));
@@ -114,6 +144,10 @@ void handleLobbyOperation(const Message &message, std::ostringstream &result, co
     user.base()->setLobby(&reception);
     result << "lobby: " << lobbyid << " " << username << "> " << message.text << "\n";
     result << "leaving lobby " << message.text << "\n";
+  }
+  // Process user response to an input request if queue is not empty
+  else if (const auto inputRequestQueue = server.getInputRequestQueue(); !inputRequestQueue.empty()) {
+    processInputRequestQueue(inputRequestQueue, message, result);
   }
   else
   {
@@ -184,7 +218,7 @@ processMessages(Server &server, const std::deque<Message> &incoming)
     // checking if the user lobby is not referencing the reception
     if (user.base()->getLobby() != &reception)
     {
-      handleLobbyOperation(message, result, user, quit);
+      handleLobbyOperation(server, message, result, user, quit);
     }
     else
     {

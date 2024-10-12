@@ -1,6 +1,7 @@
 #pragma once
 
 #include <variant>
+#include <string>
 
 #ifndef DATAVARIANT_H
 #define DATAVARIANT_H
@@ -16,4 +17,4 @@ typedef std::variant<
     std::string
 > dataVariant;
 
-#endif DATAVARIANT_H
+#endif
