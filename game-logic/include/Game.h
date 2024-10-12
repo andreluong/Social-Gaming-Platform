@@ -23,8 +23,8 @@ public:
     // Virtual destructor for polymorphic deletion
     virtual ~Game();
     virtual void startGame();
-     void addPlayer(std::shared_ptr<User> player);
-    void removePlayer(int playerID);
+    bool addPlayer(std::shared_ptr<User> player);
+    bool removePlayer(int playerID);
     bool canStart() const;
     virtual void endGame();
     void updateScoreBoard(const std::string& playerName, int score);
@@ -36,9 +36,9 @@ public:
     int getCurrentRound() const;
     void resetGame();
     std::shared_ptr<User> findPlayerByID(int playerID) const;
-    bool isGameFull() const;  
-    void Game::nextRound();
+    // bool isGameFull() const;  
+    void nextRound();
     int getScoreOfPlayer(const std::string& playerName) const;
     bool isPlayerInGame(int playerID) const;
-    std::vector<std::string> Game::getPlayerNames() const;
+    std::vector<std::string> getPlayerNames() const;
 };
