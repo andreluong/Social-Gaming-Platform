@@ -5,8 +5,8 @@ FeatureToggle::FeatureToggle() {
 }
 
 void FeatureToggle::loadDefaults() {
-    featureMap["feature1"] = true;  // default ON
-    featureMap["feature2"] = false; // default OFF
+    featureMap["feature1"] = true;
+    featureMap["feature2"] = false;
 }
 
 void FeatureToggle::setEnabled(const std::string& feature, bool state) {
