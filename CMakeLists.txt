@@ -4,6 +4,7 @@ project(SocialGamingPlatform)
 # Add the game logic subdirectory
 add_subdirectory(game-logic)
 add_subdirectory(lib)
+add_subdirectory(web-socket-networking)
 
 include(CTest)
 add_subdirectory(test)

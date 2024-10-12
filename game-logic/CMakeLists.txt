@@ -6,6 +6,7 @@ add_library(game-logic-lib)
 target_sources(game-logic-lib
   PRIVATE
     User.cpp
+    lobby.cpp
 )
 target_include_directories(game-logic-lib
   PUBLIC

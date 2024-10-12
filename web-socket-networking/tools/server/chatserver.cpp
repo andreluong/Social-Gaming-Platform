@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "Server.h"
+#include "User.h"
 #include "lobby.h"
 #include "string_utils.h"
 #include <fstream>
@@ -21,7 +22,6 @@
 // TODO: Relook after correct linking
 // #include "User.h"
 // #include "humanInput.h"
-#include "User.h"
 // #include "../../../game-logic/User.cpp"
 
 using networking::Connection;
