@@ -1,15 +1,17 @@
 
 #include "lobby.h"
+#include "User.h"
 
-unsigned int nextLobbyId = 1;
+unsigned int nextLobbyId = 0;
 
 Lobby::Lobby() : inviteCode(tokenGenerator()), lobbyNumber(nextLobbyId++)
 {
+  std::cout << "yay u created the lobby " << lobbyNumber << std::endl;
 }
 
 Lobby::~Lobby()
 {
-  std::cout << "yay u deleted the structure" << std::endl;
+  std::cout << "yay u deleted the lobby " << lobbyNumber << std::endl;
 }
 
 char Lobby::randLetter()
@@ -51,4 +53,8 @@ std::vector<User *> Lobby::getUsers()
 unsigned int Lobby::getLobbyNum() const
 {
   return lobbyNumber;
+}
+
+bool Lobby::operator==(const Lobby& other){
+  return other.lobbyNumber == this->lobbyNumber;
 }

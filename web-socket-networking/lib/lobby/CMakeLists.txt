@@ -1,10 +1,15 @@
 add_library(lobby
-    # src/lobby.cpp
+    src/lobby.cpp
 )
 
 target_sources(lobby
     PRIVATE
         src/lobby.cpp
+)
+
+target_link_libraries(lobby
+    PUBLIC
+        user
 )
 
 target_include_directories(lobby

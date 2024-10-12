@@ -17,8 +17,8 @@
 #include <algorithm>
 #include <map>
 #include <cstdlib>
-#include "../../../game-logic/include/User.h"
-#include "../../../game-logic/User.cpp"
+#include "User.h"
+// #include "../../../game-logic/User.cpp"
 
 using networking::Connection;
 using networking::Message;
@@ -28,7 +28,7 @@ std::vector<Connection> clients;
 
 std::vector<User> users;
 Lobby reception = Lobby();
-std::vector<Lobby> lobs = {reception};
+std::vector<Lobby> lobs = {};
 
 
 // std::map<unsigned long int, int> playerIdToLobbyIdMap;
@@ -44,6 +44,7 @@ auto findUser = [](uintptr_t connectionID){
 void deleteIfEmptyLobby(Lobby *lobby){
   if (lobby->getUsers().size() == 0){
     auto found = std::find(lobs.begin(), lobs.end(), *lobby);
+    std::cout << found.base()->getLobbyNum() << std::endl;
     lobs.erase(found);
   }
 }
@@ -143,7 +144,7 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
   }
   else if (message.text == "create")
   {
-    lobs.push_back(Lobby());
+    lobs.emplace_back();
     
     user.base()->setLobby(&lobs.back());
     result << user.base()->getName() << "> " << message.text << "\n";
@@ -154,7 +155,7 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
     auto lobby = std::find_if(lobs.begin(), lobs.end(),
                           [message](const Lobby &l)
                           {
-                            l.getLobbyNum() == (uint)std::stol(message.text);
+                            return l.getLobbyNum() == (uint)std::stol(message.text);
                           });
     user.base()->setLobby(lobby.base());
     result << user.base()->getName() << "> " << message.text << "\n";

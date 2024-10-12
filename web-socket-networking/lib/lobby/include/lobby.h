@@ -4,7 +4,9 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include "../../../../game-logic/include/User.h"
+#include "User.h"
+// #include "../../../../game-logic/include/User.h"
+class User;
 
 class Lobby{
     public:
@@ -16,6 +18,8 @@ class Lobby{
         void removeUser(User* user);
         std::vector<User*> getUsers();
         unsigned int getLobbyNum() const;
+
+        bool operator==(const Lobby& other);
     private:
         unsigned int lobbyNumber;
         char randLetter();
