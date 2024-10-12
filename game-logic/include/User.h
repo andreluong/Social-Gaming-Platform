@@ -5,8 +5,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "Server.h"
-#include "humanInput.h"
 
 enum class RoleType {
     Player,
@@ -51,16 +49,18 @@ public:
     bool hasRole(RoleType roleType) const;
     void swapPlayerAudienceRoles();
 
-    networking::Connection getConnection() { return connection; };
-    void addResponse(networking::Message msg, HumanInputType inputType) { responses.insert({msg, inputType}); };
+    // TODO: include after correct linking
+    // Connection getConnection() { return connection; };
+    // void addResponse(Message msg, HumanInputType inputType) { responses.push_back(std::make_pair(msg, inputType)); };
     
 private:
     unsigned long int id;
     std::string name;
     std::vector<std::shared_ptr<Role>> roles;
 
-    networking::Connection connection;
-    std::unordered_map<networking::Message, HumanInputType> responses;
+    // TODO: include after correct linking
+    // Connection connection;
+    // std::vector<std::pair<Message, HumanInputType>> responses;
 };
 
 #endif

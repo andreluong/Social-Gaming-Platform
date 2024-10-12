@@ -31,12 +31,12 @@ void inParallel(std::vector<dataVariant>& statementList) {
 }
 
 void match(dataVariant expression, std::map<bool, std::vector<dataVariant>> expressionToStatementList) {
-    switch (expression) {
+    // switch (expression) {
         // map expression candidate to corresponding statement list
         /*
             expression == expressToStatement->first {
                 expressToStatement->second;
             }
         */ 
-    }
+    // }
 }

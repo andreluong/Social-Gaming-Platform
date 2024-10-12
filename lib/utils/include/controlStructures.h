@@ -2,7 +2,6 @@
 
 #include <vector>
 #include "dataVariant.h"
-#include "Server.h"
 #include <map>
 
 void forEach(
