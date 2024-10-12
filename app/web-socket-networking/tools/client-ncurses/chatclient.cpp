@@ -37,14 +37,14 @@ main(int argc, char* argv[]) {
     try {
       client.update();
     } catch (std::exception& e) {
-      chatWindow.displayText("Exception from Client update:");
-      chatWindow.displayText(e.what());
+      chatWindow.displayText("Exception from Client update:", MessageType::Server);
+      chatWindow.displayText(e.what(), MessageType::Server);
       done = true;
     }
 
     auto response = client.receive();
     if (!response.empty()) {
-      chatWindow.displayText(response);
+      chatWindow.displayText(response, MessageType::Other);
     }
     chatWindow.update();
   }
