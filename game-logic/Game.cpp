@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "User.h"
+#include <algorithm>
 
 Game::Game(int id, const std::string& name, int maxP)
     : gameID(id), gameName(name), maxPlayers(maxP), currentRound(0), status("Idle") {}

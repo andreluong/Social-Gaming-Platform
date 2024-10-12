@@ -36,9 +36,9 @@ public:
     int getCurrentRound() const;
     void resetGame();
     std::shared_ptr<User> findPlayerByID(int playerID) const;
-    bool isGameFull() const;  
-    void Game::nextRound();
+    // bool isGameFull() const;  
+    void nextRound();
     int getScoreOfPlayer(const std::string& playerName) const;
     bool isPlayerInGame(int playerID) const;
-    std::vector<std::string> Game::getPlayerNames() const;
+    std::vector<std::string> getPlayerNames() const;
 };
