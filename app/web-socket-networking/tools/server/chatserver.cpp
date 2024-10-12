@@ -9,6 +9,7 @@
 #include "User.h"
 #include "lobby.h"
 #include "string_utils.h"
+#include "featureToggle.h"
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -248,6 +249,11 @@ int main(int argc, char *argv[]) {
               << "  e.g. " << argv[0] << " 4002 ./webchat.html\n";
     return 1;
   }
+  FeatureToggle featureToggle;
+
+  if (featureToggle.isEnabled("feature1")) {
+    std::cout << "feature1 is toggled on" << std::endl;
+  };
 
   const unsigned short port = std::stoi(argv[1]);
   Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
