@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include <unistd.h>
-
 #include "ChatWindow.h"
 #include "Client.h"
 

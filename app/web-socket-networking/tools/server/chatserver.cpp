@@ -9,6 +9,7 @@
 #include "User.h"
 #include "lobby.h"
 #include "string_utils.h"
+#include "featureToggle.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -274,6 +275,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  FeatureToggle toggleSystem;
   const unsigned short port = std::stoi(argv[1]);
   Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
 

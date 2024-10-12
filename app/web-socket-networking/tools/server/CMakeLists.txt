@@ -16,6 +16,7 @@ target_link_libraries(chatserver
   networking
   game-logic-lib
   string_utils
+  feature-toggle
   ${CMAKE_THREAD_LIBS_INIT}
 )
 
