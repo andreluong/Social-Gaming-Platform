@@ -20,9 +20,29 @@ In test/CMakeLists.txt, add your test file and directory (the name used for add_
 Comment out other test files you want to ignore.\
 \
 
-Create a build directory located on the root folder
-cd into it\
-run:\
+Create a build directory located on the root folder and running it
+```
+// located in root folder
+mkdir build
+cd build
 cmake ../app
-make\
-test/runAllTests
+make
+./test/runAllTests
+```
+
+Brian's script to recompile and run server everytime.
+Make script.sh directly under root containing these 4 lines below
+
+```
+cmake -DCMAKE_CXX_STANDARD=23 -DCMAKE_EXPORT_COMPILE_COMMANDS=on ../app
+make
+cd web-socket-networking
+./bin/chatserver 8000 webchat.html
+```
+
+Then go to build folder and
+```
+../script.sh
+```
+
+If there is permission error, do `chmod +x ../script.sh`
