@@ -1,10 +1,8 @@
-#pragma once
+#ifndef DATAVARIANT_H
+#define DATAVARIANT_H
 
 #include <variant>
 #include <string>
-
-#ifndef DATAVARIANT_H
-#define DATAVARIANT_H
 
 // Handles many data types for lists
 // TODO: add models?
