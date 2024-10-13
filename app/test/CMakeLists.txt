@@ -1,12 +1,14 @@
 add_subdirectory(gtest)
 
 add_executable(runAllTests
+
   #test_UserRoleManagement.cpp
   #test_Timing.cpp
   #test_ListOperations.cpp
   #test_variablesAndExpressions.cpp
-  
-  # all above passing
+  test_FeatureToggle.cpp
+
+  # all above passing, one is left uncommented to avoid CMake Error no sources given
 
   # add here
   
@@ -17,10 +19,10 @@ target_link_libraries(runAllTests
     GTest::gmock GTest::gtest GTest::gtest_main
     game-logic-lib
     utils
+    feature-toggle
     # add here
 )
 
 add_test(NAME AllTests
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runAllTests
 )
-

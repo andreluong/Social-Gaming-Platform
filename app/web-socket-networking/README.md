@@ -135,4 +135,3 @@ Running the client requires starting a simple web server.
 
         cd bin/
         ./run_webassembly.py
-

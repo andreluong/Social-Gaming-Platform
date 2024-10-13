@@ -19,9 +19,10 @@ Create your test file in the test directory (like test_UserRoleManagement).\
 In test/CMakeLists.txt, add your test file and directory (the name used for add_library()) you are testing to target_link_libraries and add_executable, respectively.\
 Comment out other test files you want to ignore.\
 \
-Create a build directory on the same level of this project\
+
+Create a build directory located on the root folder
 cd into it\
 run:\
-cmake ../373-24-jjigae\
+cmake ../app
 make\
 test/runAllTests
