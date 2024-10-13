@@ -3,9 +3,9 @@ add_subdirectory(gtest)
 add_executable(runAllTests
 
   #test_UserRoleManagement.cpp
-  #test_Timing.cpp
-  #test_ListOperations.cpp
-  #test_variablesAndExpressions.cpp
+  test_Timing.cpp
+  test_ListOperations.cpp
+  test_variablesAndExpressions.cpp
   test_FeatureToggle.cpp
 
   # all above passing, one is left uncommented to avoid CMake Error no sources given
