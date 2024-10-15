@@ -39,7 +39,8 @@ build/
 .vscode/
 
 # script
-script.sh
+chat-script.sh
+server-script.sh
 
 # cache
 .cache/
