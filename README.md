@@ -52,13 +52,13 @@ To run chat terminal, go `./chat-script.sh`
 If there is permission error, do `chmod +x chat-script.sh` or `chmod +x server-script.sh`
 
 ## Script to run test
-Make chat-script.sh
+Make test-script.sh
 ```
 cd ./build/web-socket-networking
 ./bin/client-ncurses localhost 8000
 
 ```
 
-To run tests, go `./chat-script.sh`
+To run tests, go `./test-script.sh`
 
 If there is permission error, do `chmod +x test-script.sh`
