@@ -30,7 +30,7 @@ make
 ./test/runAllTests
 ```
 
-## Script to recompile and run server and chat everytime
+## Script to run server and chat
 
 Make server-script.sh directly under root containing these 4 lines below
 ```
@@ -46,6 +46,19 @@ cd ./build/web-socket-networking
 ./bin/client-ncurses localhost 8000
 ```
 To run server, go `./server-script.sh`
+
 To run chat terminal, go `./chat-script.sh`
 
 If there is permission error, do `chmod +x chat-script.sh` or `chmod +x server-script.sh`
+
+## Script to run test
+Make chat-script.sh
+```
+cd ./build/web-socket-networking
+./bin/client-ncurses localhost 8000
+
+```
+
+To run tests, go `./chat-script.sh`
+
+If there is permission error, do `chmod +x test-script.sh`
