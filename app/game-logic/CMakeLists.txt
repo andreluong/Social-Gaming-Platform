@@ -10,13 +10,21 @@ target_sources(game-logic-lib
     RPS.cpp
     lobby.cpp
 )
+
+target_link_libraries(game-logic-lib
+  PUBLIC 
+    networking
+    utils
+)
+
 target_include_directories(game-logic-lib
   PUBLIC
     include/
 )
+
 set_target_properties(game-logic-lib PROPERTIES
   LINKER_LANGUAGE CXX
-  CXX_STANDARD 17
+  CXX_STANDARD 20
 )
 
 add_executable(game-logic-demo demo.cpp)

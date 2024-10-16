@@ -21,9 +21,7 @@
 #include <unordered_map>
 #include <vector>
 // TODO: Relook after correct linking
-// #include "User.h"
 // #include "humanInput.h"
-// #include "../../../game-logic/User.cpp"
 
 using networking::Connection;
 using networking::Message;
@@ -54,7 +52,7 @@ void deleteIfEmptyLobby(Lobby *lobby) {
 
 void onConnect(Connection c) {
   std::cout << "New connection found: " << c.id << "\n";
-  User user(c.id);
+  User user(c.id, c);
 
   user.setLobby(&reception);
   reception.addUser(&user);
