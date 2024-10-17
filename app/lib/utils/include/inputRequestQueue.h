@@ -3,9 +3,9 @@
 
 #include <vector>
 #include "User.h"
-#include "humanInput.h"
 #include <optional>
 #include "Server.h"
+#include "humanInputType.h"
 
 class InputRequestQueue {
 public:

@@ -7,7 +7,7 @@
 #include <iostream>
 #include "lobby.h"
 #include "Server.h"
-#include "humanInput.h"
+#include "humanInputType.h"
 
 class Lobby;
 
@@ -65,7 +65,6 @@ private:
     std::vector<std::shared_ptr<Role>> roles;
     Lobby* lobby;
 
-    // TODO: include after correct linking
     networking::Connection connection;
     std::vector<std::pair<networking::Message, HumanInputType>> responses;
 };

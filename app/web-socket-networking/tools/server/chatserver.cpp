@@ -22,6 +22,7 @@
 #include <vector>
 #include "inputRequestQueue.h"
 #include "humanInput.h"
+#include "humanInputType.h"
 
 using networking::Connection;
 using networking::Message;
@@ -83,10 +84,8 @@ struct MessageResult {
   bool shouldShutdown;
 };
 
-// TODO: Modify user and humanInputType after correct linking
 // Compares users from the inputRequestQueue with a message connection
-// If theres a match, add the message as a response for the user for an input
-// request
+// If theres a match, add the message as a response for the user for an input request
 void processInputRequestQueue(InputRequestQueue inputRequestQueue, const Message &message, std::ostringstream &result) {
   auto requestOpt = inputRequestQueue.getRequestFromMessage(message);
   
@@ -97,8 +96,7 @@ void processInputRequestQueue(InputRequestQueue inputRequestQueue, const Message
     auto inputType = requestIt->second;
     owner.addResponse(message, inputType);
     inputRequestQueue.removeRequest(requestIt);
-    result << "User chooses " << message.text
-           << " as their response for input type:" << inputType << "\n";
+    result << "User chooses " << message.text << " as their response for input type:" << inputType << "\n";
 
   // No user owns message => throw error?
   } else {
