@@ -7,6 +7,7 @@
 #include <iostream>
 #include "lobby.h"
 #include "Server.h"
+#include "humanInput.h"
 
 class Lobby;
 
@@ -43,8 +44,8 @@ public:
 // Player and Audience roles cannot exist simultaneously
 class User {
 public:
-    User(unsigned long int id, const std::string& name, const networking::Connection &connection);
-    User(unsigned long int id, const networking::Connection &connection);
+    User(unsigned long int id, const std::string& name, networking::Connection connection);
+    User(unsigned long int id, networking::Connection connection);
 
     unsigned long int getId() const;
     std::string getName() const;
@@ -57,8 +58,7 @@ public:
     void setLobby(Lobby* newLobby);
 
     networking::Connection getConnection();
-    // void addResponse(Message msg, HumanInputType inputType) { responses.push_back(std::make_pair(msg, inputType)); };
-    
+    void addResponse(networking::Message msg, HumanInputType inputType);
 private:
     unsigned long int id;
     std::string name;
@@ -67,7 +67,7 @@ private:
 
     // TODO: include after correct linking
     networking::Connection connection;
-    // std::vector<std::pair<Message, HumanInputType>> responses;
+    std::vector<std::pair<networking::Message, HumanInputType>> responses;
 };
 
 #endif

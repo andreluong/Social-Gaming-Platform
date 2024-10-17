@@ -1,4 +1,13 @@
-add_library(utils listOperations.cpp humanInput.cpp controlStructures.cpp timing.cpp sharedListFunctions.tpp list.tpp mapList.tpp)
+add_library(utils 
+  listOperations.cpp 
+  humanInput.cpp 
+  controlStructures.cpp 
+  timing.cpp 
+  sharedListFunctions.tpp 
+  list.tpp 
+  mapList.tpp
+  inputRequestQueue.cpp
+)
 
 target_link_libraries(utils game-logic-lib)
 
