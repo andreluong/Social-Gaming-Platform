@@ -49,6 +49,7 @@ Comment out other test files you want to ignore.\
 
 Make server-script.sh directly under root containing these 4 lines below
 ```
+cd build
 cmake -DCMAKE_CXX_STANDARD=23 -DCMAKE_EXPORT_COMPILE_COMMANDS=on ../app
 make
 cd web-socket-networking
