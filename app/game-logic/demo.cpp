@@ -3,10 +3,20 @@
 #include "include/User.h"
 
 int main() {
-    User user(1, "Abby");
+    uintptr_t connA(80); 
+    uintptr_t connB(81); 
+    auto conn = networking::Connection(connA);
+
+    User user(1, "Abby", conn);
 
     std::cout << "User ID: " << user.getId() << "\n";
     std::cout << "User Name: " << user.getName() << "\n";
+
+    if (user.getConnection() != networking::Connection(connB) &&
+        user.getConnection() == networking::Connection(connA)) {
+        std::cout << "Connection is 80\n";
+    }
+
     user.setName("Bobby");
     std::cout << "User Name: " << user.getName() << "\n";
 
@@ -30,6 +40,7 @@ int main() {
 
     // expect exception thrown because Player and Audience can't coexist
     //user.addRole(playerRole);
+
    
     return 0;
 }

@@ -1,35 +1,52 @@
 #include "humanInput.h"
+#include "humanInputType.h"
 #include <ranges>
+#include <numeric>
+#include <format>
+
+// Create and send a message to a server
+static void sendMessage(User* user,
+                        std::string prompt, 
+                        networking::Server* server, 
+                        InputRequestQueue* queue,
+                        HumanInputType inputType) {
+    std::deque<networking::Message> messages;
+    const networking::Message msg{ user->getConnection(), prompt};
+    messages.push_back(msg);
+    server->send(messages);
+    queue->addInputRequest(*user, inputType);
+}
+
+// Join vector of choices to a string
+static std::string joinChoices(const std::vector<std::string_view>& choices) {
+    auto joinStringView = [](std::string str, std::string_view sv) {
+        return std::move(str) + (str.empty() ? "" : " ") + std::string(sv);
+    };
+    return std::accumulate(choices.begin(), choices.end(), std::string{}, joinStringView);
+}
 
 // This allows the player to make a multiple choice selection.
 void inputChoice(User *user,
                  std::string_view prompt,
                  std::vector<std::string_view> choices,
-                 std::string_view &target,
+                 std::string_view &target, // TODO: Figure out, user already has responses vector
                  int timeout,
-                 Server *server)
+                 networking::Server *server,
+                 InputRequestQueue *queue)
 {
-    // const auto allChoices = choices | std::views::join_with('; ');
-    // const std::string choicesPrompt = std::string(prompt) + ":\n" + allChoices;
-    // const Message msg{ 0 /*user->getConnection()*/, choicesPrompt};
-    
-    // std::deque<Message> messages;
-    // messages.push_back(msg);
-    // server->send(messages);
-    // server->addInputRequest(*user, CHOICE);
+    auto allChoices = joinChoices(choices);
+    auto choicesPrompt = std::format("{} :\n {}", prompt, allChoices);
+    sendMessage(user, choicesPrompt, server, queue, HumanInputType::CHOICE);
 }
 
 void inputText(User *user,
                std::string_view prompt,
                std::string_view &target,
                int timeout,
-               Server *server)
+               networking::Server *server,
+               InputRequestQueue *queue)
 {
-    // const Message msg{0 /*user->getConnection()*/, std::string(prompt)};
-    // std::deque<Message> messages;
-    // messages.push_back(msg);
-    // server->send(messages);
-    // server->addInputRequest(*user, TEXT);
+    sendMessage(user, std::string(prompt), server, queue, HumanInputType::TEXT);
 }
 
 void inputRange(User *user,
@@ -37,19 +54,15 @@ void inputRange(User *user,
                 std::pair<int, int> range,
                 std::string_view &target,
                 int timeout,
-                Server *server)
+                networking::Server *server,
+                InputRequestQueue *queue)
 {
-    const std::string_view rangePrompt = "Range is between " + 
-        std::to_string(range.first) + 
-        " and " + 
-        std::to_string(range.second);
-    const std::string totalPrompt = std::string(prompt) + ":\n" + std::string(rangePrompt);
-    // const Message msg{0 /*user->getConnection()*/, totalPrompt};
-
-    // std::deque<Message> messages;
-    // messages.push_back(msg);
-    // server->send(messages);
-    // server->addInputRequest(*user, RANGE);
+    auto rangePrompt = std::format("Range is between {} and {}", 
+        std::to_string(range.first), 
+        std::to_string(range.second)
+    );
+    auto totalPrompt = std::format("{} :\n {}", prompt, rangePrompt);
+    sendMessage(user, totalPrompt, server, queue, HumanInputType::RANGE);
 }
 
 void inputVote(User *user,
@@ -57,14 +70,10 @@ void inputVote(User *user,
                 std::vector<std::string_view> choices,
                 std::string &target,
                 int timeout,
-                Server *server) 
+                networking::Server *server,
+                InputRequestQueue *queue) 
 {
-    // const auto allChoices = choices | std::views::join_with('; ');
-    // const std::string choicesPrompt = std::string(prompt) + ":\n" + allChoices;
-    // const Message msg{0 /*user->getConnection()*/, choicesPrompt};
-
-    // std::deque<Message> messages;
-    // messages.push_back(msg);
-    // server->send(messages);
-    // server->addInputRequest(*user, VOTE);
+    auto allChoices = joinChoices(choices);
+    auto choicesPrompt = std::format("{} :\n {}", prompt, allChoices);
+    sendMessage(user, choicesPrompt, server, queue, HumanInputType::VOTE);
 }
