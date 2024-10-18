@@ -45,3 +45,37 @@ Comment out other test files you want to ignore.\
     ```
     test/runAllTests
     ```
+## Script to run server and chat
+
+Make server-script.sh directly under root containing these 4 lines below
+```
+cd build
+cmake -DCMAKE_CXX_STANDARD=23 -DCMAKE_EXPORT_COMPILE_COMMANDS=on ../app
+make
+cd web-socket-networking
+./bin/chatserver 8000 webchat.html
+```
+
+Make chat-script.sh
+```
+cd ./build/web-socket-networking
+./bin/client-ncurses localhost 8000
+```
+To run server, go `./server-script.sh`
+
+To run chat terminal, go `./chat-script.sh`
+
+If there is permission error, do `chmod +x chat-script.sh` or `chmod +x server-script.sh`
+
+## Script to run test
+
+Make test-script.sh
+```
+cd ./build/web-socket-networking
+./bin/client-ncurses localhost 8000
+
+```
+
+To run tests, go `./test-script.sh`
+
+If there is permission error, do `chmod +x test-script.sh`

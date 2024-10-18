@@ -38,8 +38,10 @@ build/
 # vscode
 .vscode/
 
-# script
-script.sh
+# scripts
+chat-script.sh
+server-script.sh
+test-script.sh
 
 # cache
 .cache/
