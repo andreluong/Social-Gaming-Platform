@@ -20,10 +20,9 @@
 #include <unistd.h>
 #include <unordered_map>
 #include <vector>
-// TODO: Relook after correct linking
-// #include "User.h"
-// #include "humanInput.h"
-// #include "../../../game-logic/User.cpp"
+#include "inputRequestQueue.h"
+#include "humanInput.h"
+#include "humanInputType.h"
 
 using networking::Connection;
 using networking::Message;
@@ -37,6 +36,9 @@ std::vector<Lobby> lobs = {};
 
 // std::map<unsigned long int, int> playerIdToLobbyIdMap;
 // std::map<unsigned long int, std::string> playerIdToUsernameMap;
+
+auto inputRequestQueue = InputRequestQueue();
+
 
 auto findUser = [](uintptr_t connectionID) {
   auto f = [=](const User &user) { return user.getId() == connectionID; };
@@ -54,7 +56,7 @@ void deleteIfEmptyLobby(Lobby *lobby) {
 
 void onConnect(Connection c) {
   std::cout << "New connection found: " << c.id << "\n";
-  User user(c.id);
+  User user(c.id, c);
 
   user.setLobby(&reception);
   reception.addUser(&user);
@@ -82,33 +84,22 @@ struct MessageResult {
   bool shouldShutdown;
 };
 
-// TODO: Modify user and humanInputType after correct linking
 // Compares users from the inputRequestQueue with a message connection
-// If theres a match, add the message as a response for the user for an input
-// request
-void processInputRequestQueue(
-    std::vector<std::pair<networking::User, networking::HumanInputType>>
-        inputRequestQueue,
-    const Message &message, std::ostringstream &result) {
-  // Returns true if the map pair has the same connection id as message
-  auto userOwnsMessage =
-      [&](std::pair<networking::User, networking::HumanInputType> userInput)
-      -> bool {
-    return userInput.first.getConnection().id == message.connection.id;
-  };
-  auto userIt = std::find_if(inputRequestQueue.begin(), inputRequestQueue.end(),
-                             userOwnsMessage);
+// If theres a match, add the message as a response for the user for an input request
+void processInputRequestQueue(InputRequestQueue inputRequestQueue, const Message &message, std::ostringstream &result) {
+  auto requestOpt = inputRequestQueue.getRequestFromMessage(message);
+  
+  // Saves response to user and removes request from inputRequestQueue
+  if (requestOpt.has_value()) {
+    auto requestIt = requestOpt.value();
+    auto owner = requestIt->first;
+    auto inputType = requestIt->second;
+    owner.addResponse(message, inputType);
+    inputRequestQueue.removeRequest(requestIt);
+    result << "User chooses " << message.text << " as their response for input type:" << inputType << "\n";
 
-  // Saves response to user and remove user from inputRequestQueue
-  if (userIt != inputRequestQueue.end()) {
-    networking::User owner = userIt->first;
-    owner.addResponse(message, userIt->second);
-    inputRequestQueue.erase(userIt);
-    result << "User chooses " << message.text
-           << " as their response for input type:" << userIt->second << "\n";
-  }
   // No user owns message => throw error?
-  else {
+  } else {
     result << "ERROR: No user owns the message: " << message.text << "\n";
   }
 };
@@ -144,8 +135,7 @@ void handleLobbyOperation(Server &server, const Message &message,
     result << "leaving lobby " << message.text << "\n";
   }
   // Process user response to an input request if queue is not empty
-  else if (const auto inputRequestQueue = server.getInputRequestQueue();
-           !inputRequestQueue.empty()) {
+  else if (!inputRequestQueue.isEmpty()) {
     processInputRequestQueue(inputRequestQueue, message, result);
   } else {
     result << "lobby: " << lobbyid << " " << username << "> " << message.text

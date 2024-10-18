@@ -5,14 +5,19 @@
 
 // Server should generate a unique id upon User construction
 // "Main Lobby" is number 0
-User::User(unsigned long int id, const std::string& name) : 
+User::User(unsigned long int id, const std::string& name, networking::Connection connection) : 
     id(id), 
     name(name),
-    lobby(nullptr) {}
-User::User(unsigned long int id) : 
+    lobby(nullptr),
+    connection(connection),
+    responses() {}
+
+User::User(unsigned long int id, networking::Connection connection) : 
     id(id), 
     name("Unnamed " + std::to_string(id)), 
-    lobby(nullptr) {}
+    lobby(nullptr),
+    connection(connection),
+    responses() {}
 
 unsigned long int User::getId() const {
     return id;
@@ -33,6 +38,14 @@ void User::setLobby(Lobby* newLobby) {
 void User::setName(const std::string& name) {
     this->name = name;
 }
+
+networking::Connection User::getConnection() {
+    return connection;
+}
+
+void User::addResponse(networking::Message msg, HumanInputType inputType) {
+    responses.push_back(std::make_pair(msg, inputType)); 
+};
 
 void User::addRole(std::shared_ptr<Role> role) {
     RoleType newRoleType = role->getType();
