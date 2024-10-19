@@ -7,7 +7,7 @@
 
 #include "Server.h"
 #include "User.h"
-#include "lobby.h"
+#include "Lobby.h"
 #include "string_utils.h"
 #include "featureToggle.h"
 #include <algorithm>
@@ -40,7 +40,7 @@ std::vector<Lobby> lobs = {};
 auto inputRequestQueue = InputRequestQueue();
 
 
-auto findUser = [](uintptr_t connectionID) {
+static auto findUser = [](uintptr_t connectionID) {
   auto f = [=](const User &user) { return user.getId() == connectionID; };
   // std::cout<<"i used the findUser function"<<std::endl;
   return f;

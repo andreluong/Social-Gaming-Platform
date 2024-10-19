@@ -1,7 +1,7 @@
 #include "LobbyManager.h"
 #include <algorithm>
 
-auto findUser = [](uintptr_t connectionID) {
+static auto findUser = [](uintptr_t connectionID) {
   auto f = [=](const User &user) { return user.getId() == connectionID; };
   return f;
 };
@@ -62,7 +62,7 @@ void LobbyManager::deleteIfLobbyEmpty(Lobby *lobby)
 
 Lobby* LobbyManager::findLobby(unsigned int lobbyNum)
 {
-    return &*find(lobbies.begin(), lobbies.end(), findLobby(lobbyNum));
+    return &* std::find_if(lobbies.begin(), lobbies.end(), findLob(lobbyNum));
 }
 
 unsigned int LobbyManager::getUserLobbyNum(uintptr_t cid)
@@ -77,10 +77,10 @@ Lobby* LobbyManager::getReception()
 
 std::vector<User>::iterator LobbyManager::findUserIt(uintptr_t cid)
 {
-    return find(users.begin(), users.end(), findUser(cid));
+    return std::find_if(users.begin(), users.end(), findUser(cid));
 }
 
 std::vector<Lobby>::iterator LobbyManager::findLobbyIt(unsigned int lobbyNum)
 {
-    return std::find(lobbies.begin(), lobbies.end(), findLob(lobbyNum));
+    return std::find_if(lobbies.begin(), lobbies.end(), findLob(lobbyNum));
 }

@@ -44,7 +44,7 @@ void Lobby::addUser(User *user)
 
 void Lobby::removeUser(User *user)
 {
-  auto userErase = remove_if(users.begin(), users.end(), user);
+  auto userErase = std::remove(users.begin(), users.end(), user);
   users.erase(userErase);
 }
 

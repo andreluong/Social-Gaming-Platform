@@ -57,6 +57,11 @@ public:
     Lobby* getLobby() const;
     void setLobby(Lobby* newLobby);
 
+    // const static std::function<std::function<bool (User)> (uintptr_t)> findUser = [](uintptr_t connectionID) {
+    //     auto f = [=](const User &user) { return user.getId() == connectionID; };
+    //     return f;
+    // };
+
     networking::Connection getConnection();
     void addResponse(networking::Message msg, HumanInputType inputType);
 private:
