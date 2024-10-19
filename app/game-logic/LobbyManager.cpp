@@ -6,6 +6,11 @@ auto findUser = [](uintptr_t connectionID) {
   return f;
 };
 
+auto findLob = [](unsigned int lobbyID){
+    auto f = [=](const Lobby &lobby){ return lobby.getLobbyNum() == lobbyID; };
+    return f;
+};
+
 LobbyManager::LobbyManager():
     reserveInc(10),
     reception(Lobby())
@@ -26,12 +31,14 @@ void LobbyManager::createUser(uintptr_t cid, networking::Connection c)
     reception.addUser(&user);
     user.setLobby(&reception);
 }
+
 void LobbyManager::deleteUser(uintptr_t cid)
 {
     auto userErase = std::remove_if(users.begin(), users.end(), findUser(cid));
-    userErase.base()->getLobby()->removeUser(userErase.base()); //remove user is currently unimplemented
+    userErase.base()->getLobby()->removeUser(userErase.base()); //removes user in the lobby
     users.erase(userErase);
 }
+
 void LobbyManager::createLobby()
 {
     if(lobbies.capacity() == lobbies.size()){
@@ -53,12 +60,27 @@ void LobbyManager::deleteIfLobbyEmpty(Lobby *lobby)
     }
 }
 
-Lobby* LobbyManager::findLobby()
+Lobby* LobbyManager::findLobby(unsigned int lobbyNum)
 {
-
+    return &*find(lobbies.begin(), lobbies.end(), findLobby(lobbyNum));
 }
 
 unsigned int LobbyManager::getUserLobbyNum(uintptr_t cid)
 {
-    
+    return findUserIt(cid).base()->getLobby()->getLobbyNum();
+}
+
+Lobby* LobbyManager::getReception()
+{
+    return &reception;
+}
+
+std::vector<User>::iterator LobbyManager::findUserIt(uintptr_t cid)
+{
+    return find(users.begin(), users.end(), findUser(cid));
+}
+
+std::vector<Lobby>::iterator LobbyManager::findLobbyIt(unsigned int lobbyNum)
+{
+    return std::find(lobbies.begin(), lobbies.end(), findLob(lobbyNum));
 }
