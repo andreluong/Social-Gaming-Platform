@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "lobby.h"
+#include "Lobby.h"
 #include "Server.h"
 #include "humanInputType.h"
 
