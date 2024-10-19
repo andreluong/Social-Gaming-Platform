@@ -6,24 +6,18 @@
 // Create a fixture for Lobby tests
 class LobbyTests : public ::testing::Test {
 protected:
-    Lobby* lobby;
-    User* user1;
-    User* user2;
-    User* user3;
+    std::shared_ptr<Lobby> lobby;
+    std::shared_ptr<User> user1;
+    std::shared_ptr<User> user2;
+    std::shared_ptr<User> user3;
 
     void SetUp() override {
-        lobby = new Lobby();
-        user1 = new User(1, "UserOne", networking::Connection{1});
-        user2 = new User(2, "UserTwo", networking::Connection{2});
-        user3 = new User(3, "UserThree", networking::Connection{3});
+        lobby = std::make_shared<Lobby>();
+        user1 = std::make_shared<User>(1, "UserOne", networking::Connection{1});
+        user2 = std::make_shared<User>(2, "UserTwo", networking::Connection{2});
+        user3 = std::make_shared<User>(3, "UserThree", networking::Connection{3});
     }
 
-    void TearDown() override {
-        delete lobby;
-        delete user1;
-        delete user2;
-        delete user3;
-    }
 };
 //the test cases
 // Goal: test lobby creation and invite code generation
@@ -164,9 +158,9 @@ TEST_F(LobbyTests, AddRemoveMultipleUsers) {
 }
 
 // Test creating multiple lobbies and ensuring unique lobby numbers
-TEST(LobbyStandaloneTests, MultipleLobbiesHaveUniqueNumbers) {
-    Lobby lobby1;
-    Lobby lobby2;
-    // to make sure lobbies have different lobby numbers
-    EXPECT_NE(lobby1.getLobbyNum(), lobby2.getLobbyNum());  
+TEST_F(LobbyTests, MultipleLobbiesHaveUniqueNumbers) {
+    auto lobby1 = std::make_shared<Lobby>();
+    auto lobby2 = std::make_shared<Lobby>();
+
+    EXPECT_NE(lobby1->getLobbyNum(), lobby2->getLobbyNum());
 }
