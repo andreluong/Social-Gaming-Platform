@@ -8,7 +8,8 @@ target_sources(game-logic-lib
     User.cpp
     Game.cpp
     RPS.cpp
-    lobby.cpp
+    Lobby.cpp
+    LobbyManager.cpp
 )
 
 target_link_libraries(game-logic-lib

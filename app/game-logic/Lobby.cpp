@@ -1,8 +1,9 @@
 
-#include "lobby.h"
+#include "Lobby.h"
 #include "User.h"
+#include <algorithm>
 
-unsigned int nextLobbyId = 0;
+static unsigned int nextLobbyId = 0;
 
 Lobby::Lobby() : inviteCode(tokenGenerator()), lobbyNumber(nextLobbyId++)
 {
@@ -43,6 +44,8 @@ void Lobby::addUser(User *user)
 
 void Lobby::removeUser(User *user)
 {
+  auto userErase = std::remove(users.begin(), users.end(), user);
+  users.erase(userErase);
 }
 
 std::vector<User *> Lobby::getUsers()
