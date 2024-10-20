@@ -7,14 +7,14 @@ include(cmake/CPM.cmake)
 CPMAddPackage(
   NAME cpp-tree-sitter
   GIT_REPOSITORY https://github.com/nsumner/cpp-tree-sitter.git
-  GIT_TAG v0.0.1
+  GIT_TAG v0.0.2                                        # newest 0.0.3 causes errors?
 )
 
 # Downloads a tree-sitter grammar from github and makes it available as a
 # cmake library target.
-add_grammar_from_repo(tree-sitter-json                 # Defines the library name for a grammar
-  https://github.com/tree-sitter/tree-sitter-json.git  # Repository URL of a tree-sitter grammar
-  0.19.0                                               # Version tag for the grammar
+add_grammar_from_repo(tree-sitter-socialgaming          # Defines the library name for a grammar
+  https://github.com/nsumner/tree-sitter-socialgaming   # Repository URL of a tree-sitter grammar
+  0.0.2                                                 # Version tag for the grammar
 )
 
 
@@ -24,10 +24,18 @@ add_executable(demo)
 
 target_sources(demo
   PRIVATE
-    demo.cpp
+    GameSpecificationFactory.cpp
+    Configuration.cpp
+    SetupRule.cpp
+    Constants.cpp
+
+    # add here
 )
+
+target_include_directories(demo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 target_link_libraries(demo
-  tree-sitter-json
+  tree-sitter-socialgaming
   cpp-tree-sitter
 )
 
