@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "../game-logic/include/lobby.h"
+#include "../game-logic/include/Lobby.h"
 #include "../game-logic/include/User.h"
 
 // Create a fixture for Lobby tests
