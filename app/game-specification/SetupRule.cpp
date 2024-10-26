@@ -1,20 +1,21 @@
 #include "SetupRule.h"
 #include <algorithm>
 
+std::unordered_map<std::string_view, SettingKind> kindMap = {
+    {"boolean", SettingKind::BOOLEAN},
+    {"integer", SettingKind::INTEGER},
+    {"string", SettingKind::STRING},
+    {"enum", SettingKind::ENUM},
+    {"question-answer", SettingKind::QUESTION_ANSWER},
+    {"multiple-choice", SettingKind::MULTIPLE_CHOICE},
+    {"json", SettingKind::JSON},
+};
+
 SetupRule::SetupRule(const std::string& name, SettingKind kind, const std::string& prompt,
                      std::optional<std::pair<int, int>> range, 
                      std::optional<std::unordered_map<std::string, std::string>> choices,
                      std::optional<std::variant<int, bool, std::string>> defaultValue)
     : name(name), kind(kind), prompt(prompt), range(range), choices(choices), defaultValue(defaultValue) {
-        kindMap = {
-            {"boolean", SettingKind::BOOLEAN},
-            {"integer", SettingKind::INTEGER},
-            {"string", SettingKind::STRING},
-            {"enum", SettingKind::ENUM},
-            {"question-answer", SettingKind::QUESTION_ANSWER},
-            {"multiple-choice", SettingKind::MULTIPLE_CHOICE},
-            {"json", SettingKind::JSON},
-        };
     }
 
 std::string SetupRule::getName() const {
