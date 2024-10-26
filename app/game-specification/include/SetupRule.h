@@ -46,6 +46,7 @@ private:
     std::optional<std::unordered_map<std::string, std::string>> choices; // is this necessary, will it be useful or make things harder later?
     // std::optional<std::string> defaultValue; // would have to accept multiple types
     std::optional<std::variant<int, bool, std::string>> defaultValue;
+    std::unordered_map<std::string_view, SettingKind> kindMap;
 
     // Something better than this?
 

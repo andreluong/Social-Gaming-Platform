@@ -5,7 +5,17 @@ SetupRule::SetupRule(const std::string& name, SettingKind kind, const std::strin
                      std::optional<std::pair<int, int>> range, 
                      std::optional<std::unordered_map<std::string, std::string>> choices,
                      std::optional<std::variant<int, bool, std::string>> defaultValue)
-    : name(name), kind(kind), prompt(prompt), range(range), choices(choices), defaultValue(defaultValue) {}
+    : name(name), kind(kind), prompt(prompt), range(range), choices(choices), defaultValue(defaultValue) {
+        kindMap = {
+            {"boolean", SettingKind::BOOLEAN},
+            {"integer", SettingKind::INTEGER},
+            {"string", SettingKind::STRING},
+            {"enum", SettingKind::ENUM},
+            {"question-answer", SettingKind::QUESTION_ANSWER},
+            {"multiple-choice", SettingKind::MULTIPLE_CHOICE},
+            {"json", SettingKind::JSON},
+        };
+    }
 
 std::string SetupRule::getName() const {
     return name;
@@ -35,44 +45,13 @@ void SetupRule::setName(std::string_view name) {
     this->name = name;
 }
 
-// this function allows us to evaluate at compile time
-constexpr SettingKind setKindHelper(std::string_view kind){
-    if(kind == "boolean"){
-        return SettingKind::BOOLEAN;
-    }
-    if(kind == "integer"){
-        return SettingKind::INTEGER;
-    }
-    if(kind == "string"){
-        return SettingKind::STRING;
-    }
-    if(kind == "enum"){
-        return SettingKind::ENUM;
-    }
-    if(kind == "question-answer"){
-        return SettingKind::QUESTION_ANSWER;
-    }
-    if(kind == "multiple-choice"){
-        return SettingKind::MULTIPLE_CHOICE;
-    }
-    if(kind == "json"){
-        return SettingKind::JSON;
-    }
-
-    return SettingKind::NONE;
-}
-
-// ???
 void SetupRule::setKind(std::string_view strKind) {
-    SettingKind kind = setKindHelper(strKind);
-    this->kind = kind;
+    this->kind = kindMap[strKind];
 }
 
 void SetupRule::setPrompt(std::string_view prompt) {
     this->prompt = prompt;
 }
-
-
 
 // expected string in range: "(num1, num2)"
 void SetupRule::setRange(std::string_view rangeStr) {
@@ -108,8 +87,8 @@ void SetupRule::setChoices(std::string_view choicesStr) {
 
     std::vector<unsigned int> apostropheLoc;
     int apostropheIndex = choicesStr.find('\'');
-    // grabs the location of the '\'', which are the elements to be added to our map
 
+    // grabs the location of the '\'', which are the elements to be added to our map
     while(apostropheIndex != std::string_view::npos){
         apostropheLoc.push_back(apostropheIndex);
         apostropheIndex = choicesStr.find('\'', apostropheIndex + 1);
