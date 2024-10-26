@@ -249,32 +249,32 @@ private:
              ts::Node setupRuleKindNode = setupRuleNode.getChildByFieldName("kind");
             if (!setupRuleKindNode.isNull()) {
                 std::cout << "exists2\n";
-                //setupRule.set
+                setupRule.setKind(setupRuleKindNode.getSourceRange(sourceCode));
             }
 
              ts::Node setupRulePromptNode = setupRuleNode.getChildByFieldName("prompt");
             if (!setupRulePromptNode.isNull()) {
                 std::cout << "exists3\n";
-                //setupRule.set
+                setupRule.setPrompt(setupRulePromptNode.getSourceRange(sourceCode));
             }
 
              ts::Node setupRuleRangeNode = setupRuleNode.getChildByFieldName("range");
             if (!setupRuleRangeNode.isNull()) {
                 std::cout << "exists4\n";
-                //setupRule.set
+                setupRule.setRange(setupRuleRangeNode.getSourceRange(sourceCode));
             }
 
             // TODO: Use EnumDescription
              ts::Node setupRuleChoicesNode = setupRuleNode.getChildByFieldName("choices");
             if (!setupRuleChoicesNode.isNull()) {
                 std::cout << "exists5\n";
-                //setupRule.set
+                setupRule.setChoices(setupRuleChoicesNode.getSourceRange(sourceCode));
             }
 
              ts::Node setupRuleDefaultNode = setupRuleNode.getChildByFieldName("default");
             if (!setupRuleDefaultNode.isNull()) {
                 std::cout << "exists6\n";
-                //setupRule.set
+                setupRule.setDefaultValue(setupRuleDefaultNode.getSourceRange(sourceCode));
             }
 
             // have not tested thoroughly yet
