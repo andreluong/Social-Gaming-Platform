@@ -26,11 +26,6 @@ void ValueMap::printValues() const {
     }
 }
 
-// Add a new value to the map
-void ValueMap::addValue(const std::string& name, const ValueType& value) {
-    values[name] = value;
-}
-
 // Set an existing value by name (key)
 void ValueMap::setValue(const std::string& name, const ValueType& value) {
     values[name] = value;
