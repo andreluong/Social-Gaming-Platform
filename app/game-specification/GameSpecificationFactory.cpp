@@ -402,7 +402,7 @@ std::string parseList(ts::Node listNode) {
                 
                 // then we can fill the Constants object with parsed keyVal pairs
                 for (const auto& [key, value] : constantsMap) {
-                    constants.addValue(key, value);
+                    constants.setValue(key, value);
                 }
 
                 // Debug output to confirm parsed constants
