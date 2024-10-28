@@ -252,24 +252,24 @@ std::string parseList(ts::Node listNode) {
     return ss.str();
 }
 
-// Helper to parse a nested map within a map entry ret formatted as a string
-std::string parseNestedMap(ts::Node nestedMapNode) {
-    auto nestedMap = parseValueMap(nestedMapNode);
-    std::stringstream ss;
-    ss << "{";
+    // Helper to parse a nested map within a map entry ret formatted as a string
+    std::string parseNestedMap(ts::Node nestedMapNode) {
+        auto nestedMap = parseValueMap(nestedMapNode);
+        std::stringstream ss;
+        ss << "{";
 
-    int count = 0;
-    for (const auto& [key, value] : nestedMap) {
-        ss << key << ": " << value;
-        if (count < nestedMap.size() - 1) {
-            ss << ", ";
+        int count = 0;
+        for (const auto& [key, value] : nestedMap) {
+            ss << key << ": " << value;
+            if (count < nestedMap.size() - 1) {
+                ss << ", ";
+            }
+            count++;
         }
-        count++;
-    }
 
-    ss << "}";
-    return ss.str();
-}
+        ss << "}";
+        return ss.str();
+    }
 
     // maybe refactor and add helper parsers for kind, choice, and default; and remove setters?
 
@@ -388,40 +388,37 @@ std::string parseNestedMap(ts::Node nestedMapNode) {
 
     // TODO: unimplemented from here on
 
-//for parsing the constants part
-void parseConstants() {
-        ts::Node constantsNode = root->getChildByFieldName("constants");
-        if (!constantsNode.isNull()) {
-        
-        // Retrieve the map node within constants
-        ts::Node mapNode = constantsNode.getChildByFieldName("map");
-        
-        if (!mapNode.isNull()) {
-            // then we can just parse the mapNode for keyVal pairs
-            auto constantsMap = parseValueMap(mapNode);
+    //for parsing the constants part
+    void parseConstants() {
+            ts::Node constantsNode = root->getChildByFieldName("constants");
+            if (!constantsNode.isNull()) {
             
-            // then we can fill the Constants object with parsed keyVal pairs
-            for (const auto& [key, value] : constantsMap) {
-                constants.addValue(key, value);
+            // Retrieve the map node within constants
+            ts::Node mapNode = constantsNode.getChildByFieldName("map");
+            
+            if (!mapNode.isNull()) {
+                // then we can just parse the mapNode for keyVal pairs
+                auto constantsMap = parseValueMap(mapNode);
+                
+                // then we can fill the Constants object with parsed keyVal pairs
+                for (const auto& [key, value] : constantsMap) {
+                    constants.addValue(key, value);
+                }
+
+                // Debug output to confirm parsed constants
+                std::cout << "Parsed Constants:" << std::endl;
+                for (const auto& [key, value] : constants.getValues()) {
+                    std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
+                }
+                
+            } else {
+                std::cerr << "no constants map" << std::endl;
             }
 
-            // Debug output to confirm parsed constants
-            std::cout << "Parsed Constants:" << std::endl;
-            for (const auto& [key, value] : constants.getValues()) {
-                std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
-            }
-            
         } else {
-            std::cerr << "no constants map" << std::endl;
+            std::cerr << "no constants in the file" << std::endl;
         }
-
-    } else {
-        std::cerr << "no constants in the file" << std::endl;
     }
-}
-
-
-
 
     void parseVariables() {
         auto variablesNode = root->getChildByFieldName("variables");
