@@ -27,7 +27,7 @@ target_sources(demo
     GameSpecificationFactory.cpp
     Configuration.cpp
     SetupRule.cpp
-    Constants.cpp
+    ValueMap.cpp
 
     # add here
 )
