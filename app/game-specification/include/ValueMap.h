@@ -26,7 +26,6 @@ private:
     std::unordered_map<std::string, ValueType> values;
 
     // Private setters accessible only by friend class
-    void addValue(const std::string& name, const ValueType& value);
     void setValue(const std::string& name, const ValueType& value);
 
     // Only friend class should access setters
