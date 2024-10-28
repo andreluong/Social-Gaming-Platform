@@ -20,6 +20,28 @@
 #include <unordered_map>
 #include <cpp-tree-sitter.h>
 
+//enum class to represent different type since using string literals isn't the best
+enum class NodeType {
+    QuotedString,
+    ListLiteral,
+    ValueMap,
+    Unknown
+};
+
+// A function to map string types to enums
+NodeType getNodeType(const std::string& nodeType) {
+    if (nodeType == "quoted_string") {
+        return NodeType::QuotedString;
+    } else if (nodeType == "list_literal") {
+        return NodeType::ListLiteral;
+    } else if (nodeType == "value_map") {
+        return NodeType::ValueMap;
+    } else {
+        return NodeType::Unknown;
+    }
+}
+
+
 
 /* TODO ideas: 
 
@@ -165,17 +187,87 @@ private:
     }
 
     // Just string to string for now; not correct yet, find comment: // Trying to figure out how to implement parseValueMap
-
+    // Supports values of type: quoted_string, list_literal, and nested value_map
     std::unordered_map<std::string, std::string> parseValueMap(ts::Node mapNode) {
         std::unordered_map<std::string, std::string> valueMap;
-        for (int i = 0; i < mapNode.getNumNamedChildren(); ++i) {
-            auto pairNode = mapNode.getNamedChild(i);
-            std::string key = std::string(pairNode.getChild(0).getSourceRange(sourceCode));
-            std::string value = std::string(pairNode.getChild(1).getSourceRange(sourceCode));
-            valueMap[key] = value;
+    for (int i = 0; i < mapNode.getNumNamedChildren(); ++i) {
+        ts::Node pairNode = mapNode.getNamedChild(i);
+        // Ensure the pair node has a key and a value
+        if (pairNode.getNumChildren() < 2) {
+            std::cerr << "no children" << std::endl;
+            continue;
         }
-        return valueMap;
+        // get the key from map entry
+        std::string key = std::string(pairNode.getChildByFieldName("key").getSourceRange(sourceCode));
+        ts::Node valueNode = pairNode.getChildByFieldName("value");
+        std::string value;
+
+        // for the the type of the valueNode uses the enum class that i created at the top
+        NodeType type = getNodeType(std::string(valueNode.getType()));
+
+        switch (type) {
+            //i think it is unavoidable to get the feild names by their "names" for
+            //TODO: try more dynamic ways to avoid this
+            case NodeType::QuotedString:
+                value = std::string(valueNode.getChildByFieldName("contents").getSourceRange(sourceCode));
+                break;
+            case NodeType::ListLiteral:
+                value = parseList(valueNode);
+                break;
+            case NodeType::ValueMap:
+                value = parseNestedMap(valueNode);
+                break;
+            
+            default:
+                // Default case, use raw text as value
+                value = std::string(valueNode.getSourceRange(sourceCode));
+                break;
+        }
+
+        // Debug output to confirm the parsed key-value pair
+        std::cout << "Parsed keyValue pair: " << key << " : " << value << std::endl;
+
+        // Add the key-value pair to the map
+        valueMap[key] = value;
     }
+
+    return valueMap;
+}
+// Helper to parse a list like [ "Rock", "Paper", "Scissors" ] & ret as a formatted string
+std::string parseList(ts::Node listNode) {
+    std::stringstream ss;
+    ss << "[";
+
+    for (int i = 0; i < listNode.getNumNamedChildren(); ++i) {
+        ts::Node elementNode = listNode.getNamedChild(i);
+        ss << elementNode.getSourceRange(sourceCode);
+        if (i < listNode.getNumNamedChildren() - 1) {
+            ss << ", ";
+        }
+    }
+
+    ss << "]";
+    return ss.str();
+}
+
+// Helper to parse a nested map within a map entry ret formatted as a string
+std::string parseNestedMap(ts::Node nestedMapNode) {
+    auto nestedMap = parseValueMap(nestedMapNode);
+    std::stringstream ss;
+    ss << "{";
+
+    int count = 0;
+    for (const auto& [key, value] : nestedMap) {
+        ss << key << ": " << value;
+        if (count < nestedMap.size() - 1) {
+            ss << ", ";
+        }
+        count++;
+    }
+
+    ss << "}";
+    return ss.str();
+}
 
     // maybe refactor and add helper parsers for kind, choice, and default; and remove setters?
 
@@ -294,10 +386,40 @@ private:
 
     // TODO: unimplemented from here on
 
-    void parseConstants() {
-        auto constantsNode = root->getChildByFieldName("name");
-        //constants = Constants(parseValueMap(constantsNode));
+//for parsing the constants part
+void parseConstants() {
+        ts::Node constantsNode = root->getChildByFieldName("constants");
+        if (!constantsNode.isNull()) {
+        
+        // Retrieve the map node within constants
+        ts::Node mapNode = constantsNode.getChildByFieldName("map");
+        
+        if (!mapNode.isNull()) {
+            // then we can just parse the mapNode for keyVal pairs
+            auto constantsMap = parseValueMap(mapNode);
+            
+            // then we can fill the Constants object with parsed keyVal pairs
+            for (const auto& [key, value] : constantsMap) {
+                constants.addConstant(key, value);
+            }
+
+            // Debug output to confirm parsed constants
+            std::cout << "Parsed Constants:" << std::endl;
+            for (const auto& [key, value] : constants.getConstants()) {
+                std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
+            }
+            
+        } else {
+            std::cerr << "no constants map" << std::endl;
+        }
+
+    } else {
+        std::cerr << "no constants in the file" << std::endl;
     }
+}
+
+
+
 
     // void parseVariables() {
     //     auto variablesNode = root->getChildByFieldName("variables");

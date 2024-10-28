@@ -8,6 +8,7 @@ add_executable(runAllTests
   test_variablesAndExpressions.cpp
   test_FeatureToggle.cpp
   test_LobbyClass.cpp
+  test_GameClass.cpp
 
   # all above passing, one is left uncommented to avoid CMake Error no sources given
 

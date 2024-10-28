@@ -1,6 +1,7 @@
 #include "Constants.h"
 #include <iostream>
-
+#include <string>
+#include <unordered_map>
 
 std::unordered_map<std::string, ValueType> Constants::getConstants() const {
     return constants;
