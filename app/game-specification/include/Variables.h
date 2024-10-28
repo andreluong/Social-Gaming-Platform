@@ -1,20 +1,11 @@
+#include "ValueMap.h"
+
 #ifndef VARIABLES_H
 #define VARIABLES_H
 
-#include <unordered_map>
-#include <string>
-
-class Variables {
+class Variables : public ValueMap {
 public:
-    Variables(const std::unordered_map<std::string, std::string>& variablesMap)
-        : variablesMap(variablesMap) {}
-
-    std::unordered_map<std::string, std::string> getVariables() const {
-        return variablesMap;
-    }
-
-private:
-    std::unordered_map<std::string, std::string> variablesMap;
+  Variables() = default;
 };
 
 #endif

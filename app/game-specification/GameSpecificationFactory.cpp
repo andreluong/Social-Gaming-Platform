@@ -2,9 +2,11 @@
 #include "SetupRule.h"
 #include "EnumDescription.h"
 #include "Constants.h"
+#include "ValueMap.h"
 #include "Variables.h"
 #include "PerPlayer.h"
 #include "PerAudience.h"
+// #include "PerUser.h"
 #include "Rules.h"
 
 #include <cassert>
@@ -130,9 +132,9 @@ public:
     void parseGameSpecification() {
         parseConfiguration();
         parseConstants();
-        // parseVariables();
-        // parsePerPlayer();
-        // parsePerAudience();
+        parseVariables();
+        parsePerPlayer();
+        parsePerAudience();
         // parseRules();
         
     }
@@ -145,17 +147,17 @@ public:
         return constants;
     }
 
-    // Variables getVariables() {
-    //     return variables;
-    // }
+    Variables getVariables() {
+        return variables;
+    }
 
-    // PerPlayer getPerPlayer() {
-    //     return perPlayer;
-    // }
+    PerPlayer getPerPlayer() {
+        return perPlayer;
+    }
 
-    // PerAudience getPerAudience() {
-    //     return perAudience;
-    // }
+    PerAudience getPerAudience() {
+        return perAudience;
+    }
 
     // Rules getRules() {
     //     return rules;
@@ -172,9 +174,9 @@ private:
     // Objects to hold the parsed data
     Configuration configuration = {"", {0, 0}, true}; // Defaults
     Constants constants;
-    // Variables variables;
-    // PerPlayer perPlayer;
-    // PerAudience perAudience;
+    Variables variables;
+    PerPlayer perPlayer;
+    PerAudience perAudience;
     // Rules rules;
 
     // Helper methods
@@ -250,24 +252,24 @@ std::string parseList(ts::Node listNode) {
     return ss.str();
 }
 
-// Helper to parse a nested map within a map entry ret formatted as a string
-std::string parseNestedMap(ts::Node nestedMapNode) {
-    auto nestedMap = parseValueMap(nestedMapNode);
-    std::stringstream ss;
-    ss << "{";
+    // Helper to parse a nested map within a map entry ret formatted as a string
+    std::string parseNestedMap(ts::Node nestedMapNode) {
+        auto nestedMap = parseValueMap(nestedMapNode);
+        std::stringstream ss;
+        ss << "{";
 
-    int count = 0;
-    for (const auto& [key, value] : nestedMap) {
-        ss << key << ": " << value;
-        if (count < nestedMap.size() - 1) {
-            ss << ", ";
+        int count = 0;
+        for (const auto& [key, value] : nestedMap) {
+            ss << key << ": " << value;
+            if (count < nestedMap.size() - 1) {
+                ss << ", ";
+            }
+            count++;
         }
-        count++;
-    }
 
-    ss << "}";
-    return ss.str();
-}
+        ss << "}";
+        return ss.str();
+    }
 
     // maybe refactor and add helper parsers for kind, choice, and default; and remove setters?
 
@@ -386,55 +388,52 @@ std::string parseNestedMap(ts::Node nestedMapNode) {
 
     // TODO: unimplemented from here on
 
-//for parsing the constants part
-void parseConstants() {
-        ts::Node constantsNode = root->getChildByFieldName("constants");
-        if (!constantsNode.isNull()) {
-        
-        // Retrieve the map node within constants
-        ts::Node mapNode = constantsNode.getChildByFieldName("map");
-        
-        if (!mapNode.isNull()) {
-            // then we can just parse the mapNode for keyVal pairs
-            auto constantsMap = parseValueMap(mapNode);
+    //for parsing the constants part
+    void parseConstants() {
+            ts::Node constantsNode = root->getChildByFieldName("constants");
+            if (!constantsNode.isNull()) {
             
-            // then we can fill the Constants object with parsed keyVal pairs
-            for (const auto& [key, value] : constantsMap) {
-                constants.addConstant(key, value);
+            // Retrieve the map node within constants
+            ts::Node mapNode = constantsNode.getChildByFieldName("map");
+            
+            if (!mapNode.isNull()) {
+                // then we can just parse the mapNode for keyVal pairs
+                auto constantsMap = parseValueMap(mapNode);
+                
+                // then we can fill the Constants object with parsed keyVal pairs
+                for (const auto& [key, value] : constantsMap) {
+                    constants.addValue(key, value);
+                }
+
+                // Debug output to confirm parsed constants
+                std::cout << "Parsed Constants:" << std::endl;
+                for (const auto& [key, value] : constants.getValues()) {
+                    std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
+                }
+                
+            } else {
+                std::cerr << "no constants map" << std::endl;
             }
 
-            // Debug output to confirm parsed constants
-            std::cout << "Parsed Constants:" << std::endl;
-            for (const auto& [key, value] : constants.getConstants()) {
-                std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
-            }
-            
         } else {
-            std::cerr << "no constants map" << std::endl;
+            std::cerr << "no constants in the file" << std::endl;
         }
-
-    } else {
-        std::cerr << "no constants in the file" << std::endl;
     }
-}
 
+    void parseVariables() {
+        auto variablesNode = root->getChildByFieldName("variables");
+        // variables = Variables(parseValueMap(variablesNode));
+    }
 
+    void parsePerPlayer() {
+        auto perPlayerNode = root->getChildByFieldName("per_player");
+        // perPlayer = PerUser(parseValueMap(perPlayerNode));
+    }
 
-
-    // void parseVariables() {
-    //     auto variablesNode = root->getChildByFieldName("variables");
-    //     variables = Variables(parseValueMap(variablesNode));
-    // }
-
-    // void parsePerPlayer() {
-    //     auto perPlayerNode = root->getChildByFieldName("per_player");
-    //     perPlayer = PerPlayer(parseValueMap(perPlayerNode));
-    // }
-
-    // void parsePerAudience() {
-    //     auto perAudienceNode = root->getChildByFieldName("per_audience");
-    //     perAudience = PerAudience(parseValueMap(perAudienceNode));
-    // }
+    void parsePerAudience() {
+        auto perAudienceNode = root->getChildByFieldName("per_audience");
+        // perAudience = PerAudience(parseValueMap(perAudienceNode));
+    }
 
     // void parseRules() {
     //     auto rulesNode = root->getChildByFieldName("rules");
