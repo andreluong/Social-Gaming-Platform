@@ -2,9 +2,11 @@
 #include "SetupRule.h"
 #include "EnumDescription.h"
 #include "Constants.h"
+#include "ValueMap.h"
 #include "Variables.h"
 #include "PerPlayer.h"
 #include "PerAudience.h"
+// #include "PerUser.h"
 #include "Rules.h"
 
 #include <cassert>
@@ -108,9 +110,9 @@ public:
     void parseGameSpecification() {
         parseConfiguration();
         parseConstants();
-        // parseVariables();
-        // parsePerPlayer();
-        // parsePerAudience();
+        parseVariables();
+        parsePerPlayer();
+        parsePerAudience();
         // parseRules();
         
     }
@@ -123,17 +125,17 @@ public:
         return constants;
     }
 
-    // Variables getVariables() {
-    //     return variables;
-    // }
+    Variables getVariables() {
+        return variables;
+    }
 
-    // PerPlayer getPerPlayer() {
-    //     return perPlayer;
-    // }
+    PerPlayer getPerPlayer() {
+        return perPlayer;
+    }
 
-    // PerAudience getPerAudience() {
-    //     return perAudience;
-    // }
+    PerAudience getPerAudience() {
+        return perAudience;
+    }
 
     // Rules getRules() {
     //     return rules;
@@ -150,9 +152,9 @@ private:
     // Objects to hold the parsed data
     Configuration configuration = {"", {0, 0}, true}; // Defaults
     Constants constants;
-    // Variables variables;
-    // PerPlayer perPlayer;
-    // PerAudience perAudience;
+    Variables variables;
+    PerPlayer perPlayer;
+    PerAudience perAudience;
     // Rules rules;
 
     // Helper methods
@@ -296,23 +298,23 @@ private:
 
     void parseConstants() {
         auto constantsNode = root->getChildByFieldName("name");
-        //constants = Constants(parseValueMap(constantsNode));
+        // constants = parseValueMap(constantsNode);
     }
 
-    // void parseVariables() {
-    //     auto variablesNode = root->getChildByFieldName("variables");
-    //     variables = Variables(parseValueMap(variablesNode));
-    // }
+    void parseVariables() {
+        auto variablesNode = root->getChildByFieldName("variables");
+        // variables = Variables(parseValueMap(variablesNode));
+    }
 
-    // void parsePerPlayer() {
-    //     auto perPlayerNode = root->getChildByFieldName("per_player");
-    //     perPlayer = PerPlayer(parseValueMap(perPlayerNode));
-    // }
+    void parsePerPlayer() {
+        auto perPlayerNode = root->getChildByFieldName("per_player");
+        // perPlayer = PerUser(parseValueMap(perPlayerNode));
+    }
 
-    // void parsePerAudience() {
-    //     auto perAudienceNode = root->getChildByFieldName("per_audience");
-    //     perAudience = PerAudience(parseValueMap(perAudienceNode));
-    // }
+    void parsePerAudience() {
+        auto perAudienceNode = root->getChildByFieldName("per_audience");
+        // perAudience = PerAudience(parseValueMap(perAudienceNode));
+    }
 
     // void parseRules() {
     //     auto rulesNode = root->getChildByFieldName("rules");
