@@ -29,16 +29,21 @@ bool Game::addPlayer(std::shared_ptr<User> player) {
 
 
 bool Game::removePlayer(int playerID) {
-    auto it = std::remove_if(players.begin(), players.end(),
-                             [playerID](const std::shared_ptr<User>& p) {
-                                 return p->getId() == playerID;
-                             });
+    auto it = std::find_if(players.begin(), players.end(),
+                           [playerID](const std::shared_ptr<User>& p) {
+                               return p->getId() == playerID;
+                           });
+    
     if (it != players.end()) {
-        std::cout << (*it)->getName() << "left the game" << std::endl;
-        players.erase(it, players.end());
+        //added to retain player name before deletion
+        std::string playerName = (*it)->getName();  
+
+        //we then delte the player
+        players.erase(it); 
+        std::cout << playerName << " left the game" << std::endl;
         return true;
     } else {
-        std::cout << "Can't find " << playerID << std::endl;
+        std::cout << "Can't find player with ID " << playerID << std::endl;
         return false;
     }
 }

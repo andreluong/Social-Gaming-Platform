@@ -12,12 +12,15 @@ protected:
     std::shared_ptr<User> player1;
     std::shared_ptr<User> player2;
     Game game;
+    // Added a dummy connection for testing
+    networking::Connection dummyConnection;  
 
-    GameTests() : game(1, "testing the game class", 2) {}
+    GameTests() : game(1, "testing the game class", 2), dummyConnection(80) {}
 
-    void SetUp() override {
-        player1 = std::make_shared<User>(1, "Kevin");
-        player2 = std::make_shared<User>(2, "Alex");
+void SetUp() override {
+        //added passing the conn
+        player1 = std::make_shared<User>(1, "Kevin", dummyConnection);
+        player2 = std::make_shared<User>(2, "Alex", dummyConnection);
     }
 };
 
@@ -31,7 +34,8 @@ TEST_F(GameTests, CannotAddMoreThanMaxPlayers) {
     game.addPlayer(player1);
     game.addPlayer(player2);
     
-    auto player3 = std::make_shared<User>(3, "Anders");
+    //added the dummy conn
+    auto player3 = std::make_shared<User>(3, "Anders", dummyConnection);
     game.addPlayer(player3);  
 
     EXPECT_EQ(game.getPlayerNames().size(), 2);
