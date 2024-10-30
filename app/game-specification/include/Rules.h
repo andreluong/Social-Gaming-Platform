@@ -2,16 +2,16 @@
 #define RULES_H
 
 #include <string>
+#include <cpp-tree-sitter.h>
 
 class Rules {
 public:
-    Rules(const std::string& body)
-        : body(body) {}
+    Rules(const std::string& sourceCode);
 
-    std::string getBody() const { return body; }
-
+    void parseRule(const ts::Node& node) const;
+    void parseBody(ts::Node node) const;
 private:
-    std::string body;
+    std::string sourceCode;
 };
 
 #endif
