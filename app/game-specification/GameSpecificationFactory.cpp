@@ -135,8 +135,7 @@ public:
         parseVariables();
         parsePerPlayer();
         parsePerAudience();
-        // parseRules();
-        
+        parseRules();
     }
 
     Configuration getConfiguration() {
@@ -435,13 +434,12 @@ std::string parseList(ts::Node listNode) {
         // perAudience = PerAudience(parseValueMap(perAudienceNode));
     }
 
-    // void parseRules() {
-    //     auto rulesNode = root->getChildByFieldName("rules");
-    //     std::string body = std::string(rulesNode.getChildByFieldName("body").getSourceRange(sourceCode));
-    //     rules = Rules(body);
-    // }
-
-
+    void parseRules() {
+        auto rulesNode = root->getChildByFieldName("rules");
+        auto bodyNode = rulesNode.getChildByFieldName("body");
+        auto rules = Rules(sourceCode);
+        rules.parseBody(bodyNode);
+    }
 };
 
 int main(int argc, char** argv) {

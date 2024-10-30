@@ -28,7 +28,7 @@ target_sources(demo
     Configuration.cpp
     SetupRule.cpp
     ValueMap.cpp
-
+    Rules.cpp
     # add here
 )
 
@@ -37,6 +37,7 @@ target_include_directories(demo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(demo
   tree-sitter-socialgaming
   cpp-tree-sitter
+  utils
 )
 
 set(GAMES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/games")
