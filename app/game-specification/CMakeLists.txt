@@ -29,6 +29,7 @@ target_sources(demo
     SetupRule.cpp
     ValueMap.cpp
     Rules.cpp
+    RulesParser.cpp
     # add here
 )
 
