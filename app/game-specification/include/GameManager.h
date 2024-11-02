@@ -59,13 +59,7 @@ private:
     // expression_resolver: class? // could be in rules to make this smipler
 };
 
-GameManager::GameManager(/* args */)
-{
-}
 
-GameManager::~GameManager()
-{
-}
 
 
 #endif

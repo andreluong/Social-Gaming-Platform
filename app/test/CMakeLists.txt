@@ -25,6 +25,8 @@ target_link_libraries(runAllTests
     utils
     feature-toggle
     # add here
+
+    perser
 )
 
 add_test(NAME AllTests
