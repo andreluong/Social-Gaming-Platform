@@ -27,6 +27,9 @@ enum class NodeType {
     QuotedString,
     ListLiteral,
     ValueMap,
+    Boolean,
+    Integer,
+    Identifier,
     Unknown
 };
 
@@ -38,6 +41,12 @@ NodeType getNodeType(const std::string& nodeType) {
         return NodeType::ListLiteral;
     } else if (nodeType == "value_map") {
         return NodeType::ValueMap;
+    } else if (nodeType == "boolean") {
+        return NodeType::Boolean;
+    } else if (nodeType == "number") {
+        return NodeType::Integer;
+    } else if (nodeType == "identifier") {
+        return NodeType::Identifier;
     } else {
         return NodeType::Unknown;
     }
@@ -218,7 +227,16 @@ private:
             case NodeType::ValueMap:
                 value = parseNestedMap(valueNode);
                 break;
-            
+            case NodeType::Boolean:
+                value = parseBoolean(valueNode);
+                break;
+            case NodeType::Integer:
+                value = parseInteger(valueNode);
+                break;
+            case NodeType::Identifier:
+                value = parseIdentifier(valueNode);
+                break;
+
             default:
                 // Default case, use raw text as value
                 value = std::string(valueNode.getSourceRange(sourceCode));
@@ -269,6 +287,36 @@ std::string parseList(ts::Node listNode) {
         ss << "}";
         return ss.str();
     }
+// Parses a boolean node and returns it as a string ("true" or "false")
+std::string parseBoolean(ts::Node booleanNode) {
+    std::string boolValue = std::string(booleanNode.getSourceRange(sourceCode));
+    // Determine if the value matches "true"
+    bool isTrue = (boolValue == "true");
+    // Determine if the value matches "false" 
+    bool isFalse = (boolValue == "false");
+    // Return "true" if matched; otherwise, return "false"
+    return (isTrue ? "true" : (isFalse ? "false" : "false"));
+}
+
+// Parses an int node and returns it as a string
+std::string parseInteger(ts::Node integerNode) {
+std::string intValueStr = std::string(integerNode.getSourceRange(sourceCode));
+    // then convert str to int
+    int intValue = std::stoi(intValueStr);
+    // convert int back to str
+    std::string result = std::to_string(intValue);
+    return result;
+}
+
+// Parses an Id node and returns it as a str
+std::string parseIdentifier(ts::Node identifierNode) {
+std::string identifierValue = std::string(identifierNode.getSourceRange(sourceCode));
+    // final result in a separate variable for readability
+    std::string result = identifierValue;
+    return result;
+}
+
+
 
     // maybe refactor and add helper parsers for kind, choice, and default; and remove setters?
 
