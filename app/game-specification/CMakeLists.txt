@@ -26,6 +26,7 @@ target_sources(demo
   PRIVATE
     GameSpecificationFactory.cpp
     Configuration.cpp
+    GameManager.cpp
     SetupRule.cpp
     ValueMap.cpp
     Rules.cpp

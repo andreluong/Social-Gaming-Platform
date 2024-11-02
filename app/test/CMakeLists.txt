@@ -13,6 +13,8 @@ add_executable(runAllTests
   # all above passing, one is left uncommented to avoid CMake Error no sources given
 
   # add here
+
+  test_GameManager.cpp
   
 )
 
