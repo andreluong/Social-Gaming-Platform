@@ -7,7 +7,8 @@
 #include "PerPlayer.h"
 #include "PerAudience.h"
 // #include "PerUser.h"
-#include "Rules.h"
+#include "Rules.h" // TODO: Remove later
+#include "RulesParser.h"
 
 #include <cassert>
 #include <cstdio>
@@ -437,8 +438,9 @@ std::string parseList(ts::Node listNode) {
     void parseRules() {
         auto rulesNode = root->getChildByFieldName("rules");
         auto bodyNode = rulesNode.getChildByFieldName("body");
-        auto rules = Rules(sourceCode);
-        rules.parseBody(bodyNode);
+        auto rulesParser = RulesParser(sourceCode);
+        std::vector<std::unique_ptr<Rule>> rulesVector;
+        rulesParser.parseBody(bodyNode, rulesVector);
     }
 };
 

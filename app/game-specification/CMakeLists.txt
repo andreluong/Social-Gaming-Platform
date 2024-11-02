@@ -29,7 +29,7 @@ target_sources(demo
     GameManager.cpp
     SetupRule.cpp
     ValueMap.cpp
-    Rules.cpp
+    RulesParser.cpp
     # add here
 )
 
