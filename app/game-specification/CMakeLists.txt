@@ -20,21 +20,22 @@ add_grammar_from_repo(tree-sitter-socialgaming          # Defines the library na
 
 
 # Use the library in a demo program.
-add_executable(demo)
+add_library(perser)
 
-target_sources(demo
-  PRIVATE
+target_sources(perser
+  PUBLIC
     GameSpecificationFactory.cpp
     Configuration.cpp
+    GameManager.cpp
     SetupRule.cpp
     ValueMap.cpp
     RulesParser.cpp
     # add here
 )
 
-target_include_directories(demo PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(perser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(demo
+target_link_libraries(perser
   tree-sitter-socialgaming
   cpp-tree-sitter
   utils
@@ -45,4 +46,15 @@ set(GAMES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/games")
 add_custom_target(copy_games ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory
   "${GAMES_DIR}" "$<TARGET_FILE_DIR:demo>/games"
+)
+
+add_executable(demo)
+
+target_sources(demo
+  PRIVATE
+    demo.cpp
+)
+target_link_libraries(demo 
+  PUBLIC 
+    perser
 )
