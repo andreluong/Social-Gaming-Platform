@@ -6,13 +6,15 @@
 #include <vector>
 #include <string_view>
 
-// TODO: Look into making a base class for all rules
-// base class will have an execute function to execute its rule
-// Replace int with class
-std::unordered_map<std::string_view, int> allRules = {
-    {"for", 1},
+std::unordered_map<std::string_view, std::size_t> operationChildren = {
+    {"for", 3}, // NOTE: for testing
+
+    {"discard", 2},
     {"extend", 2},
-    {"discard", 3}
+    {"reverse", 1},
+    {"shuffle", 1},
+    {"deal", 3}
+    // {"sort", 2} // Varying length
 };
 
 // NOTE: Temporary until variables class done
@@ -35,7 +37,7 @@ void findVariable(std::string_view source) {
 Rules::Rules(const std::string& sourceCode) 
     : sourceCode(sourceCode) {}
 
-void Rules::parseRule(const ts::Node& node) const {
+void Rules::parseRule(const ts::Node& node) {
     for (auto i = 0; i < node.getNumNamedChildren(); i++) {
         auto ruleNode = node.getNamedChild(i);
         auto ruleType = ruleNode.getType();
@@ -43,26 +45,15 @@ void Rules::parseRule(const ts::Node& node) const {
         std::cout << ruleType << std::endl << "------" << std::endl;
 
         if (ruleType == "for") {
-            // 3 named children
-            // std::cout << ruleNode.getNamedChild(0).getType() << std::endl; // element
-            // std::cout << ruleNode.getNamedChild(1).getType() << std::endl; // list
-            // std::cout << ruleNode.getNamedChild(2).getType() << std::endl; // body
-            // TODO: Use control structure for each loop
+            addRule(ruleType, ruleNode);
+
             auto forLoopBodyNode = ruleNode.getNamedChild(2);
             parseBody(forLoopBodyNode);
         }
-        else if (ruleType == "discard") {
-            // 2 named children
-            // Discard winners.size() from winners
-            // TODO: Need variables to get
-            auto count = ruleNode.getChildByFieldName("count").getSourceRange(sourceCode);
-            auto source = ruleNode.getChildByFieldName("source").getSourceRange(sourceCode);
-            std::cout << "count: " << count << std::endl;
-            std::cout << "source: " << source << std::endl;
-            findVariable(count);
-            findVariable(source);
+        else if (auto ruleIt = operationChildren.find(ruleType);
+                ruleIt != operationChildren.end()) {
+            addRule(ruleType, ruleNode);
         }
-
         // TODO: Add more
 
         else if (ruleType == "body") {
@@ -97,41 +88,8 @@ void Rules::parseRule(const ts::Node& node) const {
             std::cout << "target: " << target << std::endl;
             findVariable(target);
         }
-        else if (ruleType == "extend") {
-            // 2 named children
-            auto value = ruleNode.getChildByFieldName("value").getSourceRange(sourceCode);
-            auto target = ruleNode.getChildByFieldName("target").getSourceRange(sourceCode);
-            std::cout << "value: " << value << std::endl;
-            std::cout << "target: " << target << std::endl;
-            findVariable(value);
-            findVariable(target);
-        }
-        else if (ruleType == "reverse") {
-            // 1 named child
-            auto target = ruleNode.getChildByFieldName("target").getSourceRange(sourceCode);
-            std::cout << "target: " << target << std::endl;
-            findVariable(target);
-        }
-        else if (ruleType == "shuffle") {
-            // 1 named child
-            auto target = ruleNode.getChildByFieldName("target").getSourceRange(sourceCode);
-            std::cout << "target: " << target << std::endl;
-            findVariable(target);
-        }
         else if (ruleType == "sort") {
             // _ named children
-        }
-        else if (ruleType == "deal") {
-            // 3 named children
-            auto count = ruleNode.getChildByFieldName("count").getSourceRange(sourceCode);
-            auto targets = ruleNode.getChildByFieldName("targets").getSourceRange(sourceCode);
-            auto source = ruleNode.getChildByFieldName("source").getSourceRange(sourceCode);
-            std::cout << "count: " << count << std::endl;
-            std::cout << "targets: " << targets << std::endl;
-            std::cout << "source: " << source << std::endl;
-            findVariable(count);
-            findVariable(targets);
-            findVariable(source);
         }
         else if (ruleType == "assignment") {
             // _ named children
@@ -166,7 +124,7 @@ void Rules::parseRule(const ts::Node& node) const {
     }
 }
 
-void Rules::parseBody(ts::Node node) const {
+void Rules::parseBody(ts::Node node) {
     for (auto i = 0; i < node.getNumNamedChildren(); i++) {
         // Children could be rule or comment (Skip comment)
         auto namedChild = node.getNamedChild(i);
@@ -175,4 +133,20 @@ void Rules::parseBody(ts::Node node) const {
         }
         std::cout << std::endl;
     }
+}
+
+void Rules::addRule(const std::string_view& ruleType, 
+                    const ts::Node& ruleNode) {
+    auto rule = std::make_unique<Rule>(ruleType);
+    auto numChildren = operationChildren[ruleType]; // TODO: testing operations first
+
+    for (std::size_t i = 0; i < numChildren; i++) {
+        auto childNode = ruleNode.getNamedChild(i);
+        
+        // TODO: Find the actual variable and use it
+        rule->addSpecification(childNode.getType(), childNode.getSourceRange(sourceCode));
+        
+        std::cout << "Rule: " << childNode.getType() << "; " << childNode.getSourceRange(sourceCode) << std::endl;
+    }
+    rules.push_back(std::move(rule));
 }
