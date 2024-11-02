@@ -28,6 +28,11 @@ enum class NodeType {
     QuotedString,
     ListLiteral,
     ValueMap,
+    Boolean,
+    Integer,
+    Identifier,
+    Comparison,
+    LogicalOperation,
     Unknown
 };
 
@@ -39,6 +44,16 @@ NodeType getNodeType(const std::string& nodeType) {
         return NodeType::ListLiteral;
     } else if (nodeType == "value_map") {
         return NodeType::ValueMap;
+    } else if (nodeType == "boolean") {
+        return NodeType::Boolean;
+    } else if (nodeType == "number") {
+        return NodeType::Integer;
+    } else if (nodeType == "identifier") {
+        return NodeType::Identifier;
+    } else if (nodeType == "comparison") {
+        return NodeType::Comparison;
+    } else if (nodeType == "logical_operation") {
+        return NodeType::LogicalOperation;
     } else {
         return NodeType::Unknown;
     }
@@ -187,7 +202,50 @@ private:
         int max = std::stoi(std::string(rangeNode.getChild(3).getSourceRange(sourceCode)));
         return {min, max};
     }
+    // Parse different types of expressions based on their node type
+    std::string parseExpression(ts::Node expressionNode) {
+        NodeType type = getNodeType(std::string(expressionNode.getType()));
 
+        switch (type) {
+            case NodeType::Comparison:
+                return parseComparison(expressionNode);
+            case NodeType::LogicalOperation:
+                return parseLogicalOperation(expressionNode);
+            default:
+                return std::string(expressionNode.getSourceRange(sourceCode));
+        }
+    }
+    /**
+        * Parses a comparison operation and returns it as a string.
+        *
+        * Extracts the lhs expression from getChild(0)
+        * Grabs the comparison op ==/!=/< from getChild(1)
+        * Gets the rhs from getChild(2)
+        * Combines lhs, operator, and rhs as a "lhs operator rhs" string
+    */
+
+    std::string parseComparison(ts::Node comparisonNode) {
+        std::string lhs = parseExpression(comparisonNode.getChild(0));
+        std::string operatorText = std::string(comparisonNode.getChild(1).getSourceRange(sourceCode));
+        std::string rhs = parseExpression(comparisonNode.getChild(2));
+
+        return lhs + " " + operatorText + " " + rhs;
+    }
+    /**
+        * Parses a logical operation node, turning it into a readable string
+        * 
+        * - Gets the lhs from getChild(0)
+        * - Extracts the logical operator (like && or ||) from getChild(1)
+        * - Gets the rhs from getChild(2)
+        * - Returns the expression as a string in "lhs operator rhs" format
+     */
+    std::string parseLogicalOperation(ts::Node logicalNode) {
+        std::string lhs = parseExpression(logicalNode.getChild(0));
+        std::string operatorText = std::string(logicalNode.getChild(1).getSourceRange(sourceCode));
+        std::string rhs = parseExpression(logicalNode.getChild(2));
+
+        return lhs + " " + operatorText + " " + rhs;
+    }
     // Just string to string for now; not correct yet, find comment: // Trying to figure out how to implement parseValueMap
     // Supports values of type: quoted_string, list_literal, and nested value_map
     std::unordered_map<std::string, std::string> parseValueMap(ts::Node mapNode) {
@@ -219,10 +277,25 @@ private:
             case NodeType::ValueMap:
                 value = parseNestedMap(valueNode);
                 break;
-            
+            case NodeType::Boolean:
+                value = parseBoolean(valueNode);
+                break;
+            case NodeType::Integer:
+                value = parseInteger(valueNode);
+                break;
+            case NodeType::Identifier:
+                value = parseIdentifier(valueNode);
+                break;
+
             default:
                 // Default case, use raw text as value
-                value = std::string(valueNode.getSourceRange(sourceCode));
+                // value = std::string(valueNode.getSourceRange(sourceCode));
+                /*
+                * i created parseExpression and will default to it to handle any unexpected or new node types in the long run
+
+                */
+                value = parseExpression(valueNode);
+
                 break;
         }
 
@@ -270,6 +343,36 @@ std::string parseList(ts::Node listNode) {
         ss << "}";
         return ss.str();
     }
+    // now works and parses boolean values correctly
+    std::string parseBoolean(ts::Node booleanNode) {
+        std::string boolValue = std::string(booleanNode.getSourceRange(sourceCode));
+        if (boolValue == "true") {
+            return "true";
+        }
+        else {
+            return "false";
+        }
+    }
+
+// Parses an int node and returns it as a string
+std::string parseInteger(ts::Node integerNode) {
+std::string intValueStr = std::string(integerNode.getSourceRange(sourceCode));
+    // then convert str to int
+    int intValue = std::stoi(intValueStr);
+    // convert int back to str
+    std::string result = std::to_string(intValue);
+    return result;
+}
+
+// Parses an Id node and returns it as a str
+std::string parseIdentifier(ts::Node identifierNode) {
+std::string identifierValue = std::string(identifierNode.getSourceRange(sourceCode));
+    // final result in a separate variable for readability
+    std::string result = identifierValue;
+    return result;
+}
+
+
 
     // maybe refactor and add helper parsers for kind, choice, and default; and remove setters?
 
