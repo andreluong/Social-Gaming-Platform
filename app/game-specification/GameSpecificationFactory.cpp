@@ -6,6 +6,11 @@ enum class NodeType {
     QuotedString,
     ListLiteral,
     ValueMap,
+    Boolean,
+    Integer,
+    Identifier,
+    Comparison,
+    LogicalOperation,
     Unknown
 };
 
@@ -17,6 +22,16 @@ NodeType getNodeType(const std::string& nodeType) {
         return NodeType::ListLiteral;
     } else if (nodeType == "value_map") {
         return NodeType::ValueMap;
+    } else if (nodeType == "boolean") {
+        return NodeType::Boolean;
+    } else if (nodeType == "number") {
+        return NodeType::Integer;
+    } else if (nodeType == "identifier") {
+        return NodeType::Identifier;
+    } else if (nodeType == "comparison") {
+        return NodeType::Comparison;
+    } else if (nodeType == "logical_operation") {
+        return NodeType::LogicalOperation;
     } else {
         return NodeType::Unknown;
     }
@@ -123,49 +138,111 @@ std::pair<int, int> GameSpecificationFactory::parseNumberRange(ts::Node rangeNod
 // Supports values of type: quoted_string, list_literal, and nested value_map
 std::unordered_map<std::string, std::string> GameSpecificationFactory::parseValueMap(ts::Node mapNode) {
     std::unordered_map<std::string, std::string> valueMap;
-for (int i = 0; i < mapNode.getNumNamedChildren(); ++i) {
-    ts::Node pairNode = mapNode.getNamedChild(i);
-    // Ensure the pair node has a key and a value
-    if (pairNode.getNumChildren() < 2) {
-        std::cerr << "no children" << std::endl;
-        continue;
-    }
-    // get the key from map entry
-    std::string key = std::string(pairNode.getChildByFieldName("key").getSourceRange(sourceCode));
-    ts::Node valueNode = pairNode.getChildByFieldName("value");
-    std::string value;
+    for (int i = 0; i < mapNode.getNumNamedChildren(); ++i) {
+        ts::Node pairNode = mapNode.getNamedChild(i);
+        // Ensure the pair node has a key and a value
+        if (pairNode.getNumChildren() < 2) {
+            std::cerr << "no children" << std::endl;
+            continue;
+        }
+        // get the key from map entry
+        std::string key = std::string(pairNode.getChildByFieldName("key").getSourceRange(sourceCode));
+        ts::Node valueNode = pairNode.getChildByFieldName("value");
+        std::string value;
 
-    // for the the type of the valueNode uses the enum class that i created at the top
-    NodeType type = getNodeType(std::string(valueNode.getType()));
+        // for the the type of the valueNode uses the enum class that i created at the top
+        NodeType type = getNodeType(std::string(valueNode.getType()));
+
+        switch (type) {
+            //i think it is unavoidable to get the feild names by their "names" for
+            //TODO: try more dynamic ways to avoid this
+            case NodeType::QuotedString:
+                value = std::string(valueNode.getChildByFieldName("contents").getSourceRange(sourceCode));
+                break;
+            case NodeType::ListLiteral:
+                value = parseList(valueNode);
+                break;
+            case NodeType::ValueMap:
+                value = parseNestedMap(valueNode);
+                break;
+            case NodeType::Boolean:
+                value = parseBoolean(valueNode);
+                break;
+            case NodeType::Integer:
+                value = parseInteger(valueNode);
+                break;
+            case NodeType::Identifier:
+                value = parseIdentifier(valueNode);
+                break;
+
+            default:
+                // Default case, use raw text as value
+                // value = std::string(valueNode.getSourceRange(sourceCode));
+                /*
+                * i created parseExpression and will default to it to handle any unexpected or new node types in the long run
+
+                */
+                value = parseExpression(valueNode);
+
+                break;
+        }
+
+        // Debug output to confirm the parsed key-value pair
+        std::cout << "Parsed keyValue pair: " << key << " : " << value << std::endl;
+
+        // Add the key-value pair to the map
+        valueMap[key] = value;
+    }
+
+    return valueMap;
+}
+
+
+// Parse different types of expressions based on their node type
+std::string GameSpecificationFactory::parseExpression(ts::Node expressionNode) {
+    NodeType type = getNodeType(std::string(expressionNode.getType()));
 
     switch (type) {
-        //i think it is unavoidable to get the feild names by their "names" for
-        //TODO: try more dynamic ways to avoid this
-        case NodeType::QuotedString:
-            value = std::string(valueNode.getChildByFieldName("contents").getSourceRange(sourceCode));
-            break;
-        case NodeType::ListLiteral:
-            value = parseList(valueNode);
-            break;
-        case NodeType::ValueMap:
-            value = parseNestedMap(valueNode);
-            break;
-        
+        case NodeType::Comparison:
+            return parseComparison(expressionNode);
+        case NodeType::LogicalOperation:
+            return parseLogicalOperation(expressionNode);
         default:
-            // Default case, use raw text as value
-            value = std::string(valueNode.getSourceRange(sourceCode));
-            break;
+            return std::string(expressionNode.getSourceRange(sourceCode));
     }
+}
+/**
+    * Parses a comparison operation and returns it as a string.
+    *
+    * Extracts the lhs expression from getChild(0)
+    * Grabs the comparison op ==/!=/< from getChild(1)
+    * Gets the rhs from getChild(2)
+    * Combines lhs, operator, and rhs as a "lhs operator rhs" string
+*/
 
-    // Debug output to confirm the parsed key-value pair
-    std::cout << "Parsed keyValue pair: " << key << " : " << value << std::endl;
+std::string GameSpecificationFactory::parseComparison(ts::Node comparisonNode) {
+    std::string lhs = parseExpression(comparisonNode.getChild(0));
+    std::string operatorText = std::string(comparisonNode.getChild(1).getSourceRange(sourceCode));
+    std::string rhs = parseExpression(comparisonNode.getChild(2));
 
-    // Add the key-value pair to the map
-    valueMap[key] = value;
+    return lhs + " " + operatorText + " " + rhs;
+}
+/**
+    * Parses a logical operation node, turning it into a readable string
+    * 
+    * - Gets the lhs from getChild(0)
+    * - Extracts the logical operator (like && or ||) from getChild(1)
+    * - Gets the rhs from getChild(2)
+    * - Returns the expression as a string in "lhs operator rhs" format
+    */
+std::string GameSpecificationFactory::parseLogicalOperation(ts::Node logicalNode) {
+    std::string lhs = parseExpression(logicalNode.getChild(0));
+    std::string operatorText = std::string(logicalNode.getChild(1).getSourceRange(sourceCode));
+    std::string rhs = parseExpression(logicalNode.getChild(2));
+
+    return lhs + " " + operatorText + " " + rhs;
 }
 
-return valueMap;
-}
 // Helper to parse a list like [ "Rock", "Paper", "Scissors" ] & ret as a formatted string
 std::string GameSpecificationFactory::parseList(ts::Node listNode) {
 std::stringstream ss;
@@ -202,12 +279,43 @@ std::string GameSpecificationFactory::parseNestedMap(ts::Node nestedMapNode) {
     return ss.str();
 }
 
+
+// now works and parses boolean values correctly
+std::string GameSpecificationFactory::parseBoolean(ts::Node booleanNode) {
+    std::string boolValue = std::string(booleanNode.getSourceRange(sourceCode));
+    if (boolValue == "true") {
+        return "true";
+    }
+    else {
+        return "false";
+    }
+}
+
+// Parses an int node and returns it as a string
+std::string GameSpecificationFactory::parseInteger(ts::Node integerNode) {
+std::string intValueStr = std::string(integerNode.getSourceRange(sourceCode));
+    // then convert str to int
+    int intValue = std::stoi(intValueStr);
+    // convert int back to str
+    std::string result = std::to_string(intValue);
+    return result;
+}
+
+// Parses an Id node and returns it as a str
+std::string GameSpecificationFactory::parseIdentifier(ts::Node identifierNode) {
+std::string identifierValue = std::string(identifierNode.getSourceRange(sourceCode));
+    // final result in a separate variable for readability
+    std::string result = identifierValue;
+    return result;
+}
+
+
 // maybe refactor and add helper parsers for kind, choice, and default; and remove setters?
 
 // Parsing methods for each category
 
 void GameSpecificationFactory::parseConfiguration() {
-    
+
     ts::Node configurationNode = root->getChildByFieldName("configuration");
 
     ts::Node nameNode = configurationNode.getChildByFieldName("name");
@@ -243,11 +351,11 @@ void GameSpecificationFactory::parseConfiguration() {
     //     std::cout << pairNode.getSourceRange(sourceCode) << "\n";
     // }
 
+    
         // debug
 
     // std::cout << configurationNode.getNumChildren() << "\n";
     // std::cout << configurationNode.getNumNamedChildren() << "\n";
-
 
     // for (int i = 0; i < 4; i++) {
     //     std::cout << configurationNode.getNamedChild(i).getType() << "\n";
@@ -257,62 +365,12 @@ void GameSpecificationFactory::parseConfiguration() {
     // if we can't assume there is at least one
     ts::Node setupRuleNode = configurationNode.getNamedChild(3);
 
-
     while (!setupRuleNode.isNull() && setupRuleNode.isNamed()) {
-
-        SetupRule setupRule;
-
-        // debug
-        std::cout << setupRuleNode.getSourceRange(sourceCode) << "\n";
-    
-        ts::Node setupRuleNameNode = setupRuleNode.getChildByFieldName("name");
-        if (!setupRuleNameNode.isNull()) {
-            std::cout << "exists1\n";
-            setupRule.setName(setupRuleNameNode.getSourceRange(sourceCode));
-        }
-
-            ts::Node setupRuleKindNode = setupRuleNode.getChildByFieldName("kind");
-        if (!setupRuleKindNode.isNull()) {
-            std::cout << "exists2\n";
-            setupRule.setKind(setupRuleKindNode.getSourceRange(sourceCode));
-        }
-
-            ts::Node setupRulePromptNode = setupRuleNode.getChildByFieldName("prompt");
-        if (!setupRulePromptNode.isNull()) {
-            std::cout << "exists3\n";
-            setupRule.setPrompt(setupRulePromptNode.getSourceRange(sourceCode));
-        }
-
-            ts::Node setupRuleRangeNode = setupRuleNode.getChildByFieldName("range");
-        if (!setupRuleRangeNode.isNull()) {
-            std::cout << "exists4\n";
-            setupRule.setRange(setupRuleRangeNode.getSourceRange(sourceCode));
-        }
-
-        // TODO: Use EnumDescription
-            ts::Node setupRuleChoicesNode = setupRuleNode.getChildByFieldName("choices");
-        if (!setupRuleChoicesNode.isNull()) {
-            std::cout << "exists5\n";
-            setupRule.setChoices(setupRuleChoicesNode.getSourceRange(sourceCode));
-        }
-
-            ts::Node setupRuleDefaultNode = setupRuleNode.getChildByFieldName("default");
-        if (!setupRuleDefaultNode.isNull()) {
-            std::cout << "exists6\n";
-            setupRule.setDefaultValue(setupRuleDefaultNode.getSourceRange(sourceCode));
-        }
+        SetupRule setupRule(setupRuleNode, sourceCode);
 
         // have not tested thoroughly yet
         configuration.addSetupRule(setupRule);
-
         setupRuleNode = setupRuleNode.getNextSibling();
-    }
-
-    // debug
-    int count = 0;
-    for (auto setupRule : configuration.getSetupRules()) {
-        std::cout << count << ": " << setupRule.getName() << "\n";
-        count++;
     }
 
 }

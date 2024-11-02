@@ -82,7 +82,30 @@ private:
     // Helper methods
 
     // 1 and 3 are the position of the numbers
-    std::pair<int, int> parseNumberRange(ts::Node rangeNode) ;
+    std::pair<int, int> parseNumberRange(ts::Node rangeNode);
+
+    // Parse different types of expressions based on their node type
+    std::string parseExpression(ts::Node expressionNode);
+
+    /**
+    * Parses a comparison operation and returns it as a string.
+    *
+    * Extracts the lhs expression from getChild(0)
+    * Grabs the comparison op ==/!=/< from getChild(1)
+    * Gets the rhs from getChild(2)
+    * Combines lhs, operator, and rhs as a "lhs operator rhs" string
+    */
+    std::string parseComparison(ts::Node comparisonNode);
+
+    /**
+        * Parses a logical operation node, turning it into a readable string
+        * 
+        * - Gets the lhs from getChild(0)
+        * - Extracts the logical operator (like && or ||) from getChild(1)
+        * - Gets the rhs from getChild(2)
+        * - Returns the expression as a string in "lhs operator rhs" format
+     */
+    std::string parseLogicalOperation(ts::Node logicalNode);
 
     // Just string to string for now; not correct yet, find comment: // Trying to figure out how to implement parseValueMap
     // Supports values of type: quoted_string, list_literal, and nested value_map
@@ -93,6 +116,15 @@ private:
 
     // Helper to parse a nested map within a map entry ret formatted as a string
     std::string parseNestedMap(ts::Node nestedMapNode);
+
+    // now works and parses boolean values correctly
+    std::string parseBoolean(ts::Node booleanNode);
+
+    // Parses an int node and returns it as a string
+    std::string parseInteger(ts::Node integerNode);
+
+    // Parses an Id node and returns it as a str
+    std::string parseIdentifier(ts::Node identifierNode);
 
     // Parsing methods for each category
 
