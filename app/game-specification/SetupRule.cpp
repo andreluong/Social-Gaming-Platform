@@ -11,12 +11,59 @@ std::unordered_map<std::string_view, SettingKind> kindMap = {
     {"json", SettingKind::JSON},
 };
 
+std::unordered_map<SetupField, std::string> fieldMap = {
+    {SetupField::NAME, "name"},
+    {SetupField::KIND, "kind"},
+    {SetupField::PROMPT, "prompt"},
+    {SetupField::RANGE, "range"},
+    {SetupField::CHOICES, "choices"},
+    {SetupField::DEFAULT, "default"}
+};
+
+void SetupRule::setField(const ts::Node &node, const SetupField &setupField, std::string_view sourceCode){
+    switch(setupField){
+        case SetupField::NAME:
+            this->setName(node.getSourceRange(sourceCode));
+            break;
+        case SetupField::KIND:
+            this->setKind(node.getSourceRange(sourceCode));
+            break;
+        case SetupField::PROMPT:
+            this->setPrompt(node.getSourceRange(sourceCode));
+            break;
+        case SetupField::RANGE:
+            this->setRange(node.getSourceRange(sourceCode));
+            break;
+        case SetupField::CHOICES:
+            this->setChoices(node.getSourceRange(sourceCode));
+            break;
+        case SetupField::DEFAULT:
+            this->setDefaultValue(node.getSourceRange(sourceCode));
+            break;
+        default:
+            std::cout << "did unknown enum" << std::endl;
+            break;
+    }
+}
+
 SetupRule::SetupRule(const std::string& name, SettingKind kind, const std::string& prompt,
                      std::optional<std::pair<int, int>> range, 
                      std::optional<std::unordered_map<std::string, std::string>> choices,
                      std::optional<std::variant<int, bool, std::string>> defaultValue)
     : name(name), kind(kind), prompt(prompt), range(range), choices(choices), defaultValue(defaultValue) {
     }
+
+// alternate constructor
+SetupRule::SetupRule(const ts::Node &setupRuleNode, std::string_view sourceCode){
+    std::for_each(fieldMap.begin(), fieldMap.end(), 
+        [this, setupRuleNode, sourceCode](const auto& keyValue){
+            ts::Node setupRule = setupRuleNode.getChildByFieldName(keyValue.second);
+            if(!setupRule.isNull()){
+                setField(setupRule, keyValue.first, sourceCode);
+            }
+        }
+    );
+}
 
 std::string SetupRule::getName() const {
     return name;
@@ -47,7 +94,13 @@ void SetupRule::setName(std::string_view name) {
 }
 
 void SetupRule::setKind(std::string_view strKind) {
-    this->kind = kindMap[strKind];
+    if(kindMap.find(strKind.data()) == kindMap.end()){
+        std::cout << "unknown setting kind" << std::endl; // should get replaced with spdlog once working
+        this->kind = SettingKind::NONE;
+    }
+    else{
+        this->kind = kindMap[strKind];
+    }
 }
 
 void SetupRule::setPrompt(std::string_view prompt) {

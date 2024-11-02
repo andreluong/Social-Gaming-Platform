@@ -8,6 +8,8 @@
 #include <string_view>
 #include <vector>
 #include <variant>
+#include <iostream>
+#include <cpp-tree-sitter.h>
 
 class GameSpecificationFactory;
 
@@ -22,12 +24,23 @@ enum class SettingKind {
     NONE // maybe?
 };
 
+enum class SetupField{
+    NAME,
+    KIND,
+    PROMPT,
+    RANGE, 
+    CHOICES,
+    DEFAULT
+};
+
 class SetupRule {
 public:
     SetupRule(const std::string& name = "", SettingKind kind = SettingKind::NONE, const std::string& prompt = "",
               std::optional<std::pair<int, int>> range = std::nullopt,
               std::optional<std::unordered_map<std::string, std::string>> choices = std::nullopt,
               std::optional<std::variant<int, bool, std::string>> defaultValue = std::nullopt);
+
+    SetupRule(const ts::Node &setupRuleNode, std::string_view sourceCode);
 
     std::string getName() const;
     SettingKind getKind() const;
@@ -55,6 +68,7 @@ private:
     void setRange(std::string_view range);
     void setChoices(std::string_view choices);
     void setDefaultValue(std::string_view defaultValue);
+    void setField(const ts::Node &node, const SetupField &setupField, std::string_view sourceCode); // used for lambda to use appropriate setter
 
     // Only friend class should access setters
     friend class GameSpecificationFactory;
