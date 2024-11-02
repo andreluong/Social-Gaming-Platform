@@ -429,54 +429,11 @@ std::string identifierValue = std::string(identifierNode.getSourceRange(sourceCo
         // if we can't assume there is at least one
         ts::Node setupRuleNode = configurationNode.getNamedChild(3);
 
-
         while (!setupRuleNode.isNull() && setupRuleNode.isNamed()) {
-
-            SetupRule setupRule;
-
-            // debug
-            std::cout << setupRuleNode.getSourceRange(sourceCode) << "\n";
-        
-            ts::Node setupRuleNameNode = setupRuleNode.getChildByFieldName("name");
-            if (!setupRuleNameNode.isNull()) {
-                std::cout << "exists1\n";
-                setupRule.setName(setupRuleNameNode.getSourceRange(sourceCode));
-            }
-
-             ts::Node setupRuleKindNode = setupRuleNode.getChildByFieldName("kind");
-            if (!setupRuleKindNode.isNull()) {
-                std::cout << "exists2\n";
-                setupRule.setKind(setupRuleKindNode.getSourceRange(sourceCode));
-            }
-
-             ts::Node setupRulePromptNode = setupRuleNode.getChildByFieldName("prompt");
-            if (!setupRulePromptNode.isNull()) {
-                std::cout << "exists3\n";
-                setupRule.setPrompt(setupRulePromptNode.getSourceRange(sourceCode));
-            }
-
-             ts::Node setupRuleRangeNode = setupRuleNode.getChildByFieldName("range");
-            if (!setupRuleRangeNode.isNull()) {
-                std::cout << "exists4\n";
-                setupRule.setRange(setupRuleRangeNode.getSourceRange(sourceCode));
-            }
-
-            // TODO: Use EnumDescription
-             ts::Node setupRuleChoicesNode = setupRuleNode.getChildByFieldName("choices");
-            if (!setupRuleChoicesNode.isNull()) {
-                std::cout << "exists5\n";
-                setupRule.setChoices(setupRuleChoicesNode.getSourceRange(sourceCode));
-            }
-
-             ts::Node setupRuleDefaultNode = setupRuleNode.getChildByFieldName("default");
-            if (!setupRuleDefaultNode.isNull()) {
-                std::cout << "exists6\n";
-                setupRule.setDefaultValue(setupRuleDefaultNode.getSourceRange(sourceCode));
-            }
+            SetupRule setupRule(setupRuleNode, sourceCode);
 
             // have not tested thoroughly yet
             configuration.addSetupRule(setupRule);
-
             setupRuleNode = setupRuleNode.getNextSibling();
         }
 
