@@ -7,23 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <memory>
-
-class Rule {
-public:
-    Rule(std::string_view name) : name(name) {}
-
-    void addSpecification(std::string_view name, std::string_view value) {
-        specifications[name] = value;
-    }
-
-    std::unordered_map<std::string_view, ExpressionVariant> getSpecification() {
-        return specifications;
-    }
-
-private:
-    std::string_view name;
-    std::unordered_map<std::string_view, ExpressionVariant> specifications;
-};
+#include "Rule.h"
 
 class Rules {
 public:
