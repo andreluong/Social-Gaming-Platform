@@ -1,4 +1,6 @@
 #include "GameSpecificationFactory.h"
+#include "ValueMap.h"
+#include <string>
 
 
 //enum class to represent different type since using string literals isn't the best
@@ -91,6 +93,10 @@ void printUnorderedMap(const std::unordered_map<std::string, std::string>& map) 
 
 // Parses the game file to initialize game specification objects with data, currently 6 objects (see private fields)
 GameSpecificationFactory::GameSpecificationFactory(const std::string& gameFilePath) {
+    constants = Constants();
+    variables = Variables();
+    perPlayer = PerPlayer();
+    perAudience = PerAudience();
 
     // Load the game file
     std::ifstream gameFile(gameFilePath);
@@ -137,7 +143,8 @@ std::pair<int, int> GameSpecificationFactory::parseNumberRange(ts::Node rangeNod
 // Just string to string for now; not correct yet, find comment: // Trying to figure out how to implement parseValueMap
 // Supports values of type: quoted_string, list_literal, and nested value_map
 std::unordered_map<std::string, std::string> GameSpecificationFactory::parseValueMap(ts::Node mapNode) {
-    std::unordered_map<std::string, std::string> valueMap;
+    std::unordered_map<std::string, std::string> valueMap = {};
+    
     for (int i = 0; i < mapNode.getNumNamedChildren(); ++i) {
         ts::Node pairNode = mapNode.getNamedChild(i);
         // Ensure the pair node has a key and a value
@@ -376,52 +383,50 @@ void GameSpecificationFactory::parseConfiguration() {
 }
 
 // TODO: unimplemented from here on
+void GameSpecificationFactory::parseSection(enum SectionType sectionType) {
+   std::unordered_map<SectionType, std::string> sectionTypeStringMap = {
+        {ConstantsType, "constants"},
+        {VariablesType, "variables"},
+        {PerPlayerType, "per_player"},
+        {PerAudienceType, "per_audience"}
+    };
 
-//for parsing the constants part
-void GameSpecificationFactory::parseConstants() {
-        ts::Node constantsNode = root->getChildByFieldName("constants");
-        if (!constantsNode.isNull()) {
-        
-        // Retrieve the map node within constants
-        ts::Node mapNode = constantsNode.getChildByFieldName("map");
-        
-        if (!mapNode.isNull()) {
-            // then we can just parse the mapNode for keyVal pairs
-            auto constantsMap = parseValueMap(mapNode);
-            
-            // then we can fill the Constants object with parsed keyVal pairs
-            for (const auto& [key, value] : constantsMap) {
-                constants.setValue(key, value);
-            }
+    std::unordered_map<SectionType, ValueMap> sectionMap = {
+        {ConstantsType, this->constants},
+        {VariablesType, this->variables},
+        {PerPlayerType, this->perPlayer},
+        {PerAudienceType, this->perAudience}
+    };
 
-            // Debug output to confirm parsed constants
-            std::cout << "Parsed Constants:" << std::endl;
-            for (const auto& [key, value] : constants.getValues()) {
-                std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
-            }
-            
-        } else {
-            std::cerr << "no constants map" << std::endl;
-        }
+    std::string sectionName = sectionTypeStringMap[sectionType];
+    auto section = sectionMap[sectionType];
 
-    } else {
-        std::cerr << "no constants in the file" << std::endl;
+    std::cout << "Parsing section: " << sectionName << std::endl;
+    auto sectionNode = root->getChildByFieldName(sectionName);
+    if (sectionNode.isNull()) {
+        std::cerr << "no " << sectionName << " in the file" << std::endl;
+        return;
     }
-}
+    // Retrieve the map node within sections
+    ts::Node mapNode = sectionNode.getChildByFieldName("map");
+    
+    if (mapNode.isNull()) {
+        std::cerr << "no " << sectionName << " map" << std::endl;
+        return;
+    }
 
-void GameSpecificationFactory::parseVariables() {
-    auto variablesNode = root->getChildByFieldName("variables");
-    // variables = Variables(parseValueMap(variablesNode));
-}
-
-void GameSpecificationFactory::parsePerPlayer() {
-    auto perPlayerNode = root->getChildByFieldName("per_player");
-    // perPlayer = PerUser(parseValueMap(perPlayerNode));
-}
-
-void GameSpecificationFactory::parsePerAudience() {
-    auto perAudienceNode = root->getChildByFieldName("per_audience");
-    // perAudience = PerAudience(parseValueMap(perAudienceNode));
+    // then we can just parse the mapNode for keyVal pairs
+    auto sectionsMap = parseValueMap(mapNode);
+    // then we can fill the Sections object with parsed keyVal pairs
+    for (const auto& [key, value] : sectionsMap) {
+        section.setValue(key, value);
+    }
+    // Debug output to confirm parsed sections
+    std::cout << "Parsed " << sectionName << ": " << std::endl;
+    for (const auto& [key, value] : section.getValues()) {
+        std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
+    }
+    std::cout << std::endl;
 }
 
 void GameSpecificationFactory::parseRules() {
