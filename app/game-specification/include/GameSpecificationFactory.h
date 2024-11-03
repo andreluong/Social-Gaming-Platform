@@ -143,14 +143,5 @@ private:
 
     void parseSection(enum SectionType sectionType);
 
-    //for parsing the constants part
-    void parseConstants();
-
-    void parseVariables();
-
-    void parsePerPlayer();
-
-    void parsePerAudience();
-
     void parseRules();
 };
