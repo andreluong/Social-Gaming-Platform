@@ -1,4 +1,4 @@
-#include "GameSpecificationFactory.h"
+#include "GameSpecificationParser.h"
 #include "ValueMap.h"
 #include <string>
 
@@ -80,9 +80,7 @@ NodeType getNodeType(const std::string& nodeType) {
 
 */
 
-extern "C" {
-TSLanguage* tree_sitter_socialgaming();
-}
+
 
 // Temporary helper for debug
 void printUnorderedMap(const std::unordered_map<std::string, std::string>& map) {
@@ -92,49 +90,23 @@ void printUnorderedMap(const std::unordered_map<std::string, std::string>& map) 
 }
 
 // Parses the game file to initialize game specification objects with data, currently 6 objects (see private fields)
-GameSpecificationFactory::GameSpecificationFactory(const std::string& gameFilePath) {
+GameSpecificationParser::GameSpecificationParser(const SyntaxTree& syntaxTree) 
+    : sourceCode(syntaxTree.getSourceCode()), root(syntaxTree.getRootNode()) 
+{
     constants = Constants();
     variables = Variables();
     perPlayer = PerPlayer();
     perAudience = PerAudience();
-
-    // Load the game file
-    std::ifstream gameFile(gameFilePath);
-    if (!gameFile.is_open()) {
-        throw std::runtime_error("Could not open game file.");
-    }
-
-    ts::Language language = tree_sitter_socialgaming();
-    ts::Parser parser{language};
-
-    std::stringstream buffer;
-    buffer << gameFile.rdbuf();
-    sourceCode = buffer.str();
-    
-    // Get the syntax tree
-    tree = parser.parseString(sourceCode);
-
-    // Get the root node of the syntax tree. 
-    root = tree->getRootNode();
-
-    if (root == std::nullopt) {
-        throw std::runtime_error("Could not find root node");
-    }
-
-    // For printSExpression.py use, comment out if not using
-    auto treestring = root->getSExpr();
-    auto ostream = std::ofstream("sexpression.txt");
-    ostream << treestring.get();
 }
 
 
-
-std::string sourceCode;
+// unnecessary?
+//std::string sourceCode;
 
 // Helper methods
 
 // 1 and 3 are the position of the numbers
-std::pair<int, int> GameSpecificationFactory::parseNumberRange(ts::Node rangeNode) {
+std::pair<int, int> GameSpecificationParser::parseNumberRange(ts::Node rangeNode) {
     int min = std::stoi(std::string(rangeNode.getChild(1).getSourceRange(sourceCode)));
     int max = std::stoi(std::string(rangeNode.getChild(3).getSourceRange(sourceCode)));
     return {min, max};
@@ -142,7 +114,7 @@ std::pair<int, int> GameSpecificationFactory::parseNumberRange(ts::Node rangeNod
 
 // Just string to string for now; not correct yet, find comment: // Trying to figure out how to implement parseValueMap
 // Supports values of type: quoted_string, list_literal, and nested value_map
-std::unordered_map<std::string, std::string> GameSpecificationFactory::parseValueMap(ts::Node mapNode) {
+std::unordered_map<std::string, std::string> GameSpecificationParser::parseValueMap(ts::Node mapNode) {
     std::unordered_map<std::string, std::string> valueMap = {};
     
     for (int i = 0; i < mapNode.getNumNamedChildren(); ++i) {
@@ -206,7 +178,7 @@ std::unordered_map<std::string, std::string> GameSpecificationFactory::parseValu
 
 
 // Parse different types of expressions based on their node type
-std::string GameSpecificationFactory::parseExpression(ts::Node expressionNode) {
+std::string GameSpecificationParser::parseExpression(ts::Node expressionNode) {
     NodeType type = getNodeType(std::string(expressionNode.getType()));
 
     switch (type) {
@@ -227,7 +199,7 @@ std::string GameSpecificationFactory::parseExpression(ts::Node expressionNode) {
     * Combines lhs, operator, and rhs as a "lhs operator rhs" string
 */
 
-std::string GameSpecificationFactory::parseComparison(ts::Node comparisonNode) {
+std::string GameSpecificationParser::parseComparison(ts::Node comparisonNode) {
     std::string lhs = parseExpression(comparisonNode.getChild(0));
     std::string operatorText = std::string(comparisonNode.getChild(1).getSourceRange(sourceCode));
     std::string rhs = parseExpression(comparisonNode.getChild(2));
@@ -242,7 +214,7 @@ std::string GameSpecificationFactory::parseComparison(ts::Node comparisonNode) {
     * - Gets the rhs from getChild(2)
     * - Returns the expression as a string in "lhs operator rhs" format
     */
-std::string GameSpecificationFactory::parseLogicalOperation(ts::Node logicalNode) {
+std::string GameSpecificationParser::parseLogicalOperation(ts::Node logicalNode) {
     std::string lhs = parseExpression(logicalNode.getChild(0));
     std::string operatorText = std::string(logicalNode.getChild(1).getSourceRange(sourceCode));
     std::string rhs = parseExpression(logicalNode.getChild(2));
@@ -251,7 +223,7 @@ std::string GameSpecificationFactory::parseLogicalOperation(ts::Node logicalNode
 }
 
 // Helper to parse a list like [ "Rock", "Paper", "Scissors" ] & ret as a formatted string
-std::string GameSpecificationFactory::parseList(ts::Node listNode) {
+std::string GameSpecificationParser::parseList(ts::Node listNode) {
 std::stringstream ss;
 ss << "[";
 
@@ -268,7 +240,7 @@ return ss.str();
 }
 
 // Helper to parse a nested map within a map entry ret formatted as a string
-std::string GameSpecificationFactory::parseNestedMap(ts::Node nestedMapNode) {
+std::string GameSpecificationParser::parseNestedMap(ts::Node nestedMapNode) {
     auto nestedMap = parseValueMap(nestedMapNode);
     std::stringstream ss;
     ss << "{";
@@ -288,7 +260,7 @@ std::string GameSpecificationFactory::parseNestedMap(ts::Node nestedMapNode) {
 
 
 // now works and parses boolean values correctly
-std::string GameSpecificationFactory::parseBoolean(ts::Node booleanNode) {
+std::string GameSpecificationParser::parseBoolean(ts::Node booleanNode) {
     std::string boolValue = std::string(booleanNode.getSourceRange(sourceCode));
     if (boolValue == "true") {
         return "true";
@@ -299,7 +271,7 @@ std::string GameSpecificationFactory::parseBoolean(ts::Node booleanNode) {
 }
 
 // Parses an int node and returns it as a string
-std::string GameSpecificationFactory::parseInteger(ts::Node integerNode) {
+std::string GameSpecificationParser::parseInteger(ts::Node integerNode) {
 std::string intValueStr = std::string(integerNode.getSourceRange(sourceCode));
     // then convert str to int
     int intValue = std::stoi(intValueStr);
@@ -309,7 +281,7 @@ std::string intValueStr = std::string(integerNode.getSourceRange(sourceCode));
 }
 
 // Parses an Id node and returns it as a str
-std::string GameSpecificationFactory::parseIdentifier(ts::Node identifierNode) {
+std::string GameSpecificationParser::parseIdentifier(ts::Node identifierNode) {
 std::string identifierValue = std::string(identifierNode.getSourceRange(sourceCode));
     // final result in a separate variable for readability
     std::string result = identifierValue;
@@ -321,26 +293,29 @@ std::string identifierValue = std::string(identifierNode.getSourceRange(sourceCo
 
 // Parsing methods for each category
 
-void GameSpecificationFactory::parseConfiguration() {
-
-    ts::Node configurationNode = root->getChildByFieldName("configuration");
-
-    ts::Node nameNode = configurationNode.getChildByFieldName("name");
-    configuration.setName(nameNode.getSourceRange(sourceCode));
-    //std::cout << configuration.getName();
+Configuration GameSpecificationParser::parseConfiguration() {
     
-    ts::Node playerRangeNode = configurationNode.getChildByFieldName("player_range");
+    // if moving forward with refactoring, delete commented, it was moved into Configuration constructor
+    ts::Node configurationNode = root->getChildByFieldName("configuration");
+    Configuration configuration(configurationNode, sourceCode);
+    return configuration;
 
-    // new, maybe just use old for consistency unless we find a reason to refactor/remove all setter methods
-    auto rangeValues = parseNumberRange(playerRangeNode);
-    configuration.playerRange = rangeValues;
-    // old but this works too
-    //configuration.setPlayerRange(playerRangeNode.getSourceRange(sourceCode));
-    //configuration.printPlayerRange();
+    // ts::Node nameNode = configurationNode.getChildByFieldName("name");
+    // configuration.setName(nameNode.getSourceRange(sourceCode));
+    // //std::cout << configuration.getName();
+    
+    // ts::Node playerRangeNode = configurationNode.getChildByFieldName("player_range");
 
-    ts::Node hasAudienceNode = configurationNode.getChildByFieldName("has_audience");
-    configuration.setHasAudience(hasAudienceNode.getSourceRange(sourceCode));
-    //configuration.printHasAudience();
+    // // new, maybe just use old for consistency unless we find a reason to refactor/remove all setter methods
+    // auto rangeValues = parseNumberRange(playerRangeNode);
+    // configuration.playerRange = rangeValues;
+    // // old but this works too
+    // //configuration.setPlayerRange(playerRangeNode.getSourceRange(sourceCode));
+    // //configuration.printPlayerRange();
+
+    // ts::Node hasAudienceNode = configurationNode.getChildByFieldName("has_audience");
+    // configuration.setHasAudience(hasAudienceNode.getSourceRange(sourceCode));
+    // //configuration.printHasAudience();
     
     
     // Trying to figure out how to implement parseValueMap
@@ -368,22 +343,24 @@ void GameSpecificationFactory::parseConfiguration() {
     //     std::cout << configurationNode.getNamedChild(i).getType() << "\n";
     // }
 
-    // This is the first setup rule out of some amount, might need to be changed
-    // if we can't assume there is at least one
-    ts::Node setupRuleNode = configurationNode.getNamedChild(3);
 
-    while (!setupRuleNode.isNull() && setupRuleNode.isNamed()) {
-        SetupRule setupRule(setupRuleNode, sourceCode);
 
-        // have not tested thoroughly yet
-        configuration.addSetupRule(setupRule);
-        setupRuleNode = setupRuleNode.getNextSibling();
-    }
+    // // This is the first setup rule out of some amount, might need to be changed
+    // // if we can't assume there is at least one
+    // ts::Node setupRuleNode = configurationNode.getNamedChild(3);
+
+    // while (!setupRuleNode.isNull() && setupRuleNode.isNamed()) {
+    //     SetupRule setupRule(setupRuleNode, sourceCode);
+
+    //     // have not tested thoroughly yet
+    //     configuration.addSetupRule(setupRule);
+    //     setupRuleNode = setupRuleNode.getNextSibling();
+    // }
 
 }
 
 // TODO: unimplemented from here on
-void GameSpecificationFactory::parseSection(enum SectionType sectionType) {
+void GameSpecificationParser::parseSection(enum SectionType sectionType) {
    std::unordered_map<SectionType, std::string> sectionTypeStringMap = {
         {ConstantsType, "constants"},
         {VariablesType, "variables"},
@@ -429,7 +406,7 @@ void GameSpecificationFactory::parseSection(enum SectionType sectionType) {
     std::cout << std::endl;
 }
 
-void GameSpecificationFactory::parseRules() {
+void GameSpecificationParser::parseRules() {
     auto rulesNode = root->getChildByFieldName("rules");
     auto bodyNode = rulesNode.getChildByFieldName("body");
     auto rulesParser = RulesParser(sourceCode);
