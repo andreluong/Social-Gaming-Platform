@@ -402,32 +402,31 @@ void GameSpecificationFactory::parseSection(enum SectionType sectionType) {
     auto section = sectionMap[sectionType];
 
     std::cout << "Parsing section: " << sectionName << std::endl;
-
     auto sectionNode = root->getChildByFieldName(sectionName);
-    if (!sectionNode.isNull()) {
-        // Retrieve the map node within sections
-        ts::Node mapNode = sectionNode.getChildByFieldName("map");
-        
-        if (!mapNode.isNull()) {
-            // then we can just parse the mapNode for keyVal pairs
-            auto sectionsMap = parseValueMap(mapNode);
-            
-            // then we can fill the Sections object with parsed keyVal pairs
-            for (const auto& [key, value] : sectionsMap) {
-                section.setValue(key, value);
-            }
-
-            // Debug output to confirm parsed sections
-            std::cout << "Parsed " << sectionName << ": " << std::endl;
-            for (const auto& [key, value] : constants.getValues()) {
-                std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
-            }
-        } else {
-            std::cerr << "no " << sectionName << " map" << std::endl;
-        }
-    } else {
+    if (sectionNode.isNull()) {
         std::cerr << "no " << sectionName << " in the file" << std::endl;
+        return;
     }
+    // Retrieve the map node within sections
+    ts::Node mapNode = sectionNode.getChildByFieldName("map");
+    
+    if (mapNode.isNull()) {
+        std::cerr << "no " << sectionName << " map" << std::endl;
+        return;
+    }
+
+    // then we can just parse the mapNode for keyVal pairs
+    auto sectionsMap = parseValueMap(mapNode);
+    // then we can fill the Sections object with parsed keyVal pairs
+    for (const auto& [key, value] : sectionsMap) {
+        section.setValue(key, value);
+    }
+    // Debug output to confirm parsed sections
+    std::cout << "Parsed " << sectionName << ": " << std::endl;
+    for (const auto& [key, value] : section.getValues()) {
+        std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
+    }
+    std::cout << std::endl;
 }
 
 void GameSpecificationFactory::parseRules() {

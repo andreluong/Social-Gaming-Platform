@@ -43,10 +43,6 @@ public:
         parseSection(SectionType::VariablesType);
         parseSection(SectionType::PerPlayerType);
         parseSection(SectionType::PerAudienceType);
-        parseConstants();
-        // parseVariables();
-        // parsePerPlayer();
-        // parsePerAudience();
         parseRules();
     }
 
