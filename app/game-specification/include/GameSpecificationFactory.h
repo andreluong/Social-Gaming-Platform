@@ -26,27 +26,16 @@
 #include <unordered_map>
 #include <cpp-tree-sitter.h>
 
-enum SectionType {
-    ConstantsType = 1,
-    VariablesType = 2,
-    PerPlayerType = 3,
-    PerAudienceType = 4
-};
-
 class GameSpecificationFactory {
 public:
     GameSpecificationFactory(const std::string& gameFilePath);
 
     void parseGameSpecification() {
         parseConfiguration();
-        parseSection(SectionType::ConstantsType);
-        parseSection(SectionType::VariablesType);
-        parseSection(SectionType::PerPlayerType);
-        parseSection(SectionType::PerAudienceType);
         parseConstants();
-        // parseVariables();
-        // parsePerPlayer();
-        // parsePerAudience();
+        parseVariables();
+        parsePerPlayer();
+        parsePerAudience();
         parseRules();
     }
 
@@ -54,19 +43,19 @@ public:
         return configuration;
     }
 
-    class Constants getConstants() {
+    Constants getConstants() {
         return constants;
     }
 
-    class Variables getVariables() {
+    Variables getVariables() {
         return variables;
     }
 
-    class PerPlayer getPerPlayer() {
+    PerPlayer getPerPlayer() {
         return perPlayer;
     }
 
-    class PerAudience getPerAudience() {
+    PerAudience getPerAudience() {
         return perAudience;
     }
 
@@ -83,11 +72,11 @@ private:
     std::optional<ts::Node> root;
 
     // Objects to hold the parsed data
-    class Configuration configuration = {"", {0, 0}, true}; // Defaults
-    class Constants constants;
-    class Variables variables;
-    class PerPlayer perPlayer;
-    class PerAudience perAudience;
+    Configuration configuration = {"", {0, 0}, true}; // Defaults
+    Constants constants;
+    Variables variables;
+    PerPlayer perPlayer;
+    PerAudience perAudience;
     // Rules rules;
 
     // Helper methods
@@ -140,8 +129,6 @@ private:
     // Parsing methods for each category
 
     void parseConfiguration();
-
-    void parseSection(enum SectionType sectionType);
 
     //for parsing the constants part
     void parseConstants();
