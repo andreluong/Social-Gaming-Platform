@@ -94,6 +94,7 @@ void SetupRule::setName(std::string_view name) {
 }
 
 void SetupRule::setKind(std::string_view strKind) {
+    std::cout << strKind.data() << std::endl;
     if(kindMap.find(strKind.data()) == kindMap.end()){
         std::cout << "unknown setting kind" << std::endl; // should get replaced with spdlog once working
         this->kind = SettingKind::NONE;
