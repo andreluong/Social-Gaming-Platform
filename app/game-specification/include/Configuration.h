@@ -48,8 +48,10 @@ private:
 
     // Temporary helper functions repeated just to check functionality; possibly moving them from GameSpecificationParser into static helper class or some other solution
     std::pair<int, int> parseNumberRange(const ts::Node& node, const std::string& sourceCode) {
-        int min = std::stoi(std::string(node.getChild(0).getSourceRange(sourceCode)));
-        int max = std::stoi(std::string(node.getChild(1).getSourceRange(sourceCode)));
+        // std::cout << std::string(node.getNamedChild(0).getSourceRange(sourceCode)) << std::endl;
+        // std::cout << std::string(node.getNamedChild(1).getSourceRange(sourceCode)) << std::endl;
+        int min = std::stoi(std::string(node.getNamedChild(0).getSourceRange(sourceCode)));
+        int max = std::stoi(std::string(node.getNamedChild(1).getSourceRange(sourceCode)));
         return {min, max};
     }
 
