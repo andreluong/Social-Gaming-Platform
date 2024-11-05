@@ -65,5 +65,6 @@ int main(int argc, char** argv) {
 
     // std::cout << "Rules Body: " << rules.getBody() << std::endl;
 
+    printf("demo successfully ended");
     return 0;
 }

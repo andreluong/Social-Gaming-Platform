@@ -4,6 +4,17 @@ project(SocialGamingPlatform)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(
+        -fsanitize=address
+        -fsanitize=undefined
+    )
+    add_link_options(
+        -fsanitize=address
+        -fsanitize=undefined
+    )
+endif()
+
 add_subdirectory(game-logic)
 add_subdirectory(lib)
 add_subdirectory(web-socket-networking)

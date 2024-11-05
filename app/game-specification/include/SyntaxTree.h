@@ -20,7 +20,7 @@ public:
         ts::Parser parser(language);
 
         // Parse the source code
-        std::optional<ts::Tree> tree = parser.parseString(sourceCode);
+        tree = parser.parseString(sourceCode);
 
         // Check if the tree was parsed correctly and initialize the root node
         if (tree.has_value()) {
@@ -47,6 +47,7 @@ public:
 private:
     std::string sourceCode;
     std::optional<ts::Node> root;
+    std::optional<ts::Tree> tree;
 };
 
 #endif
