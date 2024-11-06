@@ -11,7 +11,7 @@
 #include <iostream>
 #include <cpp-tree-sitter.h>
 
-class GameSpecificationFactory;
+class GameSpecificationParser;
 
 enum class SettingKind {
     BOOLEAN,
@@ -71,7 +71,7 @@ private:
     void setField(const ts::Node &node, const SetupField &setupField, std::string_view sourceCode); // used for lambda to use appropriate setter
 
     // Only friend class should access setters
-    friend class GameSpecificationFactory;
+    friend class GameSpecificationParser;
 };
 
 #endif

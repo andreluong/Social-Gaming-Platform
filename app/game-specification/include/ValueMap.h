@@ -11,7 +11,7 @@
 using Variant = std::variant<std::string, int, bool>;
 using ValueType = std::variant<std::string, int, bool, std::unordered_map<std::string, Variant>, std::vector<Variant>>;
 
-class GameSpecificationFactory;
+class GameSpecificationParser;
 
 class ValueMap {
 public:
@@ -29,7 +29,7 @@ private:
     void setValue(const std::string& name, const ValueType& value);
 
     // Only friend class should access setters
-    friend class GameSpecificationFactory;
+    friend class GameSpecificationParser;
 };
 
 #endif

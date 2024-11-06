@@ -1,5 +1,12 @@
-#include "GameSpecificationFactory.h"
+#include "GameSpecificationParser.h"
+#include "SyntaxTree.h"
+#include "GameFileLoader.h"
+#include "GameObjectFactory.h"
 
+
+extern "C" {
+TSLanguage* tree_sitter_socialgaming();
+}
 
 int main(int argc, char** argv) {
 
@@ -10,21 +17,24 @@ int main(int argc, char** argv) {
 
     std::string gamePath = argv[1];
 
-    GameSpecificationFactory factory(gamePath);
+    GameFileLoader loader(gamePath);
+    ts::Language language = tree_sitter_socialgaming();
+    SyntaxTree syntaxTree = loader.loadSyntaxTree(language);
 
-    factory.parseGameSpecification();
+    GameSpecificationParser parser(syntaxTree);
+    GameObjectFactory gameObjectFactory(parser);
 
-    // // Print syntax tree
-    // auto treestring = factory.root.getSExpr();
-    // printf("Syntax tree:%s\n", treestring.get());
+    // Game objects
+    std::unique_ptr<Configuration> configuration = gameObjectFactory.createConfiguration();
+    // std::unique_ptr<Constants> constants = gameObjectFactory.createConstants();
+    // std::unique_ptr<Variables> variables = gameObjectFactory.createVariables();
+    // std::unique_ptr<PerPlayer> perPlayer = gameObjectFactory.createPerPlayer();
+    // std::unique_ptr<PerAudience> perAudience = gameObjectFactory.createPerAudience();
+    // std::unique_ptr<Rules> rules = gameObjectFactory.createRules();
 
-    // // Get parsed objects
-    // Configuration configuration = factory.getConfiguration();
-    // Constants constants = factory.getConstants();
-    // Variables variables = factory.getVariables();
-    // PerPlayer perPlayer = factory.getPerPlayer();
-    // PerAudience perAudience = factory.getPerAudience();
-    // Rules rules = factory.getRules();
+    // Should accept these game objects, std::move()
+    GameManager gameManager();
+
 
 
     // // Check the parsed data
@@ -55,5 +65,6 @@ int main(int argc, char** argv) {
 
     // std::cout << "Rules Body: " << rules.getBody() << std::endl;
 
+    printf("demo successfully ended\n");
     return 0;
 }

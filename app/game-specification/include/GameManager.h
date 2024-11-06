@@ -1,4 +1,4 @@
-#include "GameSpecificationFactory.h"
+#include "GameSpecificationParser.h"
 
 #ifndef GAMEMANAGER_H
 #define GAMEMANAGER_H

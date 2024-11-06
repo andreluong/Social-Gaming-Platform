@@ -24,8 +24,8 @@ add_library(perser)
 
 target_sources(perser
   PUBLIC
-    GameSpecificationFactory.cpp
-    Configuration.cpp
+    GameSpecificationParser.cpp
+    #Configuration.cpp
     GameManager.cpp
     SetupRule.cpp
     ValueMap.cpp

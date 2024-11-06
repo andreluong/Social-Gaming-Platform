@@ -5,15 +5,13 @@
 
 // No .cpp
 
+// was for SetupRule.choices, but unused?
+
 class EnumDescription {
 public:
     EnumDescription(std::string_view name, std::string_view description)
         : name(name), description(description) {}
 
-    std::string getName() const { return name; }
-    std::string getDescription() const { return description; }
-
-private:
     std::string name;
     std::string description;
 };

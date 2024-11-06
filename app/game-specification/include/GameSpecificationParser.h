@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SyntaxTree.h"
 #include "Configuration.h"
 #include "SetupRule.h"
 #include "EnumDescription.h"
@@ -33,53 +34,14 @@ enum SectionType {
     PerAudienceType = 4
 };
 
-class GameSpecificationFactory {
+class GameSpecificationParser {
 public:
-    GameSpecificationFactory(const std::string& gameFilePath);
+    GameSpecificationParser(const SyntaxTree& syntaxTree);
 
-    void parseGameSpecification() {
-        parseConfiguration();
-        parseSection(SectionType::ConstantsType);
-        parseSection(SectionType::VariablesType);
-        parseSection(SectionType::PerPlayerType);
-        parseSection(SectionType::PerAudienceType);
-        parseRules();
-    }
-
-    Configuration getConfiguration() {
-        return configuration;
-    }
-
-    class Constants getConstants() {
-        return constants;
-    }
-
-    class Variables getVariables() {
-        return variables;
-    }
-
-    class PerPlayer getPerPlayer() {
-        return perPlayer;
-    }
-
-    class PerAudience getPerAudience() {
-        return perAudience;
-    }
-
-    // Rules getRules() {
-    //     return rules;
-    // }
-
-private:
-
-    std::string sourceCode;
-
-    // Optional because Tree/Node have no default constructor
-    std::optional<ts::Tree> tree;
-    std::optional<ts::Node> root;
+    // remove eventually
 
     // Objects to hold the parsed data
-    class Configuration configuration = {"", {0, 0}, true}; // Defaults
+    //class Configuration configuration = {"", {0, 0}, true}; // Defaults
     class Constants constants;
     class Variables variables;
     class PerPlayer perPlayer;
@@ -133,11 +95,22 @@ private:
     // Parses an Id node and returns it as a str
     std::string parseIdentifier(ts::Node identifierNode);
 
+
+
     // Parsing methods for each category
 
-    void parseConfiguration();
+    Configuration parseConfiguration();
 
+
+
+    // TODO: return valuemap?
     void parseSection(enum SectionType sectionType);
 
+    // TODO: return rules
     void parseRules();
+
+private:
+
+    std::string sourceCode;    
+    std::optional<ts::Node> root;
 };
