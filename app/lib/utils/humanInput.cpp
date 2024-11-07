@@ -2,7 +2,6 @@
 #include "humanInputType.h"
 #include <ranges>
 #include <numeric>
-#include <format>
 
 // Create and send a message to a server
 static void sendMessage(User* user,
@@ -35,7 +34,7 @@ void inputChoice(User *user,
                  InputRequestQueue *queue)
 {
     auto allChoices = joinChoices(choices);
-    auto choicesPrompt = std::format("{} :\n {}", prompt, allChoices);
+    auto choicesPrompt = std::string(prompt) + ":\n" + allChoices; 
     sendMessage(user, choicesPrompt, server, queue, HumanInputType::CHOICE);
 }
 
@@ -57,11 +56,9 @@ void inputRange(User *user,
                 networking::Server *server,
                 InputRequestQueue *queue)
 {
-    auto rangePrompt = std::format("Range is between {} and {}", 
-        std::to_string(range.first), 
-        std::to_string(range.second)
-    );
-    auto totalPrompt = std::format("{} :\n {}", prompt, rangePrompt);
+    auto rangesPrompt = "Range is between" + std::to_string(range.first) +
+                        " and " + std::to_string(range.second);
+    auto totalPrompt = std::string(prompt) + ":\n" + rangesPrompt; 
     sendMessage(user, totalPrompt, server, queue, HumanInputType::RANGE);
 }
 
@@ -74,6 +71,6 @@ void inputVote(User *user,
                 InputRequestQueue *queue) 
 {
     auto allChoices = joinChoices(choices);
-    auto choicesPrompt = std::format("{} :\n {}", prompt, allChoices);
+    auto choicesPrompt = std::string(prompt) + ":\n" + allChoices; 
     sendMessage(user, choicesPrompt, server, queue, HumanInputType::VOTE);
 }
