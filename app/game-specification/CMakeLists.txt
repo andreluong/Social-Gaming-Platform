@@ -7,7 +7,7 @@ include(cmake/CPM.cmake)
 CPMAddPackage(
   NAME cpp-tree-sitter
   GIT_REPOSITORY https://github.com/nsumner/cpp-tree-sitter.git
-  GIT_TAG v0.0.2                                        # newest 0.0.3 causes errors?
+  GIT_TAG v0.0.3                                        # newest 0.0.3 causes errors?
 )
 
 # Downloads a tree-sitter grammar from github and makes it available as a
