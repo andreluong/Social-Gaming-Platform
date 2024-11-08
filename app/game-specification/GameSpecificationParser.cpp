@@ -406,12 +406,10 @@ void GameSpecificationParser::parseSection(enum SectionType sectionType) {
     std::cout << std::endl;
 }
 
-void GameSpecificationParser::parseRules() {
+RulesParser GameSpecificationParser::parseRules() {
     auto rulesNode = root->getChildByFieldName("rules");
     auto bodyNode = rulesNode.getChildByFieldName("body");
-    auto rulesParser = RulesParser(sourceCode);
-    std::vector<std::unique_ptr<Rule>> rulesVector;
-    rulesParser.parseBody(bodyNode, rulesVector);
+    return RulesParser(bodyNode, sourceCode);
 }
 
 

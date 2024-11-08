@@ -37,8 +37,8 @@ public:
         //return std::make_unique<PerPlayer>(parser.parseSection(SectionType::PerPlayerType));
     }
 
-    std::unique_ptr<Rules> createRules() {
-        //return std::make_unique<Rules>(parser.parseRules());
+    std::unique_ptr<RulesParser> createRules() {
+        return std::make_unique<RulesParser>(parser.parseRules());
     }
 
 private:

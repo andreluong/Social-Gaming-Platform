@@ -106,8 +106,7 @@ public:
     // TODO: return valuemap?
     void parseSection(enum SectionType sectionType);
 
-    // TODO: return rules
-    void parseRules();
+    RulesParser parseRules();
 
 private:
 
