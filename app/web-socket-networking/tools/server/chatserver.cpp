@@ -8,6 +8,7 @@
 #include "Server.h"
 #include "User.h"
 #include "Lobby.h"
+#include "LobbyManager.h"
 #include "string_utils.h"
 #include "featureToggle.h"
 #include <algorithm>
@@ -28,11 +29,13 @@ using networking::Connection;
 using networking::Message;
 using networking::Server;
 
-std::vector<Connection> clients;
+// std::vector<Connection> clients;
 
-std::vector<User> users;
-Lobby reception = Lobby();
-std::vector<Lobby> lobs = {};
+// std::vector<User> users;
+// Lobby reception = Lobby();
+// std::vector<Lobby> lobs = {};
+
+LobbyManager lobbymanager;
 
 // std::map<unsigned long int, int> playerIdToLobbyIdMap;
 // std::map<unsigned long int, std::string> playerIdToUsernameMap;
@@ -46,32 +49,41 @@ static auto findUser = [](uintptr_t connectionID) {
   return f;
 };
 
-void deleteIfEmptyLobby(Lobby *lobby) {
-  if (lobby->getUsers().size() == 0) {
-    auto found = std::find(lobs.begin(), lobs.end(), *lobby);
-    std::cout << found.base()->getLobbyNum() << std::endl;
-    lobs.erase(found);
-  }
-}
+
+// this should get called every delete operation in lobbyManager
+// void deleteIfEmptyLobby(Lobby *lobby) {
+//   if (lobby->getUsers().size() == 0) {
+//     auto found = std::find(lobs.begin(), lobs.end(), *lobby);
+//     std::cout << found.base()->getLobbyNum() << std::endl;
+//     lobs.erase(found);
+//   }
+// }
+
+// void deleteIfEmptyLobby(unsigned int lobbyNum) {
+//   auto lobby = std::find_if(lobs.begin(), lobs.end(), [&lobbyNum](Lobby lobby){
+//     return lobbyNum == lobby.getLobbyNum();
+//   });
+//   if (lobby->getUsers().size() == 0) {
+//     auto found = std::find(lobs.begin(), lobs.end(), *lobby);
+//     std::cout << found.base()->getLobbyNum() << std::endl;
+//     lobs.erase(found);
+//   }
+// }
 
 void onConnect(Connection c) {
   std::cout << "New connection found: " << c.id << "\n";
-  User user(c.id, c);
-
-  user.setLobby(&reception);
-  reception.addUser(&user);
-
-  users.push_back(user);
-  clients.push_back(c);
+  lobbymanager.createUser(c.id, c);
 }
 
 void onDisconnect(Connection c) {
   std::cout << "Connection lost: " << c.id << "\n";
-  auto eraseBegin = std::remove(std::begin(clients), std::end(clients), c);
-  auto userErase = std::remove_if(users.begin(), users.end(), findUser(c.id));
-  userErase.base()->getLobby()->removeUser(userErase.base());
-  users.erase(userErase);
-  clients.erase(eraseBegin, std::end(clients));
+  lobbymanager.deleteUser(c.id);
+  // auto eraseBegin = std::remove(std::begin(clients), std::end(clients), c);
+  // auto userErase = std::remove_if(users.begin(), users.end(), findUser(c.id));
+  // userErase.base()->getLobby()->removeUser(userErase.base());
+
+  // users.erase(userErase);
+  // clients.erase(eraseBegin, std::end(clients));
 }
 
 struct processedMessage {
@@ -106,16 +118,13 @@ void processInputRequestQueue(InputRequestQueue inputRequestQueue, const Message
 
 void handleLobbyOperation(Server &server, const Message &message,
                           std::ostringstream &result,
-                          const std::vector<User>::iterator &user, bool &quit) {
-  // int lobbyid = playerIdToLobbyIdMap[message.connection.id];
-  // auto user = std::find_if(users.begin(), users.end(),
-  // findUser(message.connection.id));
-  auto lobbyid = user.base()->getLobby()->getLobbyNum();
-  auto username = user.base()->getName();
+                          const std::vector<std::unique_ptr<User>>::iterator &user, bool &quit) {
+  auto lobbyid = user.base()->get()->getLobby();
+  auto username = user.base()->get()->getName();
   // Quits both the lobby and the game
   std::pair<std::string, std::string> userInput = splitCommand(message.text);
   if (message.text == "quit") {
-    users.erase(user);
+    lobbymanager.deleteUser(user.base()->get()->getId());
     // Assuming `server` is accessible here
     // server.disconnect(message.connection);
   } else if (message.text == "SVshutdown") {
@@ -124,12 +133,12 @@ void handleLobbyOperation(Server &server, const Message &message,
   } else if (userInput.first == "rename" && userInput.second.length() > 0) {
     // playerIdToUsernameMap.insert_or_assign(message.connection.id,
     // userInput.second);
-    user.base()->setName(userInput.second);
-    result << user.base()->getName() << " renamed to " << userInput.second
+    user.base()->get()->setName(userInput.second);
+    result << user.base()->get()->getName() << " renamed to " << userInput.second
            << "\n";
   } else if (message.text == "leave") {
-    deleteIfEmptyLobby(user.base()->getLobby());
-    user.base()->setLobby(&reception);
+    lobbymanager.deleteIfLobbyEmpty(user.base()->get()->getLobby());
+    user.base()->get()->setLobby(0);
     result << "lobby: " << lobbyid << " " << username << "> " << message.text
            << "\n";
     result << "leaving lobby " << message.text << "\n";
@@ -144,12 +153,12 @@ void handleLobbyOperation(Server &server, const Message &message,
 };
 
 void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
-                             const std::vector<User>::iterator &user,
+                             const std::vector<std::unique_ptr<User>>::iterator &user,
                              bool &quit) {
   std::pair<std::string, std::string> userInput = splitCommand(message.text);
 
   if (message.text == "quit") {
-    users.erase(user);
+    lobbymanager.deleteUser(user.base()->get()->getId());
     // Assuming `server` is accessible here
     // server.disconnect(message.connection);
   } else if (message.text == "SVshutdown") {
@@ -158,25 +167,26 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
   } else if (userInput.first == "rename" && userInput.second.length() > 0) {
     // playerIdToUsernameMap.insert_or_assign(message.connection.id,
     // userInput.second);
-    result << user.base()->getName() << " renamed to " << userInput.second
+    result << user.base()->get()->getName() << " renamed to " << userInput.second
            << "\n";
-    user.base()->setName(userInput.second);
+    user.base()->get()->setName(userInput.second);
   } else if (message.text == "create") {
-    lobs.emplace_back();
+    unsigned int lobbyNum = lobbymanager.createLobby();
 
-    user.base()->setLobby(&lobs.back());
-    result << user.base()->getName() << "> " << message.text << "\n";
-    result << "creating lobby " << lobs.back().getLobbyNum() << "\n";
+    user.base()->get()->setLobby(lobbyNum);
+    result << user.base()->get()->getName() << "> " << message.text << "\n";
+    result << "creating lobby " << lobbyNum << "\n";
   } else if (std::all_of(message.text.begin(), message.text.end(), ::isdigit)) {
-    auto lobby =
-        std::find_if(lobs.begin(), lobs.end(), [message](const Lobby &l) {
-          return l.getLobbyNum() == (uint)std::stol(message.text);
-        });
-    user.base()->setLobby(lobby.base());
-    result << user.base()->getName() << "> " << message.text << "\n";
+    // auto lobby =
+    //     std::find_if(lobs.begin(), lobs.end(), [message](const Lobby &l) {
+    //       return l.getLobbyNum() == (uint)std::stol(message.text);
+    //     });
+    auto lobbyIt = lobbymanager.findLobby((uint)std::stol(message.text));
+    user.base()->get()->setLobby(lobbyIt.base()->get()->getLobbyNum());
+    result << user.base()->get()->getName() << "> " << message.text << "\n";
     result << "joining lobby " << std::stoi(message.text) << "\n";
   } else {
-    result << user.base()->getName() << "> " << message.text << "\n";
+    result << user.base()->get()->getName() << "> " << message.text << "\n";
   }
 };
 
@@ -188,8 +198,9 @@ MessageResult processMessages(Server &server,
   for (const auto &message : incoming) {
     std::ostringstream result;
 
-    auto user = std::find_if(users.begin(), users.end(),
-                             findUser(message.connection.id));
+    // auto user = std::find_if(users.begin(), users.end(),
+    //                          findUser(message.connection.id));
+    auto user = lobbymanager.findUserIt(message.connection.id);
 
     // const std::string username =
     // playerIdToUsernameMap.count(message.connection.id) ?
@@ -197,14 +208,14 @@ MessageResult processMessages(Server &server,
     // std::to_string(message.connection.id);
 
     // checking if the user lobby is not referencing the reception
-    if (user.base()->getLobby() != &reception) {
+    if (user.base()->get()->getLobby() != 0) {
       handleLobbyOperation(server, message, result, user, quit);
     } else {
       handleNonLobbyOperation(message, result, user, quit);
     }
 
     results.push_back(
-        processedMessage{result.str(), user.base()->getLobby()->getLobbyNum()});
+        processedMessage{result.str(), user.base()->get()->getLobby()});
   }
   return MessageResult{results, quit};
 }
@@ -212,10 +223,11 @@ MessageResult processMessages(Server &server,
 std::deque<Message> buildOutgoing(const std::vector<processedMessage> &logs) {
   std::deque<Message> outgoing;
   for (auto log : logs) {
-    for (auto client : clients) {
-      auto user = std::find_if(users.begin(), users.end(), findUser(client.id));
-      if (user.base()->getLobby()->getLobbyNum() == log.lobbyNum) {
-        outgoing.push_back({client, log.msg});
+    for (auto& client : lobbymanager.getUsers()) {
+      // auto user = std::find_if(users.begin(), users.end(), findUser(client.get()->getId()));
+      auto user = lobbymanager.findUserIt(client.get()->getId());
+      if (user.base()->get()->getLobby() == log.lobbyNum) {
+        outgoing.push_back({client.get()->getConnection(), log.msg});
       }
     }
   }
