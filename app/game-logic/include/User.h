@@ -46,6 +46,7 @@ class User {
 public:
     User(unsigned long int id, const std::string& name, networking::Connection connection);
     User(unsigned long int id, networking::Connection connection);
+    ~User();
 
     unsigned long int getId() const;
     std::string getName() const;
@@ -54,8 +55,11 @@ public:
     void removeRole(RoleType roleType);
     bool hasRole(RoleType roleType) const;
     void swapPlayerAudienceRoles();
-    Lobby* getLobby() const;
-    void setLobby(Lobby* newLobby);
+    // Lobby* getLobby() const;
+    // void setLobby(Lobby* newLobby);
+    
+    unsigned int getLobby() const;
+    void setLobby(unsigned int lobbyNum);
 
     // const static std::function<std::function<bool (User)> (uintptr_t)> findUser = [](uintptr_t connectionID) {
     //     auto f = [=](const User &user) { return user.getId() == connectionID; };
@@ -68,7 +72,7 @@ private:
     unsigned long int id;
     std::string name;
     std::vector<std::shared_ptr<Role>> roles;
-    Lobby* lobby;
+    unsigned int lobbyNum;
 
     networking::Connection connection;
     std::vector<std::pair<networking::Message, HumanInputType>> responses;
