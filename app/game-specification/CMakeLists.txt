@@ -28,7 +28,7 @@ target_sources(perser
     #Configuration.cpp
     GameManager.cpp
     SetupRule.cpp
-    ValueMap.cpp
+    SectionValueMap.cpp
     RulesParser.cpp
     RuleFactory.cpp
     # add here

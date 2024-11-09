@@ -18,6 +18,8 @@ std::optional<ValueType> ValueMap::getValue(const std::string& name) const {
     return std::nullopt;
 }
 
+
+// The variant is always string here - need to be fixed
 void ValueMap::printValues() const {
     for (const auto& [key, value] : values) {
         std::cout << key << ": ";
