@@ -27,9 +27,9 @@ int main(int argc, char** argv) {
     // Game objects
     std::unique_ptr<Configuration> configuration = gameObjectFactory.createConfiguration();
     std::unique_ptr<Constants> constants = gameObjectFactory.createConstants();
-    // std::unique_ptr<Variables> variables = gameObjectFactory.createVariables();
-    // std::unique_ptr<PerPlayer> perPlayer = gameObjectFactory.createPerPlayer();
-    // std::unique_ptr<PerAudience> perAudience = gameObjectFactory.createPerAudience();
+    std::unique_ptr<Variables> variables = gameObjectFactory.createVariables();
+    std::unique_ptr<PerPlayer> perPlayer = gameObjectFactory.createPerPlayer();
+    std::unique_ptr<PerAudience> perAudience = gameObjectFactory.createPerAudience();
     std::unique_ptr<RulesParser> rules = gameObjectFactory.createRules();
 
     // Should accept these game objects, std::move()
