@@ -30,14 +30,14 @@ int main(int argc, char** argv) {
     // std::unique_ptr<Variables> variables = gameObjectFactory.createVariables();
     // std::unique_ptr<PerPlayer> perPlayer = gameObjectFactory.createPerPlayer();
     // std::unique_ptr<PerAudience> perAudience = gameObjectFactory.createPerAudience();
-    // std::unique_ptr<Rules> rules = gameObjectFactory.createRules();
+    std::unique_ptr<RulesParser> rules = gameObjectFactory.createRules();
 
     // Should accept these game objects, std::move()
-    GameManager gameManager();
-
+    // GameManager gameManager;
 
 
     // // Check the parsed data
+    rules->print();
 
     // std::cout << "Configuration Name: " << configuration.getName() << std::endl;
     // configuration.printPlayerRange();

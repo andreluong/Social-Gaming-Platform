@@ -1,94 +1,52 @@
 #include "RulesParser.h"
-#include "Rule.h"
-#include <unordered_map>
-#include <algorithm>
-#include <iostream>
-#include "dataVariant.h"
-#include <vector>
-#include <string_view>
+#include "RuleFactory.h"
 
-// Holds the control structure name and number of named children
-std::unordered_map<std::string_view, std::size_t> controlStructureChildren = {
-    {"for", 3}
-};
-
-// Holds the list operation name and number of named children
-std::unordered_map<std::string_view, std::size_t> operationChildren = {
-    {"discard", 2},
-    {"extend", 2},
-    {"reverse", 1},
-    {"shuffle", 1},
-    {"deal", 3}
-    // {"sort", 2} // TODO: Has varying length
-};
-
-RulesParser::RulesParser(const std::string& sourceCode) 
-    : sourceCode(sourceCode) {}
-
-std::unique_ptr<ControlStructure> RulesParser::addControlStructure(const std::string_view& ruleType, const ts::Node& ruleNode) {
-    auto controlStructureRule = std::make_unique<ControlStructure>(ruleType);
-    auto numChildren = controlStructureChildren[ruleType];
-
-    for (std::size_t i = 0; i < numChildren; i++) {
-        auto childNode = ruleNode.getNamedChild(i);
-        auto type = childNode.getType();
-
-        if (type == "body") {
-            std::cout << "Parsing body: " << childNode.getSourceRange(sourceCode) << std::endl;
-            parseBody(childNode, controlStructureRule->body);
-        } else {
-            controlStructureRule->addSpecification(type, childNode.getSourceRange(sourceCode));
-        }
-    }
-    return controlStructureRule;
+RulesParser::RulesParser(const ts::Node& node, const std::string& sourceCode) 
+    : sourceCode(sourceCode) {
+    parseBody(node, rules);
 }
 
-
-std::unique_ptr<Rule> RulesParser::addListOperation(const std::string_view& ruleType, const ts::Node& ruleNode) {
-    auto listOperationRule = std::make_unique<Rule>(ruleType);
-    auto numChildren = operationChildren[ruleType];
-
-    for (std::size_t i = 0; i < numChildren; i++) {
-        auto childNode = ruleNode.getNamedChild(i);
-
-        // TODO: Find the actual variable and use it
-        listOperationRule->addSpecification(childNode.getType(), childNode.getSourceRange(sourceCode));
-        
-        std::cout << "Rule: " << childNode.getType() << "; " << childNode.getSourceRange(sourceCode) << std::endl;
-    }
-    return listOperationRule;
-}
-
-
-// Return a parsed rule
+// Returns a pointer to a rule based on the node's type
 std::unique_ptr<Rule> RulesParser::parseRule(const ts::Node& node) {
-    for (auto i = 0; i < node.getNumNamedChildren(); i++) {
-        auto ruleNode = node.getNamedChild(i);
-        auto ruleType = ruleNode.getType();
+    RuleFactoryRegistry registry;
+    auto ruleNode = node.getNamedChild(0);
 
-        std::cout << ruleType << std::endl << "------" << std::endl;
+    // Control structure factories
+    registry.registerFactory("for", std::make_unique<ForLoopFactory>());
+    registry.registerFactory("while", std::make_unique<WhileLoopFactory>());
+    // TODO: Change to parallel for. Enabled for testing
+    registry.registerFactory("parallel_for", std::make_unique<ForLoopFactory>()); 
+    registry.registerFactory("match", std::make_unique<MatchFactory>());
 
-        if (auto controlStructureIt = controlStructureChildren.find(ruleType);
-            controlStructureIt != controlStructureChildren.end()) {
-            return addControlStructure(ruleType, ruleNode); // TODO: Change
-        }
-        else if (auto listOperationIt = operationChildren.find(ruleType);
-                listOperationIt != operationChildren.end()) {
-            return addListOperation(ruleType, ruleNode);
-        }
-    }
-    // TODO: Handle error
-    return nullptr;
+    // List operation factories
+    registry.registerFactory("discard", std::make_unique<DiscardFactory>());
+    registry.registerFactory("extend", std::make_unique<ExtendFactory>());
+    registry.registerFactory("reverse", std::make_unique<ReverseFactory>());
+    registry.registerFactory("shuffle", std::make_unique<ShuffleFactory>());
+    registry.registerFactory("deal", std::make_unique<DealFactory>());
+    
+    // Human input factories
+    registry.registerFactory("input_choice", std::make_unique<InputChoiceFactory>());
+    
+    // Output factories
+    registry.registerFactory("message", std::make_unique<MessageFactory>());
+    registry.registerFactory("scores", std::make_unique<ScoresFactory>());
+
+    return registry.createRule(ruleNode, sourceCode, *this);
 }
 
+// Parses a body of a node and adds rule pointers to the vector for each rule found
 void RulesParser::parseBody(const ts::Node& node, std::vector<std::unique_ptr<Rule>>& vector) {
-    for (auto i = 0; i < node.getNumNamedChildren(); i++) {
+    for (const auto& child : ts::Children{node}) {
         // Children could be rule or comment (Skip comment)
-        auto namedChild = node.getNamedChild(i);
-        if (namedChild.getType() == "rule") {
-            vector.push_back(std::move(parseRule(namedChild)));
+        if (child.getType() == "rule") {
+            vector.push_back(std::move(RulesParser::parseRule(child)));
         }
-        std::cout << std::endl;
     }
-    std::cout << "Vector contains " << vector.size() << " elements" << std::endl;
+}
+
+void RulesParser::print() {
+    for (const auto& rulePointer : rules) {
+        rulePointer->print();
+    }
 }

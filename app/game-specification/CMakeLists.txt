@@ -7,7 +7,7 @@ include(cmake/CPM.cmake)
 CPMAddPackage(
   NAME cpp-tree-sitter
   GIT_REPOSITORY https://github.com/nsumner/cpp-tree-sitter.git
-  GIT_TAG v0.0.2                                        # newest 0.0.3 causes errors?
+  GIT_TAG v0.0.3                                        # newest 0.0.3 causes errors?
 )
 
 # Downloads a tree-sitter grammar from github and makes it available as a
@@ -30,6 +30,7 @@ target_sources(perser
     SetupRule.cpp
     ValueMap.cpp
     RulesParser.cpp
+    RuleFactory.cpp
     # add here
 )
 
@@ -39,6 +40,7 @@ target_link_libraries(perser
   tree-sitter-socialgaming
   cpp-tree-sitter
   utils
+  rules
 )
 
 set(GAMES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/games")
