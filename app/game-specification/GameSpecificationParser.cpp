@@ -1,7 +1,4 @@
 #include "GameSpecificationParser.h"
-#include "ValueMap.h"
-#include <string>
-
 
 //enum class to represent different type since using string literals isn't the best
 enum class NodeType {
