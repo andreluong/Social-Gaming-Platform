@@ -299,64 +299,6 @@ Configuration GameSpecificationParser::parseConfiguration() {
     ts::Node configurationNode = root->getChildByFieldName("configuration");
     Configuration configuration(configurationNode, sourceCode);
     return configuration;
-
-    // ts::Node nameNode = configurationNode.getChildByFieldName("name");
-    // configuration.setName(nameNode.getSourceRange(sourceCode));
-    // //std::cout << configuration.getName();
-    
-    // ts::Node playerRangeNode = configurationNode.getChildByFieldName("player_range");
-
-    // // new, maybe just use old for consistency unless we find a reason to refactor/remove all setter methods
-    // auto rangeValues = parseNumberRange(playerRangeNode);
-    // configuration.playerRange = rangeValues;
-    // // old but this works too
-    // //configuration.setPlayerRange(playerRangeNode.getSourceRange(sourceCode));
-    // //configuration.printPlayerRange();
-
-    // ts::Node hasAudienceNode = configurationNode.getChildByFieldName("has_audience");
-    // configuration.setHasAudience(hasAudienceNode.getSourceRange(sourceCode));
-    // //configuration.printHasAudience();
-    
-    
-    // Trying to figure out how to implement parseValueMap
-
-    // std::unordered_map<std::string, std::string> valueMap = parseValueMap(configurationNode);
-    // printUnorderedMap(valueMap);
-
-    // ts::Node testNode1 = root->getChildByFieldName("constants");
-    // ts::Node testNode2 = testNode1.getChildByFieldName("map");
-    // std::cout << testNode1.getNumChildren() << "\t" << testNode1.getNumNamedChildren() << "\t" << testNode2.getNumChildren() << "\t" << testNode2.getNumNamedChildren() << "\n";
-            
-    // // use testNode1 or testNode2, or something else?
-    // for (int i = 0; i < testNode2.getNumChildren(); ++i) {
-    //     auto pairNode = testNode2.getChild(i);
-    //     std::cout << pairNode.getSourceRange(sourceCode) << "\n";
-    // }
-
-    
-        // debug
-
-    // std::cout << configurationNode.getNumChildren() << "\n";
-    // std::cout << configurationNode.getNumNamedChildren() << "\n";
-
-    // for (int i = 0; i < 4; i++) {
-    //     std::cout << configurationNode.getNamedChild(i).getType() << "\n";
-    // }
-
-
-
-    // // This is the first setup rule out of some amount, might need to be changed
-    // // if we can't assume there is at least one
-    // ts::Node setupRuleNode = configurationNode.getNamedChild(3);
-
-    // while (!setupRuleNode.isNull() && setupRuleNode.isNamed()) {
-    //     SetupRule setupRule(setupRuleNode, sourceCode);
-
-    //     // have not tested thoroughly yet
-    //     configuration.addSetupRule(setupRule);
-    //     setupRuleNode = setupRuleNode.getNextSibling();
-    // }
-
 }
 
 std::unique_ptr<ValueMap> GameSpecificationParser::parseSection(enum SectionType sectionType) {

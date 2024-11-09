@@ -53,26 +53,6 @@ int main(int argc, char** argv) {
     // configuration.printPlayerRange();
     // configuration.printHasAudience();
 
-    // std::cout << "Constants:" << std::endl;
-    // for (const auto& [key, value] : constants) {
-    //     std::cout << "  " << key << ": " << value << std::endl;
-    // }
-
-    // std::cout << "Variables:" << std::endl;
-    // for (const auto& [key, value] : variables.getVariables()) {
-    //     std::cout << "  " << key << ": " << value << std::endl;
-    // }
-
-    // std::cout << "Per Player Variables:" << std::endl;
-    // for (const auto& [key, value] : perPlayer.getPerPlayerVariables()) {
-    //     std::cout << "  " << key << ": " << value << std::endl;
-    // }
-
-    // std::cout << "Per Audience Variables:" << std::endl;
-    // for (const auto& [key, value] : perAudience.getPerAudienceVariables()) {
-    //     std::cout << "  " << key << ": " << value << std::endl;
-    // }
-
     // std::cout << "Rules Body: " << rules.getBody() << std::endl;
 
     printf("demo successfully ended\n");
