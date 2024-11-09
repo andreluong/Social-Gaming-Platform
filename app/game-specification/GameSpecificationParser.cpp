@@ -359,8 +359,7 @@ Configuration GameSpecificationParser::parseConfiguration() {
 
 }
 
-// TODO: unimplemented from here on
-void GameSpecificationParser::parseSection(enum SectionType sectionType) {
+std::unique_ptr<ValueMap> GameSpecificationParser::parseSection(enum SectionType sectionType) {
    std::unordered_map<SectionType, std::string> sectionTypeStringMap = {
         {ConstantsType, "constants"},
         {VariablesType, "variables"},
@@ -368,42 +367,54 @@ void GameSpecificationParser::parseSection(enum SectionType sectionType) {
         {PerAudienceType, "per_audience"}
     };
 
-    std::unordered_map<SectionType, ValueMap> sectionMap = {
-        {ConstantsType, this->constants},
-        {VariablesType, this->variables},
-        {PerPlayerType, this->perPlayer},
-        {PerAudienceType, this->perAudience}
-    };
-
     std::string sectionName = sectionTypeStringMap[sectionType];
-    auto section = sectionMap[sectionType];
+    std::unique_ptr<ValueMap> section;
+    switch (sectionType) {
+        case ConstantsType:
+            section = std::make_unique<Constants>();
+            break;
+        case VariablesType:
+            section = std::make_unique<Variables>();
+            break;
+        case PerPlayerType:
+            section = std::make_unique<PerPlayer>();
+            break;
+        case PerAudienceType:
+            section = std::make_unique<PerAudience>();
+            break;
+        default:
+            std::cerr << "Invalid section type: " << sectionType << std::endl;
+            return nullptr;
+    }
 
     std::cout << "Parsing section: " << sectionName << std::endl;
     auto sectionNode = root->getChildByFieldName(sectionName);
     if (sectionNode.isNull()) {
         std::cerr << "no " << sectionName << " in the file" << std::endl;
-        return;
+            return nullptr;
     }
     // Retrieve the map node within sections
     ts::Node mapNode = sectionNode.getChildByFieldName("map");
     
     if (mapNode.isNull()) {
         std::cerr << "no " << sectionName << " map" << std::endl;
-        return;
+            return nullptr;
     }
 
     // then we can just parse the mapNode for keyVal pairs
     auto sectionsMap = parseValueMap(mapNode);
     // then we can fill the Sections object with parsed keyVal pairs
     for (const auto& [key, value] : sectionsMap) {
-        section.setValue(key, value);
+        section->setValue(key, value);
     }
     // Debug output to confirm parsed sections
     std::cout << "Parsed " << sectionName << ": " << std::endl;
-    for (const auto& [key, value] : section.getValues()) {
+    for (const auto& [key, value] : section->getValues()) {
         std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
     }
     std::cout << std::endl;
+
+    return section;
 }
 
 RulesParser GameSpecificationParser::parseRules() {

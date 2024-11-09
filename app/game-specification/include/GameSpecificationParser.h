@@ -101,10 +101,7 @@ public:
 
     Configuration parseConfiguration();
 
-
-
-    // TODO: return valuemap?
-    void parseSection(enum SectionType sectionType);
+    std::unique_ptr<ValueMap> parseSection(enum SectionType sectionType);
 
     RulesParser parseRules();
 

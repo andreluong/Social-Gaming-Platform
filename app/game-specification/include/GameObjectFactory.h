@@ -22,7 +22,11 @@ public:
     }
 
     std::unique_ptr<Constants> createConstants() {
-        //return std::make_unique<Constants>(parser.parseSection(SectionType::ConstantsType));
+        auto parsedSection = parser.parseSection(SectionType::ConstantsType);
+        if (parsedSection == nullptr) {
+            return nullptr;
+        }
+        return std::unique_ptr<Constants>(static_cast<Constants*>(parsedSection.release()));
     }
 
     std::unique_ptr<Variables> createVariables() {

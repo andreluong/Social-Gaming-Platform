@@ -7,7 +7,6 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
-
 // no .cpp
 
 // Encapsulates the parsed tree, root node, and source code
