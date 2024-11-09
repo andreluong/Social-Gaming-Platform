@@ -38,7 +38,17 @@ int main(int argc, char** argv) {
 
     // // Check the parsed data
     rules->print();
+    std::cout << "Printing constants values" << std::endl;
+    constants->printValues();
 
+    std::cout << "Printing variables values" << std::endl;
+    variables->printValues();
+
+    std::cout << "Printing perPlayer values" << std::endl;
+    perPlayer->printValues();
+
+    std::cout << "Printing perAudience values" << std::endl;
+    perAudience->printValues();
     // std::cout << "Configuration Name: " << configuration.getName() << std::endl;
     // configuration.printPlayerRange();
     // configuration.printHasAudience();

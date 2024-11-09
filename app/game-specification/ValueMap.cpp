@@ -18,11 +18,37 @@ std::optional<ValueType> ValueMap::getValue(const std::string& name) const {
     return std::nullopt;
 }
 
-// Print all values
 void ValueMap::printValues() const {
-    // only print keys for now - need to provide print override information for value variant
     for (const auto& [key, value] : values) {
-        std::cout << key << std::endl;
+        std::cout << key << ": ";
+        
+        std::visit([](const auto& val) {
+            if constexpr (std::is_same_v<std::decay_t<decltype(val)>, std::string>) {
+                std::cout << "String: " << val << std::endl;
+            } else if constexpr (std::is_same_v<std::decay_t<decltype(val)>, int>) {
+                std::cout << "Int: " << val << std::endl;
+            } else if constexpr (std::is_same_v<std::decay_t<decltype(val)>, bool>) {
+                std::cout << "Bool: " << (val ? "true" : "false") << std::endl;
+            } else if constexpr (std::is_same_v<std::decay_t<decltype(val)>, std::unordered_map<std::string, Variant>>) {
+                std::cout << "Map: {" << std::endl;
+                for (const auto& [mapKey, mapValue] : val) {
+                    std::cout << "  " << mapKey << ": ";
+                    std::visit([](const auto& innerVal) {
+                        std::cout << innerVal << std::endl;
+                    }, mapValue);
+                }
+                std::cout << "}" << std::endl;
+            } else if constexpr (std::is_same_v<std::decay_t<decltype(val)>, std::vector<Variant>>) {
+                std::cout << "Vector: [";
+                for (size_t i = 0; i < val.size(); ++i) {
+                    std::visit([](const auto& innerVal) {
+                        std::cout << innerVal << " ";
+                    }, val[i]);
+                    if (i != val.size() - 1) std::cout << ", ";
+                }
+                std::cout << "]" << std::endl;
+            }
+        }, value);
     }
 }
 

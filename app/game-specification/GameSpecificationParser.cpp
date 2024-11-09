@@ -387,18 +387,18 @@ std::unique_ptr<ValueMap> GameSpecificationParser::parseSection(enum SectionType
             return nullptr;
     }
 
-    std::cout << "Parsing section: " << sectionName << std::endl;
+    // std::cout << "Parsing section: " << sectionName << std::endl; // uncommnt to debug
     auto sectionNode = root->getChildByFieldName(sectionName);
     if (sectionNode.isNull()) {
         std::cerr << "no " << sectionName << " in the file" << std::endl;
-            return nullptr;
+        return nullptr;
     }
     // Retrieve the map node within sections
     ts::Node mapNode = sectionNode.getChildByFieldName("map");
     
     if (mapNode.isNull()) {
         std::cerr << "no " << sectionName << " map" << std::endl;
-            return nullptr;
+        return nullptr;
     }
 
     // then we can just parse the mapNode for keyVal pairs
@@ -407,12 +407,6 @@ std::unique_ptr<ValueMap> GameSpecificationParser::parseSection(enum SectionType
     for (const auto& [key, value] : sectionsMap) {
         section->setValue(key, value);
     }
-    // Debug output to confirm parsed sections
-    std::cout << "Parsed " << sectionName << ": " << std::endl;
-    for (const auto& [key, value] : section->getValues()) {
-        std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
-    }
-    std::cout << std::endl;
 
     return section;
 }
