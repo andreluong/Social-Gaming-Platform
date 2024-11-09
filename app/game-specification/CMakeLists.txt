@@ -30,6 +30,7 @@ target_sources(perser
     SetupRule.cpp
     ValueMap.cpp
     RulesParser.cpp
+    RuleFactory.cpp
     # add here
 )
 
@@ -39,6 +40,7 @@ target_link_libraries(perser
   tree-sitter-socialgaming
   cpp-tree-sitter
   utils
+  rules
 )
 
 set(GAMES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/games")
