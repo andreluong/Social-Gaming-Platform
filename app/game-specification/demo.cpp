@@ -26,10 +26,10 @@ int main(int argc, char** argv) {
 
     // Game objects
     std::unique_ptr<Configuration> configuration = gameObjectFactory.createConfiguration();
-    // std::unique_ptr<Constants> constants = gameObjectFactory.createConstants();
-    // std::unique_ptr<Variables> variables = gameObjectFactory.createVariables();
-    // std::unique_ptr<PerPlayer> perPlayer = gameObjectFactory.createPerPlayer();
-    // std::unique_ptr<PerAudience> perAudience = gameObjectFactory.createPerAudience();
+    std::unique_ptr<Constants> constants = gameObjectFactory.createConstants();
+    std::unique_ptr<Variables> variables = gameObjectFactory.createVariables();
+    std::unique_ptr<PerPlayer> perPlayer = gameObjectFactory.createPerPlayer();
+    std::unique_ptr<PerAudience> perAudience = gameObjectFactory.createPerAudience();
     std::unique_ptr<RulesParser> rules = gameObjectFactory.createRules();
 
     // Should accept these game objects, std::move()
@@ -38,30 +38,20 @@ int main(int argc, char** argv) {
 
     // // Check the parsed data
     rules->print();
+    std::cout << "Printing constants values" << std::endl;
+    constants->printValues();
 
+    std::cout << "Printing variables values" << std::endl;
+    variables->printValues();
+
+    std::cout << "Printing perPlayer values" << std::endl;
+    perPlayer->printValues();
+
+    std::cout << "Printing perAudience values" << std::endl;
+    perAudience->printValues();
     // std::cout << "Configuration Name: " << configuration.getName() << std::endl;
     // configuration.printPlayerRange();
     // configuration.printHasAudience();
-
-    // std::cout << "Constants:" << std::endl;
-    // for (const auto& [key, value] : constants.getConstants()) {
-    //     std::cout << "  " << key << ": " << value << std::endl;
-    // }
-
-    // std::cout << "Variables:" << std::endl;
-    // for (const auto& [key, value] : variables.getVariables()) {
-    //     std::cout << "  " << key << ": " << value << std::endl;
-    // }
-
-    // std::cout << "Per Player Variables:" << std::endl;
-    // for (const auto& [key, value] : perPlayer.getPerPlayerVariables()) {
-    //     std::cout << "  " << key << ": " << value << std::endl;
-    // }
-
-    // std::cout << "Per Audience Variables:" << std::endl;
-    // for (const auto& [key, value] : perAudience.getPerAudienceVariables()) {
-    //     std::cout << "  " << key << ": " << value << std::endl;
-    // }
 
     // std::cout << "Rules Body: " << rules.getBody() << std::endl;
 

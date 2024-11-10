@@ -5,7 +5,7 @@
 #include "SetupRule.h"
 #include "EnumDescription.h"
 #include "Constants.h"
-#include "ValueMap.h"
+#include "SectionValueMap.h"
 #include "Variables.h"
 #include "PerPlayer.h"
 #include "PerAudience.h"
@@ -101,10 +101,7 @@ public:
 
     Configuration parseConfiguration();
 
-
-
-    // TODO: return valuemap?
-    void parseSection(enum SectionType sectionType);
+    std::unique_ptr<ValueMap> parseSection(enum SectionType sectionType);
 
     RulesParser parseRules();
 

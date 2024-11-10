@@ -7,7 +7,6 @@
 #include "Variables.h"
 #include "PerAudience.h"
 #include "PerPlayer.h"
-#include "Rules.h"
 
 #include <memory>
 
@@ -22,19 +21,19 @@ public:
     }
 
     std::unique_ptr<Constants> createConstants() {
-        //return std::make_unique<Constants>(parser.parseSection(SectionType::ConstantsType));
+        return createSection<Constants>(SectionType::ConstantsType);
     }
 
     std::unique_ptr<Variables> createVariables() {
-        //return std::make_unique<Variables>(parser.parseSection(SectionType::VariablesType));
+        return createSection<Variables>(SectionType::VariablesType);
     }
 
     std::unique_ptr<PerAudience> createPerAudience() {
-        //return std::make_unique<PerAudience>(parser.parseSection(SectionType::PerAudienceType));
+        return createSection<PerAudience>(SectionType::PerAudienceType);
     }
 
     std::unique_ptr<PerPlayer> createPerPlayer() {
-        //return std::make_unique<PerPlayer>(parser.parseSection(SectionType::PerPlayerType));
+        return createSection<PerPlayer>(SectionType::PerPlayerType);
     }
 
     std::unique_ptr<RulesParser> createRules() {
@@ -43,6 +42,16 @@ public:
 
 private:
     GameSpecificationParser& parser;
+
+    template <typename T>
+    std::unique_ptr<T> createSection(enum SectionType sectionType) {
+        auto parsedSection = parser.parseSection(sectionType);
+        if (!parsedSection) {
+            return nullptr;
+        }
+        return std::unique_ptr<T>(static_cast<T*>(parsedSection.release()));
+    }
+
 };
 
 #endif

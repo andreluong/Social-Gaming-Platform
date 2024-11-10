@@ -1,7 +1,4 @@
 #include "GameSpecificationParser.h"
-#include "ValueMap.h"
-#include <string>
-
 
 //enum class to represent different type since using string literals isn't the best
 enum class NodeType {
@@ -299,68 +296,9 @@ Configuration GameSpecificationParser::parseConfiguration() {
     ts::Node configurationNode = root->getChildByFieldName("configuration");
     Configuration configuration(configurationNode, sourceCode);
     return configuration;
-
-    // ts::Node nameNode = configurationNode.getChildByFieldName("name");
-    // configuration.setName(nameNode.getSourceRange(sourceCode));
-    // //std::cout << configuration.getName();
-    
-    // ts::Node playerRangeNode = configurationNode.getChildByFieldName("player_range");
-
-    // // new, maybe just use old for consistency unless we find a reason to refactor/remove all setter methods
-    // auto rangeValues = parseNumberRange(playerRangeNode);
-    // configuration.playerRange = rangeValues;
-    // // old but this works too
-    // //configuration.setPlayerRange(playerRangeNode.getSourceRange(sourceCode));
-    // //configuration.printPlayerRange();
-
-    // ts::Node hasAudienceNode = configurationNode.getChildByFieldName("has_audience");
-    // configuration.setHasAudience(hasAudienceNode.getSourceRange(sourceCode));
-    // //configuration.printHasAudience();
-    
-    
-    // Trying to figure out how to implement parseValueMap
-
-    // std::unordered_map<std::string, std::string> valueMap = parseValueMap(configurationNode);
-    // printUnorderedMap(valueMap);
-
-    // ts::Node testNode1 = root->getChildByFieldName("constants");
-    // ts::Node testNode2 = testNode1.getChildByFieldName("map");
-    // std::cout << testNode1.getNumChildren() << "\t" << testNode1.getNumNamedChildren() << "\t" << testNode2.getNumChildren() << "\t" << testNode2.getNumNamedChildren() << "\n";
-            
-    // // use testNode1 or testNode2, or something else?
-    // for (int i = 0; i < testNode2.getNumChildren(); ++i) {
-    //     auto pairNode = testNode2.getChild(i);
-    //     std::cout << pairNode.getSourceRange(sourceCode) << "\n";
-    // }
-
-    
-        // debug
-
-    // std::cout << configurationNode.getNumChildren() << "\n";
-    // std::cout << configurationNode.getNumNamedChildren() << "\n";
-
-    // for (int i = 0; i < 4; i++) {
-    //     std::cout << configurationNode.getNamedChild(i).getType() << "\n";
-    // }
-
-
-
-    // // This is the first setup rule out of some amount, might need to be changed
-    // // if we can't assume there is at least one
-    // ts::Node setupRuleNode = configurationNode.getNamedChild(3);
-
-    // while (!setupRuleNode.isNull() && setupRuleNode.isNamed()) {
-    //     SetupRule setupRule(setupRuleNode, sourceCode);
-
-    //     // have not tested thoroughly yet
-    //     configuration.addSetupRule(setupRule);
-    //     setupRuleNode = setupRuleNode.getNextSibling();
-    // }
-
 }
 
-// TODO: unimplemented from here on
-void GameSpecificationParser::parseSection(enum SectionType sectionType) {
+std::unique_ptr<ValueMap> GameSpecificationParser::parseSection(enum SectionType sectionType) {
    std::unordered_map<SectionType, std::string> sectionTypeStringMap = {
         {ConstantsType, "constants"},
         {VariablesType, "variables"},
@@ -368,42 +306,48 @@ void GameSpecificationParser::parseSection(enum SectionType sectionType) {
         {PerAudienceType, "per_audience"}
     };
 
-    std::unordered_map<SectionType, ValueMap> sectionMap = {
-        {ConstantsType, this->constants},
-        {VariablesType, this->variables},
-        {PerPlayerType, this->perPlayer},
-        {PerAudienceType, this->perAudience}
-    };
-
     std::string sectionName = sectionTypeStringMap[sectionType];
-    auto section = sectionMap[sectionType];
+    std::unique_ptr<ValueMap> section;
+    switch (sectionType) {
+        case ConstantsType:
+            section = std::make_unique<Constants>();
+            break;
+        case VariablesType:
+            section = std::make_unique<Variables>();
+            break;
+        case PerPlayerType:
+            section = std::make_unique<PerPlayer>();
+            break;
+        case PerAudienceType:
+            section = std::make_unique<PerAudience>();
+            break;
+        default:
+            std::cerr << "Invalid section type: " << sectionType << std::endl;
+            return nullptr;
+    }
 
-    std::cout << "Parsing section: " << sectionName << std::endl;
+    // std::cout << "Parsing section: " << sectionName << std::endl; // uncommnt to debug
     auto sectionNode = root->getChildByFieldName(sectionName);
     if (sectionNode.isNull()) {
         std::cerr << "no " << sectionName << " in the file" << std::endl;
-        return;
+        return nullptr;
     }
     // Retrieve the map node within sections
     ts::Node mapNode = sectionNode.getChildByFieldName("map");
     
     if (mapNode.isNull()) {
         std::cerr << "no " << sectionName << " map" << std::endl;
-        return;
+        return nullptr;
     }
 
     // then we can just parse the mapNode for keyVal pairs
     auto sectionsMap = parseValueMap(mapNode);
     // then we can fill the Sections object with parsed keyVal pairs
     for (const auto& [key, value] : sectionsMap) {
-        section.setValue(key, value);
+        section->setValue(key, value);
     }
-    // Debug output to confirm parsed sections
-    std::cout << "Parsed " << sectionName << ": " << std::endl;
-    for (const auto& [key, value] : section.getValues()) {
-        std::cout << "  " << key << ": " << std::get<std::string>(value) << std::endl;
-    }
-    std::cout << std::endl;
+
+    return section;
 }
 
 RulesParser GameSpecificationParser::parseRules() {
