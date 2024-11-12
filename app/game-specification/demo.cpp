@@ -32,8 +32,15 @@ int main(int argc, char** argv) {
     std::unique_ptr<PerAudience> perAudience = gameObjectFactory.createPerAudience();
     std::unique_ptr<RulesParser> rules = gameObjectFactory.createRules();
 
-    // Should accept these game objects, std::move()
-    // GameManager gameManager;
+    // Game manager
+    GameManager gameManager(std::move(configuration), constants->getValues(), variables->getValues(),
+                            perPlayer->getValues(), perAudience->getValues(), rules->getRules());
+
+    // Temporary note: output is near the top, demo executable is in game-specification
+    printf("\n// call startGame() //\n");
+    gameManager.startGame();
+    printf("// after call startGame() //\n\n");
+
 
 
     // // Check the parsed data

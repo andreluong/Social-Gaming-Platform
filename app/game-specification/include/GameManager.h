@@ -1,7 +1,7 @@
-#include "GameSpecificationParser.h"
-
 #ifndef GAMEMANAGER_H
 #define GAMEMANAGER_H
+
+#include "GameSpecificationParser.h"
 
 /*
     configurations = get input from player on each configuration (allow json?) 
@@ -38,28 +38,62 @@
 
 */
 
-class GameManager
-{
+// class GameManager
+// {
+// public:
+//     GameManager(/* args */);
+//     ~GameManager();
+
+//     // propogate down to rules
+//     // update()
+//     // is_end()
+//     // is_waiting()
+
+//     // start_config_with_host()
+//     // start_game()
+
+// private:
+//     // root: rule
+//     // config: obj?
+//     // variables: map<identifier, val>
+//     // expression_resolver: class? // could be in rules to make this smipler
+// };
+
+using StateMap = std::unordered_map<std::string, ValueType>;
+
+class GameManager {
 public:
-    GameManager(/* args */);
-    ~GameManager();
+    GameManager(std::unique_ptr<Configuration> configurationParam,
+                StateMap constantsParam,
+                StateMap variablesParam,
+                StateMap perPlayerParam,
+                StateMap perAudienceParam,
+                const std::vector<std::unique_ptr<Rule>>& rulesParam)
+                    : configuration(std::move(configurationParam)),
+                    constants(constantsParam),
+                    variables(variablesParam),
+                    perPlayer(perPlayerParam),
+                    perAudience(perAudienceParam),
+                    rules(rulesParam) {}
 
-    // propogate down to rules
-    // update()
-    // is_end()
-    // is_waiting()
+    ~GameManager() {}
 
-    // start_config_with_host()
-    // start_game()
+    void startGame();
+    void setupGame();
+    void runGameLoop();
+    
+    // TODO: Name resolution, scope management, iterator for apparent parallelism; probably different classes
+    // void resolveName(const std::string& name);
 
 private:
-    // root: rule
-    // config: obj?
-    // variables: map<identifier, val>
-    // expression_resolver: class? // could be in rules to make this smipler
+    std::unique_ptr<Configuration> configuration;
+    StateMap constants;
+    StateMap variables;
+    StateMap perPlayer;
+    StateMap perAudience;
+    const std::vector<std::unique_ptr<Rule>>& rules;
+
 };
-
-
 
 
 #endif

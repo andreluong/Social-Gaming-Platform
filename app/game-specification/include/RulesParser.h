@@ -15,6 +15,8 @@ public:
     void parseBody(const ts::Node& node, std::vector<std::unique_ptr<Rule>>& vector);
     std::unique_ptr<Rule> parseRule(const ts::Node& node);
 
+    const std::vector<std::unique_ptr<Rule>>& getRules() const;
+
     void print();
 
 private:

@@ -50,6 +50,19 @@ public:
     // std::optional<std::string> getDefaultValue() const;
     std::optional<std::variant<int, bool, std::string>> getDefaultValue() const;
 
+    const char* to_string(SettingKind SettingKind) {
+    switch (SettingKind) {
+        case SettingKind::BOOLEAN: return "Boolean";
+        case SettingKind::INTEGER: return "Integer";
+        case SettingKind::STRING: return "String";
+        case SettingKind::ENUM: return "Enum";
+        case SettingKind::QUESTION_ANSWER: return "Question_answer";
+        case SettingKind::MULTIPLE_CHOICE: return "Multiple_choice";
+        case SettingKind::JSON: return "Json";
+        default: return "None";
+    }
+}
+
 
 private:
     std::string name;
