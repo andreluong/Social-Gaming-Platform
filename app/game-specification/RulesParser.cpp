@@ -45,6 +45,10 @@ void RulesParser::parseBody(const ts::Node& node, std::vector<std::unique_ptr<Ru
     }
 }
 
+const std::vector<std::unique_ptr<Rule>>& RulesParser::getRules() const {
+    return rules;
+}
+
 void RulesParser::print() {
     for (const auto& rulePointer : rules) {
         rulePointer->print();
