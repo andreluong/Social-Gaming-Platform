@@ -6,10 +6,11 @@
 #include <vector>
 #include <optional>
 #include <memory>
+#include "GameContext.h"
 
 class Rule {
 public:
-    virtual void execute() = 0;
+    virtual void execute(GameContext* context) = 0;
     virtual void print() = 0;
     virtual ~Rule() = default;
 };
@@ -20,7 +21,7 @@ class ForLoop : public Rule {
 public:
     ForLoop(std::string_view element, std::string_view list, std::vector<std::unique_ptr<Rule>> body);
     
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -33,7 +34,7 @@ class WhileLoop : public Rule {
 public:
     WhileLoop(std::string_view condition, std::vector<std::unique_ptr<Rule>> body);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -45,7 +46,7 @@ class MatchEntry : public Rule {
 public:
     MatchEntry(std::string_view guard, std::vector<std::unique_ptr<Rule>> body);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -57,7 +58,7 @@ class Match : public Rule {
 public:
     Match(std::string_view target, std::vector<std::unique_ptr<MatchEntry>> entries);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -71,7 +72,7 @@ class Discard : public Rule {
 public:
     Discard(std::string_view count, std::string_view source);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -83,7 +84,7 @@ class Extend : public Rule {
 public:
     Extend(std::string_view target, std::string_view value);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -95,7 +96,7 @@ class Reverse : public Rule {
 public:
     Reverse(std::string_view target);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -106,7 +107,7 @@ class Shuffle : public Rule {
 public:
     Shuffle(std::string_view target);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
     
 private:
@@ -117,7 +118,7 @@ class Deal : public Rule {
 public:
     Deal(std::string_view count, std::string_view targets, std::string_view source);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -141,7 +142,7 @@ public:
                 std::string_view target, 
                 std::string_view timeout);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -158,7 +159,7 @@ class Message : public Rule {
 public:
     Message(std::string_view players, std::string_view content);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:
@@ -170,7 +171,7 @@ class Scores : public Rule {
 public:
     Scores(std::string_view keys);
 
-    void execute() override;
+    void execute(GameContext* context) override;
     void print() override;
 
 private:

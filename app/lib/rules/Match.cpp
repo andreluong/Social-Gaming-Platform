@@ -3,7 +3,7 @@
 Match::Match(std::string_view target, std::vector<std::unique_ptr<MatchEntry>> entries)
     : target(target), entries(std::move(entries)) {}
 
-void Match::execute() {
+void Match::execute(GameContext* context) {
     std::cout << "Match execute" << std::endl;    
 }
 

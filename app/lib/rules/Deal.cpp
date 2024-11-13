@@ -3,7 +3,7 @@
 Deal::Deal(std::string_view count, std::string_view targets, std::string_view source) 
     : count(count), targets(targets), source(source) {}
 
-void Deal::execute() {
+void Deal::execute(GameContext* context) {
     std::cout << "Deal execute" << std::endl;  
 }
 

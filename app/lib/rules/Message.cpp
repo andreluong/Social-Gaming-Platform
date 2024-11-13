@@ -3,7 +3,7 @@
 Message::Message(std::string_view players, std::string_view content)
     : players(players), content(content) {}
 
-void Message::execute() {
+void Message::execute(GameContext* context) {
     std::cout << "Message execute" << std::endl;
 }
 

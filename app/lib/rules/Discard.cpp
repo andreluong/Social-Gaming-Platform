@@ -3,7 +3,7 @@
 Discard::Discard(std::string_view count, std::string_view source) 
     : count(count), source(source) {}
 
-void Discard::execute() {
+void Discard::execute(GameContext* context) {
     std::cout << "Discard execute" << std::endl;    
 }
 

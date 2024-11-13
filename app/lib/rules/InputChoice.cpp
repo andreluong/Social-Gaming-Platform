@@ -13,7 +13,7 @@ InputChoice::InputChoice(std::string_view player,
                         std::string_view timeout) 
     : player(player), prompt(prompt), choices(choices), target(target), timeout(timeout) {}
 
-void InputChoice::execute() {
+void InputChoice::execute(GameContext* context) {
     std::cout << "InputChoice execute" << std::endl; 
 }
 

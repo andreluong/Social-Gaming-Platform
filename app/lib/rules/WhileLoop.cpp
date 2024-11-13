@@ -3,7 +3,7 @@
 WhileLoop::WhileLoop(std::string_view condition, std::vector<std::unique_ptr<Rule>> body)
     : condition(condition), body(std::move(body)) {}
 
-void WhileLoop::execute() {
+void WhileLoop::execute(GameContext* context) {
     std::cout << "While loop execute" << std::endl;    
 }
 

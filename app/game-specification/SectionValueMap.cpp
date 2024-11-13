@@ -3,12 +3,12 @@
 #include <iostream>
 
 
-std::unordered_map<std::string, ValueType> ValueMap::getValues() const {
+std::unordered_map<std::string, ExpressionVariant> ValueMap::getValues() const {
     return values;
 }
 
 // Get a constant value by name (key)
-std::optional<ValueType> ValueMap::getValue(const std::string& name) const {
+std::optional<ExpressionVariant> ValueMap::getValue(const std::string& name) const {
     auto it = values.find(name);
     if (it != values.end()) {
         return it->second;
@@ -55,6 +55,6 @@ void ValueMap::printValues() const {
 }
 
 // Set an existing value by name (key)
-void ValueMap::setValue(const std::string& name, const ValueType& value) {
+void ValueMap::setValue(const std::string& name, const ExpressionVariant& value) {
     values[name] = value;
 }

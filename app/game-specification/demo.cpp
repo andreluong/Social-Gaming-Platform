@@ -2,7 +2,7 @@
 #include "SyntaxTree.h"
 #include "GameFileLoader.h"
 #include "GameObjectFactory.h"
-
+#include "dataVariant.h"
 
 extern "C" {
 TSLanguage* tree_sitter_socialgaming();
@@ -32,9 +32,22 @@ int main(int argc, char** argv) {
     std::unique_ptr<PerAudience> perAudience = gameObjectFactory.createPerAudience();
     std::unique_ptr<RulesParser> rules = gameObjectFactory.createRules();
 
+    // TODO: temporary map. Replace using Configuration members
+    std::unordered_map<std::string, ExpressionVariant> configurationMap;
+    configurationMap["rounds"] = 3;
+    // configurationMap["public_voting"] = true;
+
+    auto context = std::make_unique<GameContext>(configurationMap,
+                                                constants->getValues(), 
+                                                variables->getValues(),
+                                                perPlayer->getValues(), 
+                                                perAudience->getValues());
+
     // Game manager
-    GameManager gameManager(std::move(configuration), constants->getValues(), variables->getValues(),
-                            perPlayer->getValues(), perAudience->getValues(), rules->getRules());
+    // GameManager gameManager(std::move(configuration), constants->getValues(), variables->getValues(),
+    //                         perPlayer->getValues(), perAudience->getValues(), rules->getRules());
+
+    GameManager gameManager(std::move(configuration), context, rules->getRules());
 
     // Temporary note: output is near the top, demo executable is in game-specification
     printf("\n// call startGame() //\n");
@@ -44,18 +57,18 @@ int main(int argc, char** argv) {
 
 
     // // Check the parsed data
-    rules->print();
-    std::cout << "Printing constants values" << std::endl;
-    constants->printValues();
+    // rules->print();
+    // std::cout << "Printing constants values" << std::endl;
+    // constants->printValues();
 
-    std::cout << "Printing variables values" << std::endl;
-    variables->printValues();
+    // std::cout << "Printing variables values" << std::endl;
+    // variables->printValues();
 
-    std::cout << "Printing perPlayer values" << std::endl;
-    perPlayer->printValues();
+    // std::cout << "Printing perPlayer values" << std::endl;
+    // perPlayer->printValues();
 
-    std::cout << "Printing perAudience values" << std::endl;
-    perAudience->printValues();
+    // std::cout << "Printing perAudience values" << std::endl;
+    // perAudience->printValues();
     // std::cout << "Configuration Name: " << configuration.getName() << std::endl;
     // configuration.printPlayerRange();
     // configuration.printHasAudience();
