@@ -1,7 +1,9 @@
 #ifndef GAMEMANAGER_H
 #define GAMEMANAGER_H
 
-#include "GameSpecificationParser.h"
+#include "Configuration.h"
+#include "Rule.h"
+#include "GameContext.h"
 
 /*
     configurations = get input from player on each configuration (allow json?) 
@@ -59,22 +61,26 @@
 //     // expression_resolver: class? // could be in rules to make this smipler
 // };
 
-using StateMap = std::unordered_map<std::string, ValueType>;
+// using StateMap = std::unordered_map<std::string, ValueType>;
 
 class GameManager {
 public:
-    GameManager(std::unique_ptr<Configuration> configurationParam,
-                StateMap constantsParam,
-                StateMap variablesParam,
-                StateMap perPlayerParam,
-                StateMap perAudienceParam,
-                const std::vector<std::unique_ptr<Rule>>& rulesParam)
-                    : configuration(std::move(configurationParam)),
-                    constants(constantsParam),
-                    variables(variablesParam),
-                    perPlayer(perPlayerParam),
-                    perAudience(perAudienceParam),
-                    rules(rulesParam) {}
+    // GameManager(std::unique_ptr<Configuration> configurationParam,
+    //             StateMap constantsParam,
+    //             StateMap variablesParam,
+    //             StateMap perPlayerParam,
+    //             StateMap perAudienceParam,
+    //             const std::vector<std::unique_ptr<Rule>>& rulesParam)
+    //                 : configuration(std::move(configurationParam)),
+    //                 constants(constantsParam),
+    //                 variables(variablesParam),
+    //                 perPlayer(perPlayerParam),
+    //                 perAudience(perAudienceParam),
+    //                 rules(rulesParam) {}
+
+    GameManager(std::unique_ptr<Configuration> configuration,
+                const std::unique_ptr<GameContext>& context, 
+                const std::vector<std::unique_ptr<Rule>>& rules);
 
     ~GameManager() {}
 
@@ -87,10 +93,11 @@ public:
 
 private:
     std::unique_ptr<Configuration> configuration;
-    StateMap constants;
-    StateMap variables;
-    StateMap perPlayer;
-    StateMap perAudience;
+    // StateMap constants;
+    // StateMap variables;
+    // StateMap perPlayer;
+    // StateMap perAudience;
+    const std::unique_ptr<GameContext>& context;
     const std::vector<std::unique_ptr<Rule>>& rules;
 
 };

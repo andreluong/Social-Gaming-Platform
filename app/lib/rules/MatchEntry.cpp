@@ -3,7 +3,7 @@
 MatchEntry::MatchEntry(std::string_view guard, std::vector<std::unique_ptr<Rule>> body)
         : guard(guard), body(std::move(body)) {}
 
-void MatchEntry::execute() {
+void MatchEntry::execute(GameContext* context) {
     std::cout << "Match entry execute" << std::endl;    
 }
 

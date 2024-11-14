@@ -12,16 +12,17 @@ using ExpressionVariant = std::variant<
     bool,
     int,
     float,
-    double,
     std::string_view, // quoted_string, string_text, string_interpolation?
-    std::vector<std::string_view> // TODO: Should be of ExpressionVariant
+    std::vector<std::string_view>, // TODO: Should be of ExpressionVariant
     // Identifier    
-    // std::unordered_map<expressionVariant, expressionVariant>
+    std::unordered_map<std::string, std::string> // TODO: Should be of ExpressionVariant
 >;
 
-// TODO: May remove this to use ExpressionVariant
+// TODO: Remove this to use ExpressionVariant
 using dataVariant = std::variant<
-    ExpressionVariant
+    int,
+    std::string_view
+    // ExpressionVariant
     // qualified identifier
     // body
     // comment
@@ -32,9 +33,14 @@ struct VisitBoolean {
 };
 
 struct VisitInt {
-    void operator()(const int& exp) const {
-        std::cout << "var from int: " << exp << std::endl;
+    int operator()(int value) const {
+        return value;
     }
+    
+    int operator()(auto value) const{
+        auto error = "[VARIANT] Invalid argument found for VisitInt";
+        throw std::invalid_argument{error};
+	}
 };
 
 struct VisitFloat {
@@ -59,6 +65,19 @@ struct VisitString {
             std::cout << "var from string_view vector: " << e << std::endl;
         }
     }
+};
+
+struct VisitVector {
+    template <typename T>
+    std::vector<T> operator()(std::vector<T> value) {
+        return value;
+    }
+
+    template <typename T>
+    std::vector<T> operator()(T value) const{
+        auto error = "[VARIANT] Invalid argument found for VisitVector";
+        throw std::invalid_argument{error};
+	}
 };
 
 #endif

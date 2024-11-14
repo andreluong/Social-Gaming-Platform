@@ -35,6 +35,9 @@ namespace SetupHelpers {
     }
 }
 
+GameManager::GameManager(std::unique_ptr<Configuration> configuration, const std::unique_ptr<GameContext>& context, const std::vector<std::unique_ptr<Rule>>& rules) 
+    : configuration(std::move(configuration)), context(std::move(context)), rules(rules) {}
+
 void GameManager::startGame() {
     
     std::cout << "Game started: " << configuration->getName() << std::endl;
@@ -71,12 +74,12 @@ void GameManager::setupGame() {
 
 void GameManager::runGameLoop() {
 
-    std::cout << std::endl;
+    std::cout << "\n-----------------\nRunning Game Loop\n-----------------\n" << std::endl;
 
     // Iterate over rules and execute them; rules should access state in constants, variables, perPlayer, perAudience
 
     // TODO: how do we connect rules with state so we can use iterator bookkeeping?
     for (const auto& rule : rules) {
-        rule->execute();
+        rule->execute(context.get());
     }
 }

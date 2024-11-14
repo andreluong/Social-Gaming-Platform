@@ -3,7 +3,7 @@
 Scores::Scores(std::string_view keys) 
     : keys(keys) {}
 
-void Scores::execute() {
+void Scores::execute(GameContext* context) {
     std::cout << "Scores execute" << std::endl;
 }
 

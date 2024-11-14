@@ -3,7 +3,7 @@
 Shuffle::Shuffle(std::string_view target) 
     : target(target) {}
 
-void Shuffle::execute() {
+void Shuffle::execute(GameContext* context) {
     std::cout << "Shuffle execute" << std::endl;  
 }
 
