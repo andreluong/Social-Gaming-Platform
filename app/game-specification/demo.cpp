@@ -43,10 +43,6 @@ int main(int argc, char** argv) {
                                                 perPlayer->getValues(), 
                                                 perAudience->getValues());
 
-    // Game manager
-    // GameManager gameManager(std::move(configuration), constants->getValues(), variables->getValues(),
-    //                         perPlayer->getValues(), perAudience->getValues(), rules->getRules());
-
     GameManager gameManager(std::move(configuration), context, rules->getRules());
 
     // Temporary note: output is near the top, demo executable is in game-specification
