@@ -10,6 +10,8 @@
 
 class Rule {
 public:
+    std::unordered_map<std::string_view, GameVariant> freshVariables; // For for-each and parallel-for
+
     virtual void execute(GameContext* context) = 0;
     virtual void print() = 0;
     virtual ~Rule() = default;

@@ -43,6 +43,7 @@ target_link_libraries(perser
   cpp-tree-sitter
   utils
   rules
+  game-logic-lib
 )
 
 set(GAMES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/games")

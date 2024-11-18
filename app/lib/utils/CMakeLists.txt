@@ -7,6 +7,8 @@ add_library(utils
   list.tpp 
   mapList.tpp
   inputRequestQueue.cpp
+  Utility.cpp
+  BuiltInUtility.cpp
 )
 
 target_link_libraries(utils game-logic-lib)
