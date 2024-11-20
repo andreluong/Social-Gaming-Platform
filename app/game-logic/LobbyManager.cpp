@@ -27,10 +27,8 @@ void LobbyManager::createUser(uintptr_t cid, networking::Connection c)
     if(users.capacity() == users.size()){
         users.reserve(users.capacity() + reserveInc);
     }
-    // std::unique_ptr<User> user(new User(cid, c));
     auto user = std::make_unique<User>(cid, c);
 
-    // User user(cid, c);
     std::cout << user.get()->getLobby() << std::endl;
     users.push_back(std::move(user));
     lobbies[0]->addUser(cid);
@@ -93,24 +91,8 @@ void LobbyManager::deleteIfLobbyEmpty(unsigned int lobbyNum){
     }
 }
 
-
-// unsigned int LobbyManager::getUserLobbyNum(uintptr_t cid)
-// {
-//     return findUserIt(cid).base()->getLobby()->getLobbyNum();
-// }
-
-// Lobby* LobbyManager::getReception()
-// {
-//     return &reception;
-// }
-
 std::vector<std::unique_ptr<User>>::iterator 
 LobbyManager::findUserIt(uintptr_t cid)
 {
     return std::find_if(users.begin(), users.end(), findUser(cid));
 }
-
-// std::vector<Lobby>::iterator LobbyManager::findLobbyIt(unsigned int lobbyNum)
-// {
-//     return std::find_if(lobbies.begin(), lobbies.end(), findLob(lobbyNum));
-// }
