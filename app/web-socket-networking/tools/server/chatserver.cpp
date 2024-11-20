@@ -49,27 +49,6 @@ static auto findUser = [](uintptr_t connectionID) {
   return f;
 };
 
-
-// this should get called every delete operation in lobbyManager
-// void deleteIfEmptyLobby(Lobby *lobby) {
-//   if (lobby->getUsers().size() == 0) {
-//     auto found = std::find(lobs.begin(), lobs.end(), *lobby);
-//     std::cout << found.base()->getLobbyNum() << std::endl;
-//     lobs.erase(found);
-//   }
-// }
-
-// void deleteIfEmptyLobby(unsigned int lobbyNum) {
-//   auto lobby = std::find_if(lobs.begin(), lobs.end(), [&lobbyNum](Lobby lobby){
-//     return lobbyNum == lobby.getLobbyNum();
-//   });
-//   if (lobby->getUsers().size() == 0) {
-//     auto found = std::find(lobs.begin(), lobs.end(), *lobby);
-//     std::cout << found.base()->getLobbyNum() << std::endl;
-//     lobs.erase(found);
-//   }
-// }
-
 void onConnect(Connection c) {
   std::cout << "New connection found: " << c.id << "\n";
   lobbymanager.createUser(c.id, c);
@@ -78,12 +57,6 @@ void onConnect(Connection c) {
 void onDisconnect(Connection c) {
   std::cout << "Connection lost: " << c.id << "\n";
   lobbymanager.deleteUser(c.id);
-  // auto eraseBegin = std::remove(std::begin(clients), std::end(clients), c);
-  // auto userErase = std::remove_if(users.begin(), users.end(), findUser(c.id));
-  // userErase.base()->getLobby()->removeUser(userErase.base());
-
-  // users.erase(userErase);
-  // clients.erase(eraseBegin, std::end(clients));
 }
 
 struct processedMessage {
@@ -127,16 +100,19 @@ void handleLobbyOperation(Server &server, const Message &message,
     lobbymanager.deleteUser(user.base()->get()->getId());
     // Assuming `server` is accessible here
     server.disconnect(message.connection);
-  } else if (message.text == "SVshutdown") {
+  } 
+  else if (message.text == "SVshutdown") {
     std::cout << "Shutting down.\n";
     quit = true;
-  } else if (userInput.first == "rename" && userInput.second.length() > 0) {
+  } 
+  else if (userInput.first == "rename" && userInput.second.length() > 0) {
     // playerIdToUsernameMap.insert_or_assign(message.connection.id,
     // userInput.second);
     user.base()->get()->setName(userInput.second);
     result << user.base()->get()->getName() << " renamed to " << userInput.second
            << "\n";
-  } else if (message.text == "leave") {
+  } 
+  else if (message.text == "leave") {
     lobbymanager.deleteIfLobbyEmpty(user.base()->get()->getLobby());
     user.base()->get()->setLobby(0);
     result << "lobby: " << lobbyid << " " << username << "> " << message.text
@@ -146,7 +122,8 @@ void handleLobbyOperation(Server &server, const Message &message,
   // Process user response to an input request if queue is not empty
   else if (!inputRequestQueue.isEmpty()) {
     processInputRequestQueue(inputRequestQueue, message, result);
-  } else {
+  } 
+  else {
     result << "lobby: " << lobbyid << " " << username << "> " << message.text
            << "\n";
   }
@@ -161,29 +138,30 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
     lobbymanager.deleteUser(user.base()->get()->getId());
     // Assuming `server` is accessible here
     // server.disconnect(message.connection);
-  } else if (message.text == "SVshutdown") {
+  } 
+  else if (message.text == "SVshutdown") {
     std::cout << "Shutting down.\n";
     quit = true;
-  } else if (userInput.first == "rename" && userInput.second.length() > 0) {
+  } 
+  else if (userInput.first == "rename" && userInput.second.length() > 0) {
     result << user.base()->get()->getName() << " renamed to " << userInput.second
            << "\n";
     user.base()->get()->setName(userInput.second);
-  } else if (message.text == "create") {
+  } 
+  else if (message.text == "create") {
     unsigned int lobbyNum = lobbymanager.createLobby();
 
     user.base()->get()->setLobby(lobbyNum);
     result << user.base()->get()->getName() << "> " << message.text << "\n";
     result << "creating lobby " << lobbyNum << "\n";
-  } else if (std::all_of(message.text.begin(), message.text.end(), ::isdigit)) {
-    // auto lobby =
-    //     std::find_if(lobs.begin(), lobs.end(), [message](const Lobby &l) {
-    //       return l.getLobbyNum() == (uint)std::stol(message.text);
-    //     });
+  } 
+  else if (std::all_of(message.text.begin(), message.text.end(), ::isdigit)) {
     auto lobbyIt = lobbymanager.findLobby((uint)std::stol(message.text));
     user.base()->get()->setLobby(lobbyIt.base()->get()->getLobbyNum());
     result << user.base()->get()->getName() << "> " << message.text << "\n";
     result << "joining lobby " << std::stoi(message.text) << "\n";
-  } else {
+  } 
+  else {
     result << user.base()->get()->getName() << "> " << message.text << "\n";
   }
 };
@@ -195,15 +173,7 @@ MessageResult processMessages(Server &server,
 
   for (const auto &message : incoming) {
     std::ostringstream result;
-
-    // auto user = std::find_if(users.begin(), users.end(),
-    //                          findUser(message.connection.id));
     auto user = lobbymanager.findUserIt(message.connection.id);
-
-    // const std::string username =
-    // playerIdToUsernameMap.count(message.connection.id) ?
-    // playerIdToUsernameMap.at(message.connection.id) :
-    // std::to_string(message.connection.id);
 
     // checking if the user lobby is not referencing the reception
     if (user.base()->get()->getLobby() != 0) {

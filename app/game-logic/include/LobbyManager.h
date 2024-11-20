@@ -18,15 +18,11 @@ class LobbyManager{
 
         // Lobby operations
         unsigned int createLobby();
-        // void deleteLobby(Lobby *lobby); // general delete
-        // void deleteIfLobbyEmpty(Lobby *lobby); // called everytime someone leaves
-        // Lobby* findLobby(unsigned int lobbyNum);
         void deleteLobby(unsigned int lobbyNum);
         void deleteIfLobbyEmpty(unsigned int lobbyNum);
         std::vector<std::unique_ptr<Lobby>>::iterator findLobby(unsigned int lobbyNum);
         std::vector<Lobby>::iterator findLobbyIt(unsigned int lobbyNum);
         unsigned int getUserLobbyNum(uintptr_t cid);
-        Lobby* getReception();
 
     private:
         std::vector<std::unique_ptr<Lobby>> lobbies;

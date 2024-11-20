@@ -74,6 +74,6 @@ unsigned int Lobby::getLobbyNum() const
   return lobbyNumber;
 }
 
-bool Lobby::operator==(const Lobby& other){
+bool Lobby::operator==(const Lobby& other) const{
   return other.lobbyNumber == this->lobbyNumber;
 }

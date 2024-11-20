@@ -22,7 +22,7 @@ class Lobby{
         const std::vector<unsigned int>& getUsers() const;
         unsigned int getLobbyNum() const;
 
-        bool operator==(const Lobby& other);
+        bool operator==(const Lobby& other) const;
     private:
         unsigned int lobbyNumber;
         char randLetter();
