@@ -54,33 +54,33 @@ TEST_F(LobbyTests, AddUsersToLobby) {
     EXPECT_EQ(lobby->getUsers().size(), 0);  
 
     // Add user1 and check again
-    lobby->addUser(user1.get());
+    lobby->addUser(user1.get()->getId());
     // then copy the users list
-    std::vector<User*> usersAfterFirstAdd = lobby->getUsers();  
+    std::vector<unsigned int> usersAfterFirstAdd = lobby->getUsers();  
     EXPECT_EQ(usersAfterFirstAdd.size(), 1);  
     //check
-    EXPECT_EQ(usersAfterFirstAdd[0]->getId(), user1->getId());  
+    EXPECT_EQ(usersAfterFirstAdd[0], user1->getId());  
 
     // Add user2 and check again
-    lobby->addUser(user2.get());
-    std::vector<User*> usersAfterSecondAdd = lobby->getUsers();  
+    lobby->addUser(user2.get()->getId());
+    std::vector<unsigned int> usersAfterSecondAdd = lobby->getUsers();  
     EXPECT_EQ(usersAfterSecondAdd.size(), 2);  
-    EXPECT_EQ(usersAfterSecondAdd[1]->getId(), user2->getId());  
+    EXPECT_EQ(usersAfterSecondAdd[1], user2->getId());  
 }
 
 // Test adding multiple users in different order and checking the result
 TEST_F(LobbyTests, AddUsersInDifferentOrder) {
     // Add users in different order
-    lobby->addUser(user2.get());
-    lobby->addUser(user3.get());
-    lobby->addUser(user1.get());
+    lobby->addUser(user2.get()->getId());
+    lobby->addUser(user3.get()->getId());
+    lobby->addUser(user1.get()->getId());
 
     // Check the size and order
-    std::vector<User*> currentUsers = lobby->getUsers();
+    std::vector<unsigned int> currentUsers = lobby->getUsers();
     EXPECT_EQ(currentUsers.size(), 3);  
-    EXPECT_EQ(currentUsers[0]->getId(), user2->getId());  
-    EXPECT_EQ(currentUsers[1]->getId(), user3->getId());  
-    EXPECT_EQ(currentUsers[2]->getId(), user1->getId());  
+    EXPECT_EQ(currentUsers[0], user2->getId());  
+    EXPECT_EQ(currentUsers[1], user3->getId());  
+    EXPECT_EQ(currentUsers[2], user1->getId());  
 }
 
 // Test equality operator for lobbies
@@ -112,7 +112,7 @@ TEST_F(LobbyTests, InviteCodeIsValid) {
 
 // Test adding a user and checking if they are a player or audience
 TEST_F(LobbyTests, AddUserWithRoleCheck) {
-    lobby->addUser(user1.get());
+    lobby->addUser(user1.get()->getId());
 
     // Check that the user has no role initially
     EXPECT_FALSE(user1->hasRole(RoleType::Player));  
@@ -125,8 +125,8 @@ TEST_F(LobbyTests, AddUserWithRoleCheck) {
 
 // Test adding multiple users and checking their roles after addition
 TEST_F(LobbyTests, AddMultipleUsersWithRoleCheck) {
-    lobby->addUser(user1.get());
-    lobby->addUser(user2.get());
+    lobby->addUser(user1.get()->getId());
+    lobby->addUser(user2.get()->getId());
 
     // Assign roles to both users
     auto playerRole1 = std::make_shared<Player>();
