@@ -2,7 +2,7 @@
 #include <algorithm>
 
 static auto findUser = [](uintptr_t connectionID) {
-  auto f = [=](const User &user) { return user.getId() == connectionID; };
+  auto f = [=](const std::unique_ptr<User> &user) { return user.get()->getId() == connectionID; };
   return f;
 };
 
@@ -12,12 +12,13 @@ auto findLob = [](unsigned int lobbyID){
 };
 
 LobbyManager::LobbyManager():
-    reserveInc(10),
-    reception(Lobby())
+    reserveInc(10)
 {
     // amount reserved can be changed later on
     users.reserve(reserveInc);
     lobbies.reserve(reserveInc);
+    auto reception = std::make_unique<Lobby>();
+    lobbies.push_back(std::move(reception));
 }
 
 void LobbyManager::createUser(uintptr_t cid, networking::Connection c)
@@ -26,61 +27,72 @@ void LobbyManager::createUser(uintptr_t cid, networking::Connection c)
     if(users.capacity() == users.size()){
         users.reserve(users.capacity() + reserveInc);
     }
-    User user(cid, c);
-    users.push_back(user);
-    reception.addUser(&user);
-    user.setLobby(&reception);
+    auto user = std::make_unique<User>(cid, c);
+
+    std::cout << user.get()->getLobby() << std::endl;
+    users.push_back(std::move(user));
+    lobbies[0]->addUser(cid);
 }
 
+// finds the user and their lobby, finds the lobby and removes them from it, remove user after
 void LobbyManager::deleteUser(uintptr_t cid)
 {
     auto userErase = std::remove_if(users.begin(), users.end(), findUser(cid));
-    userErase.base()->getLobby()->removeUser(userErase.base()); //removes user in the lobby
+    unsigned int lobbyNum = userErase.base()->get()->getLobby();
+    auto currentLobby = std::find_if(lobbies.begin(), lobbies.end(), 
+    [&lobbyNum](const std::unique_ptr<Lobby>& lobby){
+        return lobby.get()->getLobbyNum() == lobbyNum;
+    });
+    currentLobby.base()->get()->removeUser(cid);
+    
     users.erase(userErase);
 }
 
-void LobbyManager::createLobby()
+const std::vector<std::unique_ptr<User>> 
+&LobbyManager::getUsers() const {
+    return users;
+}
+
+unsigned int LobbyManager::createLobby()
 {
     if(lobbies.capacity() == lobbies.size()){
         lobbies.reserve(lobbies.capacity() + reserveInc);
     }
-    lobbies.emplace_back();
+    auto lobby = std::make_unique<Lobby>();
+    lobbies.push_back(std::move(lobby));
+    return lobbies.back().get()->getLobbyNum();
 }
 
-void LobbyManager::deleteLobby(Lobby *lobby)
+
+
+std::vector<std::unique_ptr<Lobby>>::iterator 
+LobbyManager::findLobby(unsigned int lobbyNum)
 {
-    auto found = std::find(lobbies.begin(), lobbies.end(), *lobby);
-    lobbies.erase(found);
+    auto lobbyIt = std::find_if(lobbies.begin(), lobbies.end(), 
+    [&lobbyNum](const std::unique_ptr<Lobby> &lobby){
+        return lobby.get()->getLobbyNum() == lobbyNum;
+    });
+    return lobbyIt;
 }
 
-void LobbyManager::deleteIfLobbyEmpty(Lobby *lobby)
-{
-    if (lobby->getUsers().size() == 0) {
-        deleteLobby(lobby);
+void LobbyManager::deleteLobby(unsigned int lobbyNum){
+    auto lobbyIt = std::remove_if(lobbies.begin(), lobbies.end(), 
+    [&lobbyNum](const std::unique_ptr<Lobby> &lobby){
+        return lobby.get()->getLobbyNum() == lobbyNum;
+    });
+    lobbies.erase(lobbyIt, lobbies.end());
+    return;
+}
+
+void LobbyManager::deleteIfLobbyEmpty(unsigned int lobbyNum){
+    auto lobby = findLobby(lobbyNum);
+    if (lobby.base()->get()->getUsers().size() == 0) {
+        deleteLobby(lobbyNum);
     }
 }
 
-Lobby* LobbyManager::findLobby(unsigned int lobbyNum)
-{
-    return &* std::find_if(lobbies.begin(), lobbies.end(), findLob(lobbyNum));
-}
-
-unsigned int LobbyManager::getUserLobbyNum(uintptr_t cid)
-{
-    return findUserIt(cid).base()->getLobby()->getLobbyNum();
-}
-
-Lobby* LobbyManager::getReception()
-{
-    return &reception;
-}
-
-std::vector<User>::iterator LobbyManager::findUserIt(uintptr_t cid)
+std::vector<std::unique_ptr<User>>::iterator 
+LobbyManager::findUserIt(uintptr_t cid)
 {
     return std::find_if(users.begin(), users.end(), findUser(cid));
-}
-
-std::vector<Lobby>::iterator LobbyManager::findLobbyIt(unsigned int lobbyNum)
-{
-    return std::find_if(lobbies.begin(), lobbies.end(), findLob(lobbyNum));
 }

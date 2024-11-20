@@ -8,16 +8,20 @@
 User::User(unsigned long int id, const std::string& name, networking::Connection connection) : 
     id(id), 
     name(name),
-    lobby(nullptr),
+    lobbyNum(0),
     connection(connection),
     responses() {}
 
 User::User(unsigned long int id, networking::Connection connection) : 
     id(id), 
     name("Unnamed " + std::to_string(id)), 
-    lobby(nullptr),
+    lobbyNum(0),
     connection(connection),
     responses() {}
+
+User::~User(){
+
+}
 
 unsigned long int User::getId() const {
     return id;
@@ -27,16 +31,24 @@ std::string User::getName() const {
     return name;
 }
 
-Lobby* User::getLobby() const{
-    return lobby;
-}
+// Lobby* User::getLobby() const{
+//     return lobby;
+// }
 
-void User::setLobby(Lobby* newLobby) {
-    lobby = newLobby;
-}
+// void User::setLobby(Lobby* newLobby) {
+//     lobby = newLobby;
+// }
 
 void User::setName(const std::string& name) {
     this->name = name;
+}
+
+unsigned int User::getLobby() const {
+    return this->lobbyNum;
+}
+
+void User::setLobby(unsigned int lobbyNum){
+    this->lobbyNum = lobbyNum;
 }
 
 networking::Connection User::getConnection() {

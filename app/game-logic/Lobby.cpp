@@ -13,6 +13,9 @@ Lobby::Lobby() : inviteCode(tokenGenerator()), lobbyNumber(nextLobbyId++)
 Lobby::~Lobby()
 {
   std::cout << "yay u deleted the lobby " << lobbyNumber << std::endl;
+  std::for_each(userIDs.begin(), userIDs.end(), [](unsigned int num){
+    std::cout << "players in this lobby: " << num << std::endl;
+  });
 }
 
 char Lobby::randLetter()
@@ -37,20 +40,33 @@ std::string Lobby::tokenGenerator()
   return token;
 }
 
-void Lobby::addUser(User *user)
-{
-  users.push_back(user);
+// void Lobby::addUser(User *user)
+// {
+//   users.push_back(user);
+// }
+
+// void Lobby::removeUser(User *user)
+// {
+//   auto userErase = std::remove(users.begin(), users.end(), user);
+//   users.erase(userErase);
+// }
+
+// std::vector<User *> Lobby::getUsers()
+// {
+//   return users;
+// }
+
+void Lobby::addUser(unsigned int userID){
+  userIDs.push_back(userID);
 }
 
-void Lobby::removeUser(User *user)
-{
-  auto userErase = std::remove(users.begin(), users.end(), user);
-  users.erase(userErase);
+void Lobby::removeUser(unsigned int userID){
+  auto toRemove = std::remove(userIDs.begin(), userIDs.end(), userID);
+  userIDs.erase(toRemove, userIDs.end());
 }
 
-std::vector<User *> Lobby::getUsers()
-{
-  return users;
+const std::vector<unsigned int>& Lobby::getUsers() const{
+  return userIDs;
 }
 
 unsigned int Lobby::getLobbyNum() const
@@ -58,6 +74,6 @@ unsigned int Lobby::getLobbyNum() const
   return lobbyNumber;
 }
 
-bool Lobby::operator==(const Lobby& other){
+bool Lobby::operator==(const Lobby& other) const{
   return other.lobbyNumber == this->lobbyNumber;
 }
