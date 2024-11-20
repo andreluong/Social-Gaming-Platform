@@ -126,7 +126,7 @@ void handleLobbyOperation(Server &server, const Message &message,
   if (message.text == "quit") {
     lobbymanager.deleteUser(user.base()->get()->getId());
     // Assuming `server` is accessible here
-    // server.disconnect(message.connection);
+    server.disconnect(message.connection);
   } else if (message.text == "SVshutdown") {
     std::cout << "Shutting down.\n";
     quit = true;
@@ -165,8 +165,6 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
     std::cout << "Shutting down.\n";
     quit = true;
   } else if (userInput.first == "rename" && userInput.second.length() > 0) {
-    // playerIdToUsernameMap.insert_or_assign(message.connection.id,
-    // userInput.second);
     result << user.base()->get()->getName() << " renamed to " << userInput.second
            << "\n";
     user.base()->get()->setName(userInput.second);
