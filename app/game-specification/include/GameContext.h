@@ -16,9 +16,9 @@ public:
                 std::shared_ptr<ExpressionMap> variables,
                 std::shared_ptr<ExpressionMap> perPlayer,
                 std::shared_ptr<ExpressionMap> perAudience,
-                std::vector<User> players);
+                std::shared_ptr<ExpressionMap> players);
 
-    std::optional<ExpressionWrapper> find(std::string_view key);
+    std::optional<ExpressionWrapper> find(const std::string_view& key);
 
     void setVariable(std::string key, ExpressionWrapper value);
 
@@ -27,7 +27,7 @@ public:
     std::shared_ptr<ExpressionMap> getVariables();
     std::shared_ptr<ExpressionMap> getPerPlayer();
     std::shared_ptr<ExpressionMap> getPerAudience();
-    std::vector<User> getPlayers();
+    std::shared_ptr<ExpressionMap> getPlayers();
 
 private:
     std::shared_ptr<ExpressionMap> configuration;
@@ -35,5 +35,7 @@ private:
     std::shared_ptr<ExpressionMap> variables;
     std::shared_ptr<ExpressionMap> perPlayer;
     std::shared_ptr<ExpressionMap> perAudience;
-    std::vector<User> players;
+    std::shared_ptr<ExpressionMap> players;
+
+    std::optional<ExpressionWrapper> findInExpressionMaps(const std::string_view& key);
 };

@@ -39,28 +39,35 @@ int main(int argc, char** argv) {
     configurationMap["rounds"] = ExpressionWrapper{1};
     // configurationMap["public_voting"] = true;
 
-    // Create players
-    std::vector<User> players;
-    User u1(1, networking::Connection((uintptr_t) 80));
-    u1.addRole(std::make_shared<Player>());
-    User u2(2, networking::Connection((uintptr_t) 80));
-    u2.addRole(std::make_shared<Player>());
-    players.push_back(u1);
-    players.push_back(u2);
+    /*
+        Player
+        - name
+        - elements (Probably needs to be a map so it can have the "elements" name)
+            - weapon
+        // players.elements.collect(player, player.weapon = weapon.beats); ???
+    */
+   std::shared_ptr<ExpressionMap> playerMap = std::make_shared<ExpressionMap>();
+   playerMap->emplace("A", ExpressionWrapper{std::make_shared<ExpressionVector>()});
+   playerMap->emplace("B", ExpressionWrapper{std::make_shared<ExpressionVector>()});
+   playerMap->emplace("C", ExpressionWrapper{std::make_shared<ExpressionVector>()});
+   playerMap->emplace("D", ExpressionWrapper{std::make_shared<ExpressionVector>()});
+
+   std::shared_ptr<ExpressionMap> playerMapPtr = std::make_shared<ExpressionMap>();
+   playerMapPtr->emplace("players", ExpressionWrapper{playerMap});
 
     // Constants
-    auto configurationMapA = std::make_shared<ExpressionMap>(configurationMap);
-    auto constantsA = std::make_shared<ExpressionMap>(constants->getValues());
-    auto variablesA = std::make_shared<ExpressionMap>(variables->getValues());
-    auto perPlayerA = std::make_shared<ExpressionMap>(perPlayer->getValues());
-    auto perAudienceA = std::make_shared<ExpressionMap>(perAudience->getValues());
+    auto configurationMapPtr = std::make_shared<ExpressionMap>(configurationMap);
+    auto constantsPtr = std::make_shared<ExpressionMap>(constants->getValues());
+    auto variablesPtr = std::make_shared<ExpressionMap>(variables->getValues());
+    auto perPlayerPtr = std::make_shared<ExpressionMap>(perPlayer->getValues());
+    auto perAudiencePtr = std::make_shared<ExpressionMap>(perAudience->getValues());
 
-    auto context = std::make_unique<GameContext>(configurationMapA,
-                                                constantsA, 
-                                                variablesA,
-                                                perPlayerA, 
-                                                perAudienceA,
-                                                players);
+    auto context = std::make_unique<GameContext>(configurationMapPtr,
+                                                constantsPtr, 
+                                                variablesPtr,
+                                                perPlayerPtr, 
+                                                perAudiencePtr,
+                                                playerMapPtr);
 
     GameManager gameManager(std::move(configuration), context, rules->getRules());
 

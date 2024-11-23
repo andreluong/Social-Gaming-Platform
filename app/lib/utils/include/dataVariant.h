@@ -30,6 +30,7 @@ struct ExpressionWrapper {
 // TODO: Currently hardcoded for the game file
 using GameVariant = std::variant<
     int,                                        // round
+    ExpressionWrapper,
     std::pair<std::string, ExpressionWrapper>,  // weapon
     User                                        // player
 >;
@@ -114,25 +115,6 @@ struct VisitReturnPointer {
     std::shared_ptr<ExpressionVector> operator()(T value) const{
         throw std::invalid_argument{"[VisitReturnPointer] Invalid argument found"};
 	}
-};
-
-// TODO: Currently discards from a vector
-struct VisitDiscard {
-    void operator()(std::shared_ptr<ExpressionVector>& listPointer, int count) {
-        auto originalSize = listPointer->size();
-        if (count > 0) {
-            if (static_cast<std::size_t>(count) >= listPointer->size()) {
-                listPointer->clear();
-            } else {
-                listPointer->erase(listPointer->end() - count, listPointer->end());
-            }
-        }
-        std::cout << "[VisitDiscard] Original Size: " << originalSize << "; New size: " << listPointer->size() << std::endl;
-    }
-
-    void operator()(auto T, auto K) {
-        throw std::invalid_argument{"[VisitDiscard] Invalid argument found"};
-    }
 };
 
 struct VisitSize {

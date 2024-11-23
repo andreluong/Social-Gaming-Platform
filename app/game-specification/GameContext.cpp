@@ -9,17 +9,30 @@ GameContext::GameContext(std::shared_ptr<ExpressionMap> configuration,
                         std::shared_ptr<ExpressionMap> variables,
                         std::shared_ptr<ExpressionMap> perPlayer,
                         std::shared_ptr<ExpressionMap> perAudience,
-                        std::vector<User> players)
+                        std::shared_ptr<ExpressionMap> players)
     : configuration(std::move(configuration)),
     constants(std::move(constants)), 
     variables(std::move(variables)), 
     perPlayer(std::move(perPlayer)), 
     perAudience(std::move(perAudience)),
-    players(players) {}
+    players(std::move(players)) {}
 
+// Check in variables, constants, perPlayer, perAudience, and players
+std::optional<ExpressionWrapper> GameContext::findInExpressionMaps(const std::string_view& key) {
+    auto maps = {variables, constants, perPlayer, perAudience, players};
+    for (const auto map : maps) {
+        if (auto it = map->find(std::string(key)); it != map->end()) {
+            return it->second;
+        }
+    }
+    std::cerr << "[CONTEXT] Could not find key in any expression maps: " << key << std::endl;
+    return std::nullopt;
+}
+
+// TODO: Does too much, we need additional functions to handle expressions (&&, ||, etc)
 // Finds a value from all maps using a given key
 // If the key contains a prefix, return specific variables from specific maps
-std::optional<ExpressionWrapper> GameContext::find(std::string_view key) {
+std::optional<ExpressionWrapper> GameContext::find(const std::string_view& key) {
     // NOTE:
     // This uses a split object / function string design
     // We find twice: object and function
@@ -51,24 +64,18 @@ std::optional<ExpressionWrapper> GameContext::find(std::string_view key) {
         // Contains
         {
             // Check argument for object
+            // Return boolean
         }
 
         return std::nullopt;
     }
 
+    // Splits the key into a list delimited by a period
     // If found prefix, belongs to configuration, players, player, winners, weapons, or weapon
     auto keyList = utility::splitString(key);
     switch (keyList.size()) {
-        // Check expression maps (variables, constants, perPlayer, and perAudience)
-        case 1: {
-            auto maps = {variables, constants, perPlayer, perAudience};
-            for (const auto map : maps) {
-                if (auto it = map->find(std::string(key)); it != map->end()) {
-                    return it->second;
-                }
-            }
-            break;
-        }
+        case 1: 
+            return findInExpressionMaps(key);
 
         // Specific map
         case 2: {
@@ -86,8 +93,6 @@ std::optional<ExpressionWrapper> GameContext::find(std::string_view key) {
             else if (prefix == "winners") {
                 return ExpressionWrapper{(*variables)["winners"]};
             }
-            else if (prefix == "players") {
-            }
             break;
         }
 
@@ -102,7 +107,7 @@ std::optional<ExpressionWrapper> GameContext::find(std::string_view key) {
 
         // Unknown
         default: {
-            std::cout << "default" << std::endl;
+            std::cout << "Default: " << std::endl;
             for (auto x : keyList) {
                 std::cout << x << std::endl;
             }
@@ -142,6 +147,6 @@ std::shared_ptr<ExpressionMap> GameContext::getPerAudience() {
     return perAudience;
 }
 
-std::vector<User> GameContext::getPlayers() {
+std::shared_ptr<ExpressionMap> GameContext::getPlayers() {
     return players;
 }

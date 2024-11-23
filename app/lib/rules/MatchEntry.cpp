@@ -5,6 +5,7 @@ MatchEntry::MatchEntry(std::string_view guard, std::vector<std::unique_ptr<Rule>
 
 void MatchEntry::execute(GameContext* context) {
     std::cout << "Match entry execute" << std::endl;    
+    this->print();
 }
 
 void MatchEntry::print() {
@@ -15,4 +16,8 @@ void MatchEntry::print() {
         }
     }
     std::cout << std::endl;
+}
+
+std::string_view MatchEntry::getGuard() {
+    return guard;
 }

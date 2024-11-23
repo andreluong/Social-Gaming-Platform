@@ -51,6 +51,8 @@ public:
     void execute(GameContext* context) override;
     void print() override;
 
+    std::string_view getGuard();
+
 private:
     std::string_view guard; // expression
     std::vector<std::unique_ptr<Rule>> body; // body
