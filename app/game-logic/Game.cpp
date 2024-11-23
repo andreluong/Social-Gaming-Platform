@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "User.h"
 #include <algorithm>
+#include <spdlog/spdlog.h>
 
 Game::Game(int id, const std::string& name, int maxP)
     : gameID(id), gameName(name), maxPlayers(maxP), currentRound(0), status("Idle") {}
@@ -10,23 +11,22 @@ Game::~Game() {}
 void Game::startGame() {
     if (canStart()) {
         status = "In Progress";
-        std::cout << "Game " << gameName << " has started!" << std::endl;
+        spdlog::info("Game {} has started");
     } else {
-        std::cout << "Cannot start the game, min 2 players required." << std::endl;
+        spdlog::warn("Cannot start the game. Minimum 2 players required");
     }
 }
 
 bool Game::addPlayer(std::shared_ptr<User> player) {
     if (players.size() < maxPlayers) {
         players.push_back(player);
-        std::cout <<  "Welcome "<<player->getName()<< std::endl;
+        spdlog::info("Welcome {} to the game", player->getName());
         return true;
     } else {
-        std::cout << "Sorry game is full" << std::endl;
+        spdlog::warn("Sorry, the game {} is full");
         return false;
     }
 }
-
 
 bool Game::removePlayer(int playerID) {
     auto it = std::find_if(players.begin(), players.end(),
@@ -35,15 +35,12 @@ bool Game::removePlayer(int playerID) {
                            });
     
     if (it != players.end()) {
-        //added to retain player name before deletion
-        std::string playerName = (*it)->getName();  
-
-        //we then delte the player
-        players.erase(it); 
-        std::cout << playerName << " left the game" << std::endl;
+        std::string playerName = (*it)->getName();
+        players.erase(it);
+        spdlog::info("{} left the game", playerName);
         return true;
     } else {
-        std::cout << "Can't find player with ID " << playerID << std::endl;
+        spdlog::warn("Cannot find player with ID {} in game", playerID);
         return false;
     }
 }
@@ -54,52 +51,50 @@ bool Game::canStart() const {
 
 void Game::endGame() {
     status = "Completed";
-    std::cout << "Game " << gameName << " has ended!" << std::endl;
+    spdlog::info("Game has ended");
 }
 
 void Game::updateScoreBoard(const std::string& playerName, int score) {
-    //added this to handle possible errors like -ve scoer
-        if (score < 0 && scoreBoard[playerName] + score < 0) {
-        std::cout << "Negative score for " << playerName << "." << std::endl;
+    if (score < 0 && scoreBoard[playerName] + score < 0) {
+        spdlog::warn("Negative score would result for player {} in game", playerName);
         return;
     }
     scoreBoard[playerName] += score;
+    spdlog::info("Updated score for {}: {}", playerName, scoreBoard[playerName]);
 }
 
 std::string Game::getStatus() const {
     return status;
 }
-void Game::displayScoreBoard() const {
-    std::cout << "Scoreboard for game " << gameName << ":" << std::endl;
-    for (const auto& entry : scoreBoard) {
-        std::cout << entry.first << ": " << entry.second << std::endl;
-    }
 
+void Game::displayScoreBoard() const {
+    spdlog::info("Scoreboard for game");
+    for (const auto& entry : scoreBoard) {
+        spdlog::info("{}: {}", entry.first, entry.second);
+    }
 }
-//we find if a game is full by comparing no players wtih max
+
 bool Game::isGameFull() const {
     return players.size() >= maxPlayers;
 }
 
-//to get the current game round
 int Game::getCurrentRound() const {
     return currentRound;
 }
 
-//fun to move us to the next round
 void Game::nextRound() {
     currentRound++;
-    std::cout << "Advancing to round " << currentRound << std::endl;
+    spdlog::info("Advancing to round {}", currentRound);
 }
-//for resetting the game
+
 void Game::resetGame() {
     scoreBoard.clear();
     players.clear();
     currentRound = 0;
     status = "Not Playing";
-    std::cout << "the game has been reset" << std::endl;
+    spdlog::info("Game has been reset");
 }
-//fun to help us find a player by their id
+
 std::shared_ptr<User> Game::findPlayerByID(int playerID) const {
     for (const auto& player : players) {
         if (player->getId() == playerID) {
@@ -108,7 +103,7 @@ std::shared_ptr<User> Game::findPlayerByID(int playerID) const {
     }
     return nullptr; 
 }
-//fun to help us check if a particular player is in a game
+
 bool Game::isPlayerInGame(int playerID) const {
     return findPlayerByID(playerID) != nullptr;
 }
@@ -121,7 +116,6 @@ int Game::getScoreOfPlayer(const std::string& playerName) const {
     return 0;
 }
 
-//another func to get a player by their name
 std::vector<std::string> Game::getPlayerNames() const {
     std::vector<std::string> names;
     for (const auto& player : players) {
@@ -129,3 +123,4 @@ std::vector<std::string> Game::getPlayerNames() const {
     }
     return names;
 }
+

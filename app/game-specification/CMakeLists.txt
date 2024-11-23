@@ -44,6 +44,7 @@ target_link_libraries(perser
   utils
   rules
   game-logic-lib
+  spdlog::spdlog
 )
 
 set(GAMES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/games")
