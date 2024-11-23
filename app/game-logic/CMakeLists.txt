@@ -16,6 +16,7 @@ target_link_libraries(game-logic-lib
   PUBLIC 
     networking
     utils
+    spdlog::spdlog
 )
 
 target_include_directories(game-logic-lib
