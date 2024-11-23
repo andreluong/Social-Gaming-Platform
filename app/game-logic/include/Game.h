@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include "User.h"
+#include <spdlog/spdlog.h>
 
 class Game {
     protected: //protected so we don't need getters/setter for our subclasses
