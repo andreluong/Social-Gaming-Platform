@@ -4,6 +4,16 @@ project(SocialGamingPlatform)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# I added spdlog dependency
+include(FetchContent)
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.11.0
+)
+FetchContent_MakeAvailable(spdlog)
+
+# Enable sanitizers in Debug mode
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(
         -fsanitize=address
@@ -15,12 +25,13 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     )
 endif()
 
+# Add subdirectories for all project components
 add_subdirectory(game-logic)
 add_subdirectory(lib)
 add_subdirectory(web-socket-networking)
 add_subdirectory(feature-toggle)
 
-# You can comment this out so cmake runs a bit faster
+# Optional game specification directory
 add_subdirectory(game-specification)
 
 include(CTest)
