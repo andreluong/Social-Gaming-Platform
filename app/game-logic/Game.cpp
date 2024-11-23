@@ -51,7 +51,7 @@ bool Game::canStart() const {
 
 void Game::endGame() {
     status = "Completed";
-    spdlog::info("Game has ended",);
+    spdlog::info("Game has ended");
 }
 
 void Game::updateScoreBoard(const std::string& playerName, int score) {
@@ -92,7 +92,7 @@ void Game::resetGame() {
     players.clear();
     currentRound = 0;
     status = "Not Playing";
-    spdlog::info("Game has been reset",);
+    spdlog::info("Game has been reset");
 }
 
 std::shared_ptr<User> Game::findPlayerByID(int playerID) const {
