@@ -10,22 +10,22 @@
 
 // Variant to-be updated
 // TODO: Use ExpressionVariant instead
-using Variant = std::variant<std::string, int, bool>;
-using ValueType = std::variant<std::string, int, bool, std::unordered_map<std::string, Variant>, std::vector<Variant>>;
+// using Variant = std::variant<std::string, int, bool>;
+// using ValueType = std::variant<std::string, int, bool, std::unordered_map<std::string, Variant>, std::vector<Variant>>;
 
 class GameSpecificationParser;
 
 class ValueMap {
 public:
     ValueMap() = default;
-    ValueMap(std::unordered_map<std::string, ExpressionVariant> values) : values(values) {}
+    ValueMap(ExpressionMap values) : values(values) {}
 
-    std::unordered_map<std::string, ExpressionVariant> getValues() const;
+    ExpressionMap getValues() const;
     std::optional<ExpressionVariant> getValue(const std::string& name) const;
     void printValues() const;
 
 private:
-    std::unordered_map<std::string, ExpressionVariant> values;
+    ExpressionMap values;
 
     // Private setters accessible only by friend class
     void setValue(const std::string& name, const ExpressionVariant& value);

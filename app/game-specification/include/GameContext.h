@@ -4,29 +4,38 @@
 #include <optional>
 #include <string>
 #include "dataVariant.h"
+#include <string_view>
+#include <vector>
+#include "User.h"
+#include <memory>
 
 class GameContext {
 public:
-    GameContext(std::unordered_map<std::string, ExpressionVariant> configuration,
-                std::unordered_map<std::string, ExpressionVariant> constants,
-                std::unordered_map<std::string, ExpressionVariant> variables,
-                std::unordered_map<std::string, ExpressionVariant> perPlayer,
-                std::unordered_map<std::string, ExpressionVariant> perAudience);
+    GameContext(std::shared_ptr<ExpressionMap> configuration,
+                std::shared_ptr<ExpressionMap> constants,
+                std::shared_ptr<ExpressionMap> variables,
+                std::shared_ptr<ExpressionMap> perPlayer,
+                std::shared_ptr<ExpressionMap> perAudience,
+                std::shared_ptr<ExpressionMap> players);
 
-    std::optional<ExpressionVariant> find(std::string key);
+    std::optional<ExpressionWrapper> find(const std::string_view& key);
 
-    void setVariable(std::string key, ExpressionVariant value);
+    void setVariable(std::string key, ExpressionWrapper value);
 
-    std::unordered_map<std::string, ExpressionVariant> getConfiguration();
-    std::unordered_map<std::string, ExpressionVariant> getConstants();
-    std::unordered_map<std::string, ExpressionVariant> getVariables();
-    std::unordered_map<std::string, ExpressionVariant> getPerPlayer();
-    std::unordered_map<std::string, ExpressionVariant> getPerAudience();
+    std::shared_ptr<ExpressionMap> getConfiguration();
+    std::shared_ptr<ExpressionMap> getConstants();
+    std::shared_ptr<ExpressionMap> getVariables();
+    std::shared_ptr<ExpressionMap> getPerPlayer();
+    std::shared_ptr<ExpressionMap> getPerAudience();
+    std::shared_ptr<ExpressionMap> getPlayers();
 
 private:
-    std::unordered_map<std::string, ExpressionVariant> configuration;
-    std::unordered_map<std::string, ExpressionVariant> constants;
-    std::unordered_map<std::string, ExpressionVariant> variables;
-    std::unordered_map<std::string, ExpressionVariant> perPlayer;
-    std::unordered_map<std::string, ExpressionVariant> perAudience;
+    std::shared_ptr<ExpressionMap> configuration;
+    std::shared_ptr<ExpressionMap> constants;
+    std::shared_ptr<ExpressionMap> variables;
+    std::shared_ptr<ExpressionMap> perPlayer;
+    std::shared_ptr<ExpressionMap> perAudience;
+    std::shared_ptr<ExpressionMap> players;
+
+    std::optional<ExpressionWrapper> findInExpressionMaps(const std::string_view& key);
 };

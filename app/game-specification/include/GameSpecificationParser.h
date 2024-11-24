@@ -26,6 +26,7 @@
 #include <string>
 #include <unordered_map>
 #include <cpp-tree-sitter.h>
+#include "dataVariant.h"
 
 enum SectionType {
     ConstantsType = 1,
@@ -54,7 +55,7 @@ public:
     std::pair<int, int> parseNumberRange(ts::Node rangeNode);
 
     // Parse different types of expressions based on their node type
-    std::string parseExpression(ts::Node expressionNode);
+    ExpressionVariant parseExpression(ts::Node expressionNode);
 
     /**
     * Parses a comparison operation and returns it as a string.
@@ -78,10 +79,10 @@ public:
 
     // Just string to string for now; not correct yet, find comment: // Trying to figure out how to implement parseValueMap
     // Supports values of type: quoted_string, list_literal, and nested value_map
-    std::unordered_map<std::string, std::string> parseValueMap(ts::Node mapNode);
+    std::unordered_map<std::string, ExpressionWrapper> parseValueMap(ts::Node mapNode);
 
     // Helper to parse a list like [ "Rock", "Paper", "Scissors" ] & ret as a formatted string
-    std::string parseList(ts::Node listNode);
+    std::vector<ExpressionWrapper> parseList(ts::Node listNode);
 
     // Helper to parse a nested map within a map entry ret formatted as a string
     std::string parseNestedMap(ts::Node nestedMapNode);
@@ -90,7 +91,7 @@ public:
     std::string parseBoolean(ts::Node booleanNode);
 
     // Parses an int node and returns it as a string
-    std::string parseInteger(ts::Node integerNode);
+    int parseInteger(ts::Node integerNode);
 
     // Parses an Id node and returns it as a str
     std::string parseIdentifier(ts::Node identifierNode);

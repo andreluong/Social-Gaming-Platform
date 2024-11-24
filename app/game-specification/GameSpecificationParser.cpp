@@ -13,30 +13,25 @@ enum class NodeType {
     Unknown
 };
 
+std::unordered_map<std::string_view, NodeType> nodeTypes = {
+    {"quoted_string",       NodeType::QuotedString},
+    {"list_literal",        NodeType::ListLiteral},
+    {"value_map",           NodeType::ValueMap},
+    {"boolean",             NodeType::Boolean},
+    {"number",              NodeType::Integer},
+    {"identifier",          NodeType::Identifier},
+    {"comparison",          NodeType::Comparison},
+    {"logical_operation",   NodeType::LogicalOperation}
+};
+
 // A function to map string types to enums
-NodeType getNodeType(const std::string& nodeType) {
-    if (nodeType == "quoted_string") {
-        return NodeType::QuotedString;
-    } else if (nodeType == "list_literal") {
-        return NodeType::ListLiteral;
-    } else if (nodeType == "value_map") {
-        return NodeType::ValueMap;
-    } else if (nodeType == "boolean") {
-        return NodeType::Boolean;
-    } else if (nodeType == "number") {
-        return NodeType::Integer;
-    } else if (nodeType == "identifier") {
-        return NodeType::Identifier;
-    } else if (nodeType == "comparison") {
-        return NodeType::Comparison;
-    } else if (nodeType == "logical_operation") {
-        return NodeType::LogicalOperation;
-    } else {
-        return NodeType::Unknown;
+NodeType getNodeType(const ts::Node& nodeType) {
+    auto it = nodeTypes.find(nodeType.getType());
+    if (it != nodeTypes.end()) {
+        return it->second;
     }
+    return NodeType::Unknown;
 }
-
-
 
 /* TODO ideas: 
 
@@ -96,10 +91,6 @@ GameSpecificationParser::GameSpecificationParser(const SyntaxTree& syntaxTree)
     perAudience = PerAudience();
 }
 
-
-// unnecessary?
-//std::string sourceCode;
-
 // Helper methods
 
 // 1 and 3 are the position of the numbers
@@ -109,10 +100,9 @@ std::pair<int, int> GameSpecificationParser::parseNumberRange(ts::Node rangeNode
     return {min, max};
 }
 
-// Just string to string for now; not correct yet, find comment: // Trying to figure out how to implement parseValueMap
 // Supports values of type: quoted_string, list_literal, and nested value_map
-std::unordered_map<std::string, std::string> GameSpecificationParser::parseValueMap(ts::Node mapNode) {
-    std::unordered_map<std::string, std::string> valueMap = {};
+ExpressionMap GameSpecificationParser::parseValueMap(ts::Node mapNode) {
+    ExpressionMap valueMap = {};
     
     for (int i = 0; i < mapNode.getNumNamedChildren(); ++i) {
         ts::Node pairNode = mapNode.getNamedChild(i);
@@ -124,10 +114,8 @@ std::unordered_map<std::string, std::string> GameSpecificationParser::parseValue
         // get the key from map entry
         std::string key = std::string(pairNode.getChildByFieldName("key").getSourceRange(sourceCode));
         ts::Node valueNode = pairNode.getChildByFieldName("value");
-        std::string value;
-
-        // for the the type of the valueNode uses the enum class that i created at the top
-        NodeType type = getNodeType(std::string(valueNode.getType()));
+        ExpressionVariant value;
+        auto type = getNodeType(valueNode);
 
         switch (type) {
             //i think it is unavoidable to get the feild names by their "names" for
@@ -135,39 +123,33 @@ std::unordered_map<std::string, std::string> GameSpecificationParser::parseValue
             case NodeType::QuotedString:
                 value = std::string(valueNode.getChildByFieldName("contents").getSourceRange(sourceCode));
                 break;
+
             case NodeType::ListLiteral:
-                value = parseList(valueNode);
+                value = std::make_shared<ExpressionVector>(parseList(valueNode));
                 break;
+
             case NodeType::ValueMap:
                 value = parseNestedMap(valueNode);
                 break;
+
             case NodeType::Boolean:
                 value = parseBoolean(valueNode);
                 break;
+
             case NodeType::Integer:
                 value = parseInteger(valueNode);
                 break;
+                
             case NodeType::Identifier:
                 value = parseIdentifier(valueNode);
                 break;
-
+                
             default:
-                // Default case, use raw text as value
-                // value = std::string(valueNode.getSourceRange(sourceCode));
-                /*
-                * i created parseExpression and will default to it to handle any unexpected or new node types in the long run
-
-                */
                 value = parseExpression(valueNode);
-
                 break;
         }
 
-        // Debug output to confirm the parsed key-value pair
-        std::cout << "Parsed keyValue pair: " << key << " : " << value << std::endl;
-
-        // Add the key-value pair to the map
-        valueMap[key] = value;
+        valueMap[key] = ExpressionWrapper{value};
     }
 
     return valueMap;
@@ -175,18 +157,37 @@ std::unordered_map<std::string, std::string> GameSpecificationParser::parseValue
 
 
 // Parse different types of expressions based on their node type
-std::string GameSpecificationParser::parseExpression(ts::Node expressionNode) {
-    NodeType type = getNodeType(std::string(expressionNode.getType()));
+ExpressionVariant GameSpecificationParser::parseExpression(ts::Node expressionNode) {
+    if (expressionNode.getNumNamedChildren() == 0) {
+        throw std::runtime_error("[PARSER] Expression node does not have any named children");
+    }
+
+    auto expressionChild = expressionNode.getNamedChild(0);
+    auto type = getNodeType(expressionChild);
 
     switch (type) {
         case NodeType::Comparison:
-            return parseComparison(expressionNode);
+            return parseComparison(expressionChild);
+
         case NodeType::LogicalOperation:
-            return parseLogicalOperation(expressionNode);
+            return parseLogicalOperation(expressionChild);
+
+        case NodeType::Integer:
+            return parseInteger(expressionChild);
+        
+        case NodeType::ListLiteral: {
+            auto list = parseList(expressionChild);            
+            return std::make_shared<ExpressionVector>(list);    
+        }
+        case NodeType::ValueMap: {
+            auto map = parseValueMap(expressionChild);
+            return std::make_shared<ExpressionMap>(map);
+        }
         default:
-            return std::string(expressionNode.getSourceRange(sourceCode));
+            return std::string(expressionChild.getSourceRange(sourceCode));
     }
 }
+
 /**
     * Parses a comparison operation and returns it as a string.
     *
@@ -195,14 +196,17 @@ std::string GameSpecificationParser::parseExpression(ts::Node expressionNode) {
     * Gets the rhs from getChild(2)
     * Combines lhs, operator, and rhs as a "lhs operator rhs" string
 */
-
 std::string GameSpecificationParser::parseComparison(ts::Node comparisonNode) {
-    std::string lhs = parseExpression(comparisonNode.getChild(0));
-    std::string operatorText = std::string(comparisonNode.getChild(1).getSourceRange(sourceCode));
-    std::string rhs = parseExpression(comparisonNode.getChild(2));
+    auto lhs = parseExpression(comparisonNode.getChild(0));
+    auto operatorText = std::string(comparisonNode.getChild(1).getSourceRange(sourceCode));
+    auto rhs = parseExpression(comparisonNode.getChild(2));
+    
+    auto lValue = std::visit<std::string>(VisitString{}, lhs);
+    auto rValue = std::visit<std::string>(VisitString{}, rhs);
 
-    return lhs + " " + operatorText + " " + rhs;
+    return lValue + " " + operatorText + " " + rValue;
 }
+
 /**
     * Parses a logical operation node, turning it into a readable string
     * 
@@ -212,28 +216,39 @@ std::string GameSpecificationParser::parseComparison(ts::Node comparisonNode) {
     * - Returns the expression as a string in "lhs operator rhs" format
     */
 std::string GameSpecificationParser::parseLogicalOperation(ts::Node logicalNode) {
-    std::string lhs = parseExpression(logicalNode.getChild(0));
-    std::string operatorText = std::string(logicalNode.getChild(1).getSourceRange(sourceCode));
-    std::string rhs = parseExpression(logicalNode.getChild(2));
+    auto lhs = parseExpression(logicalNode.getChild(0));
+    auto operatorText = std::string(logicalNode.getChild(1).getSourceRange(sourceCode));
+    auto rhs = parseExpression(logicalNode.getChild(2));
 
-    return lhs + " " + operatorText + " " + rhs;
+    auto lValue = std::visit<std::string>(VisitString{}, lhs);
+    auto rValue = std::visit<std::string>(VisitString{}, rhs);
+
+    return lValue + " " + operatorText + " " + rValue;
 }
 
-// Helper to parse a list like [ "Rock", "Paper", "Scissors" ] & ret as a formatted string
-std::string GameSpecificationParser::parseList(ts::Node listNode) {
-std::stringstream ss;
-ss << "[";
+// Return a vector (list_literal) using the named children of a node
+ExpressionVector GameSpecificationParser::parseList(ts::Node listNode) {
+    ExpressionVector list;
 
-for (int i = 0; i < listNode.getNumNamedChildren(); ++i) {
-    ts::Node elementNode = listNode.getNamedChild(i);
-    ss << elementNode.getSourceRange(sourceCode);
-    if (i < listNode.getNumNamedChildren() - 1) {
-        ss << ", ";
+    // Found no elements in the list, return empty list
+    if (listNode.getNumNamedChildren() == 0) {
+        return list;
     }
-}
 
-ss << "]";
-return ss.str();
+    // Add each expression to the list
+    auto expressionListNode = listNode.getNamedChild(0);
+    for (int i = 0; i < expressionListNode.getNumNamedChildren(); i++) {
+        auto expressionListChild = expressionListNode.getNamedChild(i);
+        
+        // Requires 1 named child for expressions
+        if (expressionListChild.getNumNamedChildren() == 0) {
+            throw std::runtime_error(("[PARSER] Expression list child node does not have any named children"));
+        }
+
+        list.emplace_back(parseExpression(expressionListChild));
+    }
+
+    return list;
 }
 
 // Helper to parse a nested map within a map entry ret formatted as a string
@@ -242,14 +257,15 @@ std::string GameSpecificationParser::parseNestedMap(ts::Node nestedMapNode) {
     std::stringstream ss;
     ss << "{";
 
-    int count = 0;
-    for (const auto& [key, value] : nestedMap) {
-        ss << key << ": " << value;
-        if (count < nestedMap.size() - 1) {
-            ss << ", ";
-        }
-        count++;
-    }
+    // TODO: Causes errors with ExpressionVariant
+    // int count = 0;
+    // for (const auto& [key, value] : nestedMap) {
+    //     ss << key << ": " << std::visit<std::string>(VisitString{}, value);
+    //     if (count < nestedMap.size() - 1) {
+    //         ss << ", ";
+    //     }
+    //     count++;
+    // }
 
     ss << "}";
     return ss.str();
@@ -267,14 +283,12 @@ std::string GameSpecificationParser::parseBoolean(ts::Node booleanNode) {
     }
 }
 
-// Parses an int node and returns it as a string
-std::string GameSpecificationParser::parseInteger(ts::Node integerNode) {
-std::string intValueStr = std::string(integerNode.getSourceRange(sourceCode));
-    // then convert str to int
-    int intValue = std::stoi(intValueStr);
-    // convert int back to str
-    std::string result = std::to_string(intValue);
-    return result;
+int GameSpecificationParser::parseInteger(ts::Node integerNode) {
+    if (getNodeType(integerNode) == NodeType::Integer) {
+        return std::stoi(std::string(integerNode.getSourceRange(sourceCode)));
+    }
+
+    throw std::invalid_argument("[PARSER] Integer node should be of type integer");
 }
 
 // Parses an Id node and returns it as a str
@@ -341,10 +355,10 @@ std::unique_ptr<ValueMap> GameSpecificationParser::parseSection(enum SectionType
     }
 
     // then we can just parse the mapNode for keyVal pairs
-    auto sectionsMap = parseValueMap(mapNode);
+    auto sectionsMap = std::make_shared<ExpressionMap>(parseValueMap(mapNode));
     // then we can fill the Sections object with parsed keyVal pairs
-    for (const auto& [key, value] : sectionsMap) {
-        section->setValue(key, value);
+    for (const auto [key, wrapper] : (*sectionsMap)) {
+        section->setValue(key, wrapper.value);
     }
 
     return section;
