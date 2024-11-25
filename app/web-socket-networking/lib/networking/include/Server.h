@@ -118,6 +118,8 @@ public:
    */
   void send(const std::deque<Message>& messages);
 
+  void send(const std::deque<Message>& messages, unsigned long connectionId);
+
   /**
    *  Receive Message instances from Client instances. This returns all Message
    *  instances collected by previous calls to Server::update() and not yet
