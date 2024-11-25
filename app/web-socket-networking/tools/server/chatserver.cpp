@@ -228,6 +228,12 @@ int main(int argc, char *argv[]) {
   const unsigned short port = std::stoi(argv[1]);
   Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
 
+  const std::deque<Message> messages = {
+      {Connection{1}, "Hello"}
+  };
+
+  server.send(messages, 1);
+
   while (true) {
     bool errorWhileUpdating = false;
     try {
