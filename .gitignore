@@ -48,3 +48,5 @@ test-script.sh
 
 # compile_commands from clangd
 app/compile_commands.json
+
+script.sh
