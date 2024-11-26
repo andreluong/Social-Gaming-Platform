@@ -11,26 +11,13 @@
 #include <unistd.h>
 #include "ChatWindow.h"
 #include "Client.h"
+#include "string_utils.h"
 
 #include <vector>
-#include <sstream> //
 
 struct ClientData {
   std::string connectionId;
   std::optional<std::string> name = std::nullopt;
-};
-
-std::vector<std::string> splitStringBySpace(const std::string& str) {
-  std::vector<std::string> result;
-  std::istringstream stream(str);
-  std::string word;
-
-  // Extract each word separated by spaces
-  while (stream >> word) {
-      result.push_back(word);
-  }
-
-  return result;
 };
 
 void processServerMessages(const std::vector<std::string>& messages, ClientData& clientData) {
