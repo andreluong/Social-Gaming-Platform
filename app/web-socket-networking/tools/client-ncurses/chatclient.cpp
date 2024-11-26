@@ -32,7 +32,10 @@ void processServerMessages(const std::vector<std::string>& messages, ClientData&
 
   // Server> a renamed to b - each name always 1 word
   if (messages.size() >= 5 && messages[2] == "renamed") {
-    clientData.name = messages[4];
+    auto name = clientData.name.has_value() ? clientData.name.value() : clientData.connectionId;
+    if (messages[1] == name) {
+      clientData.name = messages[4];
+    }
   }
 }
 
