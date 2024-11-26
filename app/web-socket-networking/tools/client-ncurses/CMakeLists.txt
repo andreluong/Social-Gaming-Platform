@@ -16,6 +16,7 @@ find_package(Threads REQUIRED)
 
 target_link_libraries(client-ncurses
   networking
+  string_utils
   ${CURSES_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
 )

@@ -14,7 +14,7 @@ User::User(unsigned long int id, const std::string& name, networking::Connection
 
 User::User(unsigned long int id, networking::Connection connection) : 
     id(id), 
-    name("Unnamed " + std::to_string(id)), 
+    name(std::to_string(id)), // only 1 word names allowed
     lobbyNum(0),
     connection(connection),
     responses() {}

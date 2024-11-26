@@ -108,9 +108,10 @@ void handleLobbyOperation(Server &server, const Message &message,
   else if (userInput.first == "rename" && userInput.second.length() > 0) {
     // playerIdToUsernameMap.insert_or_assign(message.connection.id,
     // userInput.second);
-    user.base()->get()->setName(userInput.second);
-    result << user.base()->get()->getName() << " renamed to " << userInput.second
+    auto userInputName = splitStringBySpace(userInput.second);
+    result << "Server> " << user.base()->get()->getName() << " renamed to " << userInputName[0]
            << "\n";
+    user.base()->get()->setName(userInputName[0]);
   } 
   else if (message.text == "leave") {
     lobbymanager.deleteIfLobbyEmpty(user.base()->get()->getLobby());
@@ -144,9 +145,9 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
     quit = true;
   } 
   else if (userInput.first == "rename" && userInput.second.length() > 0) {
-    result << user.base()->get()->getName() << " renamed to " << userInput.second
-           << "\n";
-    user.base()->get()->setName(userInput.second);
+    auto userInputName = splitStringBySpace(userInput.second);
+    result << "Server> " + user.base()->get()->getName() << " renamed to " << userInputName[0] << "\n";
+    user.base()->get()->setName(userInputName[0]);
   } 
   else if (message.text == "create") {
     unsigned int lobbyNum = lobbymanager.createLobby();
@@ -226,7 +227,19 @@ int main(int argc, char *argv[]) {
   };
 
   const unsigned short port = std::stoi(argv[1]);
-  Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
+
+
+  unsigned long connectionId = -1;
+  bool hasNewConnection = false;
+
+  Server server{port, getHTTPMessage(argv[2]), [&connectionId, &hasNewConnection](Connection connection) {
+    connectionId = connection.id;
+    onConnect(connection);
+    hasNewConnection = true;
+  }, onDisconnect};
+
+
+
 
   while (true) {
     bool errorWhileUpdating = false;
@@ -237,7 +250,13 @@ int main(int argc, char *argv[]) {
                 << " " << e.what() << "\n\n";
       errorWhileUpdating = true;
     }
-
+    if (hasNewConnection) {
+      const std::deque<Message> messages = {
+        {Connection{connectionId}, "Server> welcome " + std::to_string(connectionId) + "\n"}
+      };
+      server.send(messages);
+      hasNewConnection = false;
+    }
     const auto incoming = server.receive();
     const auto [logs, shouldQuit] = processMessages(server, incoming);
     const auto outgoing = buildOutgoing(logs);

@@ -396,6 +396,19 @@ Server::send(const std::deque<Message>& messages) {
   }
 }
 
+void
+Server::send(const std::deque<Message>& messages, unsigned long connectionId) {
+  for (const auto& message : messages) {
+    if (message.connection.id != connectionId) {
+      continue;
+    }
+    auto found = impl->channels.find(message.connection);
+    if (impl->channels.end() != found) {
+      found->second->send(message.text);
+    }
+  }
+}
+
 
 void
 Server::disconnect(Connection connection) {
