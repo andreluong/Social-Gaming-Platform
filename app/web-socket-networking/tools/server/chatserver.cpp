@@ -108,9 +108,10 @@ void handleLobbyOperation(Server &server, const Message &message,
   else if (userInput.first == "rename" && userInput.second.length() > 0) {
     // playerIdToUsernameMap.insert_or_assign(message.connection.id,
     // userInput.second);
-    user.base()->get()->setName(userInput.second);
-    result << user.base()->get()->getName() << " renamed to " << userInput.second
+    auto userInputName = splitStringBySpace(userInput.second);
+    result << "Server> " << user.base()->get()->getName() << " renamed to " << userInputName[0]
            << "\n";
+    user.base()->get()->setName(userInputName[0]);
   } 
   else if (message.text == "leave") {
     lobbymanager.deleteIfLobbyEmpty(user.base()->get()->getLobby());
@@ -144,9 +145,9 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
     quit = true;
   } 
   else if (userInput.first == "rename" && userInput.second.length() > 0) {
-    result << "Server> " + user.base()->get()->getName() << " renamed to " << userInput.second
-           << "\n";
-    user.base()->get()->setName(userInput.second);
+    auto userInputName = splitStringBySpace(userInput.second);
+    result << "Server> " + user.base()->get()->getName() << " renamed to " << userInputName[0] << "\n";
+    user.base()->get()->setName(userInputName[0]);
   } 
   else if (message.text == "create") {
     unsigned int lobbyNum = lobbymanager.createLobby();

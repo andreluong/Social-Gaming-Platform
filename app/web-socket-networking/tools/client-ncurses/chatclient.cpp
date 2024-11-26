@@ -38,8 +38,14 @@ void processServerMessages(const std::vector<std::string>& messages, ClientData&
       return;
   }
 
+  // message will only be given to a new user
   if (messages[1] == "welcome") {
     clientData.connectionId = messages[2];
+  }
+
+  // Server> a renamed to b - each name always 1 word
+  if (messages.size() >= 5 && messages[2] == "renamed") {
+    clientData.name = messages[4];
   }
 }
 
@@ -50,10 +56,9 @@ enum MessageType getMessageType(const std::vector<std::string>& messages, const 
   if (clientData.name.has_value() && messages[0] == clientData.name.value() + ">") {
     return MessageType::Self;
   }
-  if (!clientData.name.has_value() && messages[0] == "Unnamed") {
-    bool isSameConnection = messages[1] == clientData.connectionId + ">";
-    return isSameConnection ? MessageType::Self : MessageType::Other;
-  } 
+  if (!clientData.name.has_value() && messages[0] == clientData.connectionId + ">") {
+    return MessageType::Self;
+  }
   return MessageType::Other;
 }
 
@@ -85,7 +90,7 @@ main(int argc, char* argv[]) {
       client.update();
     } catch (std::exception& e) {
       chatWindow.displayText("Exception from Client update:", MessageType::Server);
-      chatWindow.displayText(e.what(), MessageType::Server);
+      chatWindow.displayText(e.what(), MessageType::Error);
       done = true;
     }
 

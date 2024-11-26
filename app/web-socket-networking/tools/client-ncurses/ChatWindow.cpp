@@ -69,6 +69,7 @@ ChatWindowImpl::ChatWindowImpl(std::function<void(std::string)> onTextEntry,
   init_pair(static_cast<int>(MessageType::Self), COLOR_GREEN, COLOR_BLACK);   // Yourself
   init_pair(static_cast<int>(MessageType::Server), COLOR_YELLOW, COLOR_BLACK);  // Game server announcer
   init_pair(static_cast<int>(MessageType::GameState), COLOR_WHITE, COLOR_BLACK);   // Game state
+  init_pair(static_cast<int>(MessageType::Error), COLOR_RED, COLOR_BLACK);    // Error messages
 
   getmaxyx(stdscr, parentY, parentX);
 

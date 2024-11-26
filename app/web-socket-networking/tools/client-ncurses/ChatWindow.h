@@ -17,7 +17,8 @@ enum class MessageType {
     Other = 1,   // Corresponds to color pair 1
     Self = 2,        // Corresponds to color pair 2
     Server = 3,      // Corresponds to color pair 3
-    GameState = 4    // Corresponds to color pair 4
+    GameState = 4,    // Corresponds to color pair 4
+    Error = 5
 };
 
 // Note: The ncurses state needs to be hidden from the public interface
