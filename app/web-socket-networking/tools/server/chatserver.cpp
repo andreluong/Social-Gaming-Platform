@@ -144,7 +144,7 @@ void handleNonLobbyOperation(const Message &message, std::ostringstream &result,
     quit = true;
   } 
   else if (userInput.first == "rename" && userInput.second.length() > 0) {
-    result << user.base()->get()->getName() << " renamed to " << userInput.second
+    result << "Server> " + user.base()->get()->getName() << " renamed to " << userInput.second
            << "\n";
     user.base()->get()->setName(userInput.second);
   } 
@@ -226,13 +226,19 @@ int main(int argc, char *argv[]) {
   };
 
   const unsigned short port = std::stoi(argv[1]);
-  Server server{port, getHTTPMessage(argv[2]), onConnect, onDisconnect};
 
-  const std::deque<Message> messages = {
-      {Connection{1}, "Hello"}
-  };
 
-  server.send(messages, 1);
+  unsigned long connectionId = -1;
+  bool hasNewConnection = false;
+
+  Server server{port, getHTTPMessage(argv[2]), [&connectionId, &hasNewConnection](Connection connection) {
+    connectionId = connection.id;
+    onConnect(connection);
+    hasNewConnection = true;
+  }, onDisconnect};
+
+
+
 
   while (true) {
     bool errorWhileUpdating = false;
@@ -243,7 +249,13 @@ int main(int argc, char *argv[]) {
                 << " " << e.what() << "\n\n";
       errorWhileUpdating = true;
     }
-
+    if (hasNewConnection) {
+      const std::deque<Message> messages = {
+        {Connection{connectionId}, "Server> welcome " + std::to_string(connectionId) + "\n"}
+      };
+      server.send(messages);
+      hasNewConnection = false;
+    }
     const auto incoming = server.receive();
     const auto [logs, shouldQuit] = processMessages(server, incoming);
     const auto outgoing = buildOutgoing(logs);

@@ -7,9 +7,55 @@
 
 
 #include <iostream>
+#include <optional>
 #include <unistd.h>
 #include "ChatWindow.h"
 #include "Client.h"
+
+#include <vector>
+#include <sstream> //
+
+struct ClientData {
+  std::string connectionId;
+  std::optional<std::string> name = std::nullopt;
+};
+
+std::vector<std::string> splitStringBySpace(const std::string& str) {
+  std::vector<std::string> result;
+  std::istringstream stream(str);
+  std::string word;
+
+  // Extract each word separated by spaces
+  while (stream >> word) {
+      result.push_back(word);
+  }
+
+  return result;
+};
+
+void processServerMessages(const std::vector<std::string>& messages, ClientData& clientData) {
+  if (messages.size() <= 2 || messages[0] != "Server>") {
+      return;
+  }
+
+  if (messages[1] == "welcome") {
+    clientData.connectionId = messages[2];
+  }
+}
+
+enum MessageType getMessageType(const std::vector<std::string>& messages, const ClientData& clientData) {
+  if (messages[0] == "Server>") {
+    return MessageType::Server;
+  }
+  if (clientData.name.has_value() && messages[0] == clientData.name.value() + ">") {
+    return MessageType::Self;
+  }
+  if (!clientData.name.has_value() && messages[0] == "Unnamed") {
+    bool isSameConnection = messages[1] == clientData.connectionId + ">";
+    return isSameConnection ? MessageType::Self : MessageType::Other;
+  } 
+  return MessageType::Other;
+}
 
 
 int
@@ -21,6 +67,7 @@ main(int argc, char* argv[]) {
   }
 
   networking::Client client{argv[1], argv[2]};
+  ClientData clientData = {"", std::nullopt};
 
   bool done = false;
   auto onTextEntry = [&done, &client] (std::string text) {
@@ -32,6 +79,7 @@ main(int argc, char* argv[]) {
   };
 
   ChatWindow chatWindow(onTextEntry);
+
   while (!done && !client.isDisconnected()) {
     try {
       client.update();
@@ -43,7 +91,10 @@ main(int argc, char* argv[]) {
 
     auto response = client.receive();
     if (!response.empty()) {
-      chatWindow.displayText(response, MessageType::Other);
+      auto messages = splitStringBySpace(response);
+      processServerMessages(messages, clientData);
+      auto messageType = getMessageType(messages, clientData);
+      chatWindow.displayText(response, messageType);
     }
     chatWindow.update();
   }
