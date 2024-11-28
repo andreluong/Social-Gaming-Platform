@@ -2,6 +2,7 @@
 #define STRING_UTILS_H
 
 #include <sstream>
+#include <vector>
 
 std::pair<std::string, std::string> splitCommand(const std::string& input);
 
