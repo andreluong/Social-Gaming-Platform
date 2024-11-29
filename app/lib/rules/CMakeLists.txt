@@ -13,7 +13,7 @@ add_library(rules
   WhileLoop.cpp
 )
 
-target_link_libraries(rules utils perser)
+target_link_libraries(rules utils perser spdlog::spdlog)
 
 target_include_directories(rules
   PUBLIC

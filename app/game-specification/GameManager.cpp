@@ -73,12 +73,7 @@ void GameManager::setupGame() {
 }
 
 void GameManager::runGameLoop() {
-
     std::cout << "\n-----------------\nRunning Game Loop\n-----------------\n" << std::endl;
-
-    // Iterate over rules and execute them; rules should access state in constants, variables, perPlayer, perAudience
-
-    // TODO: how do we connect rules with state so we can use iterator bookkeeping?
     for (const auto& rule : rules) {
         rule->execute(context.get());
     }

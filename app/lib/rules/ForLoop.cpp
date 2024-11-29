@@ -38,7 +38,7 @@ ForLoop::ForLoop(std::string_view element, std::string_view list, std::vector<st
     : element(element), list(list), body(std::move(body)) {}
 
 void ForLoop::execute(GameContext* context) {
-    std::cout << "For loop execute" << std::endl;   
+    spdlog::info("[For Loop] executing...");
 
     // Testing upfrom
     // TODO: If have time, do size. Size is not a priority
@@ -52,25 +52,24 @@ void ForLoop::execute(GameContext* context) {
         auto min = std::visit<int>(VisitInt{}, minWrapper->value);
 
         for (int i = min; i <= max; i++) {
-            std::cout << "\nIteration " << i << ":" << std::endl;
+            spdlog::info("Iteration {}: ", i);
             for (const auto& rulePointer : body) {
                 rulePointer->freshVariables[element] = i;    
                 rulePointer->execute(context);
             }
             std::cout << std::endl;
         }
-        return;
     }
 
     // Attempt to find a vector or map
-    auto contextList = context->find(list);
-    if (contextList) {
+    else if (auto contextList = context->find(list); contextList.has_value()) {
         auto listWrapper = contextList.value();
         std::visit<void>(VisitForLoop{element, body, context}, listWrapper.value);
     } 
     
+    // No list found
     else {
-        std::cerr << "[FOR LOOP] No list found from context: " << list << std::endl;
+        spdlog::error("[For Loop] no list found from context: {}", list);
     }
 }
 

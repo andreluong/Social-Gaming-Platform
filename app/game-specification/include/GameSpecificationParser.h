@@ -12,6 +12,7 @@
 // #include "PerUser.h"
 #include "RulesParser.h"
 #include "GameManager.h"
+#include "ParserUtility.h"
 
 #include <cassert>
 #include <cstdio>
@@ -50,9 +51,6 @@ public:
 
     // Helper methods
 
-    // 1 and 3 are the position of the numbers
-    std::pair<int, int> parseNumberRange(ts::Node rangeNode);
-
     // Parse different types of expressions based on their node type
     ExpressionVariant parseExpression(ts::Node expressionNode);
 
@@ -82,12 +80,6 @@ public:
 
     // Helper to parse a list like [ "Rock", "Paper", "Scissors" ] & ret as a formatted string
     std::vector<ExpressionWrapper> parseList(ts::Node listNode);
-
-    // Helper to parse a nested map within a map entry ret formatted as a string
-    std::string parseNestedMap(ts::Node nestedMapNode);
-
-    // now works and parses boolean values correctly
-    std::string parseBoolean(ts::Node booleanNode);
 
     // Parses an int node and returns it as a string
     int parseInteger(ts::Node integerNode);

@@ -16,8 +16,6 @@ namespace builtin {
             if (beforeFunctionPos != std::string_view::npos) {
                 auto beforeFunction = key.substr(0, beforeFunctionPos);
                 auto afterFunction = key.substr(beforeFunctionPos + 1);
-
-                std::cout << "builtin: " << beforeFunction << "; " << afterFunction << std::endl;
                 return std::make_pair(beforeFunction, afterFunction);
             }
         }

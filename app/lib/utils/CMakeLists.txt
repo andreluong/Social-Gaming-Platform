@@ -8,9 +8,10 @@ add_library(utils
   inputRequestQueue.cpp
   Utility.cpp
   BuiltInUtility.cpp
+  BinaryExpressionHandler.cpp
 )
 
-target_link_libraries(utils game-logic-lib)
+target_link_libraries(utils game-logic-lib spdlog::spdlog)
 
 target_include_directories(utils
   PUBLIC
