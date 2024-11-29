@@ -7,6 +7,7 @@
 #include <optional>
 #include <memory>
 #include "GameContext.h"
+#include <spdlog/spdlog.h>
 
 // Several need work/testing
 // Message and scores incomplete

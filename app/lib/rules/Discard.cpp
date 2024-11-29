@@ -11,7 +11,7 @@ struct VisitDiscard {
                 listPointer->erase(listPointer->end() - count, listPointer->end());
             }
         }
-        std::cout << "[VisitDiscard] Original Size: " << originalSize << "; New size: " << listPointer->size() << std::endl;
+        spdlog::info("[Discard] original size: {}; new size: {}", originalSize, listPointer->size());
     }
 
     void operator()(auto T, auto K) {
@@ -23,14 +23,14 @@ Discard::Discard(std::string_view count, std::string_view source)
     : count(count), source(source) {}
 
 void Discard::execute(GameContext* context) {
-    std::cout << "[Discard] Execute" << std::endl;    
+    spdlog::info("[Discard] executing...");
 
     auto contextCount = context->find(count);
     auto contextSource = context->find(source);
 
     // Validate count and source
     if (!(contextCount && contextSource)) {
-        std::cerr << "[Discard] Can not find count: " << count << " or source: " << source << std::endl;
+        spdlog::error("[Discard] could not find count: {}, or source: {}", count, source);
         return;
     }
 

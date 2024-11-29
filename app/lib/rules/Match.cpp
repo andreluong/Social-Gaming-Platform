@@ -176,13 +176,20 @@ Match::Match(std::string_view target, std::vector<std::unique_ptr<MatchEntry>> e
     : target(target), entries(std::move(entries)) {}
 
 void Match::execute(GameContext* context) {
-    std::cout << "Match execute" << std::endl;
+    spdlog::info("[Match] executing...");
 
     if (auto builtInPair = builtin::splitFunction(target); builtInPair.has_value()) {
         auto object = builtInPair->first;
         auto function = builtInPair->second;
+        auto result = true; // default initialization
 
         // Check for negation !
+        if (object.find('!') != std::string_view::npos) {
+            result = false;
+            spdlog::info("[Match] executing negated object: {}; function: {}", object, function);
+        } else {
+            spdlog::info("[Match] executing for object: {}; function: {}", object, function);
+        }
         
     } else {
         // Check if target is a boolean
@@ -196,6 +203,7 @@ void Match::execute(GameContext* context) {
 
                 // TODO: Force to first entry for this specific scenario
                 auto guard = entryPtr->getGuard();
+                spdlog::info("[Match] guard: {}", guard);
                 std::optional<bool> result;
                 if (utility::isBoolean(guard)) {
                     result = utility::evaluateBoolean(guard);
@@ -205,8 +213,7 @@ void Match::execute(GameContext* context) {
                     
                 }
 
-                std::cout << "result: " << *result << std::endl;
-                std::cout << "target: " << *targetValue << std::endl;
+                spdlog::info("[Match] result: {}; target: {}", result.value_or("null"), target);
 
                 if (result == *targetValue) {
                     entryPtr->print();

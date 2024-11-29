@@ -4,8 +4,12 @@ MatchEntry::MatchEntry(std::string_view guard, std::vector<std::unique_ptr<Rule>
         : guard(guard), body(std::move(body)) {}
 
 void MatchEntry::execute(GameContext* context) {
-    std::cout << "Match entry execute" << std::endl;    
-    this->print();
+    spdlog::info("[Match Entry] executing...");
+    for (const auto& rulePointer : body) {
+        if (rulePointer) {
+            rulePointer->execute(context);
+        }
+    }
 }
 
 void MatchEntry::print() {

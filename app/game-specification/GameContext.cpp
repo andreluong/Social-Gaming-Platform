@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include "BuiltInUtility.h"
+#include <spdlog/spdlog.h>
 
 GameContext::GameContext(std::shared_ptr<ExpressionMap> configuration, 
                         std::shared_ptr<ExpressionMap> constants,
@@ -25,7 +26,7 @@ std::optional<ExpressionWrapper> GameContext::findInExpressionMaps(const std::st
             return it->second;
         }
     }
-    std::cerr << "[CONTEXT] Could not find key in any expression maps: " << key << std::endl;
+    spdlog::warn("[CONTEXT] Could not find key in any expression maps: {}", key);
     return std::nullopt;
 }
 
@@ -114,8 +115,7 @@ std::optional<ExpressionWrapper> GameContext::find(const std::string_view& key) 
             break;
         }
     }
-
-    std::cerr << "[CONTEXT] Could not find key: " << key << std::endl;
+    spdlog::warn("[CONTEXT] Could not find key: {}", key);
     return std::nullopt;
 }
 
@@ -123,7 +123,7 @@ void GameContext::setVariable(std::string key, ExpressionWrapper value) {
     if (auto it = variables->find(key); it != variables->end()) {
         it->second = value;
     } else {
-        std::cerr << "[CONTEXT] Could not find variable: " << key << std::endl;
+        spdlog::warn("[CONTEXT] Could not find variable: {}", key);
     }
 }
 
