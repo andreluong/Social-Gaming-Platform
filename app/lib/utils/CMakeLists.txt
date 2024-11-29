@@ -1,5 +1,4 @@
 add_library(utils 
-  listOperations.cpp 
   humanInput.cpp # including this causes an error with include<format> for me (Ryan), not sure why since this specifies std 23
   controlStructures.cpp 
   timing.cpp 
