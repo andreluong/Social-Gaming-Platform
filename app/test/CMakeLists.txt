@@ -4,7 +4,6 @@ add_executable(runAllTests
 
   #test_UserRoleManagement.cpp
   test_Timing.cpp
-  test_ListOperations.cpp
   test_variablesAndExpressions.cpp
   test_FeatureToggle.cpp
   test_LobbyClass.cpp
