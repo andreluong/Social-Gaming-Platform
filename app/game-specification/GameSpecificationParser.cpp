@@ -72,15 +72,6 @@ NodeType getNodeType(const ts::Node& nodeType) {
 
 */
 
-
-
-// Temporary helper for debug
-void printUnorderedMap(const std::unordered_map<std::string, std::string>& map) {
-    for (const auto& pair : map) {
-        std::cout << pair.first << " : " << pair.second << std::endl;
-    }
-}
-
 // Parses the game file to initialize game specification objects with data, currently 6 objects (see private fields)
 GameSpecificationParser::GameSpecificationParser(const SyntaxTree& syntaxTree) 
     : sourceCode(syntaxTree.getSourceCode()), root(syntaxTree.getRootNode()) 
@@ -92,13 +83,6 @@ GameSpecificationParser::GameSpecificationParser(const SyntaxTree& syntaxTree)
 }
 
 // Helper methods
-
-// 1 and 3 are the position of the numbers
-std::pair<int, int> GameSpecificationParser::parseNumberRange(ts::Node rangeNode) {
-    int min = std::stoi(std::string(rangeNode.getChild(1).getSourceRange(sourceCode)));
-    int max = std::stoi(std::string(rangeNode.getChild(3).getSourceRange(sourceCode)));
-    return {min, max};
-}
 
 // Supports values of type: quoted_string, list_literal, and nested value_map
 ExpressionMap GameSpecificationParser::parseValueMap(ts::Node mapNode) {
@@ -129,11 +113,11 @@ ExpressionMap GameSpecificationParser::parseValueMap(ts::Node mapNode) {
                 break;
 
             case NodeType::ValueMap:
-                value = parseNestedMap(valueNode);
+                value = std::make_shared<ExpressionMap>(parseValueMap(valueNode));
                 break;
 
             case NodeType::Boolean:
-                value = parseBoolean(valueNode);
+                value = parserUtility::parseBoolean(valueNode, sourceCode);
                 break;
 
             case NodeType::Integer:
@@ -251,38 +235,6 @@ ExpressionVector GameSpecificationParser::parseList(ts::Node listNode) {
     return list;
 }
 
-// Helper to parse a nested map within a map entry ret formatted as a string
-std::string GameSpecificationParser::parseNestedMap(ts::Node nestedMapNode) {
-    auto nestedMap = parseValueMap(nestedMapNode);
-    std::stringstream ss;
-    ss << "{";
-
-    // TODO: Causes errors with ExpressionVariant
-    // int count = 0;
-    // for (const auto& [key, value] : nestedMap) {
-    //     ss << key << ": " << std::visit<std::string>(VisitString{}, value);
-    //     if (count < nestedMap.size() - 1) {
-    //         ss << ", ";
-    //     }
-    //     count++;
-    // }
-
-    ss << "}";
-    return ss.str();
-}
-
-
-// now works and parses boolean values correctly
-std::string GameSpecificationParser::parseBoolean(ts::Node booleanNode) {
-    std::string boolValue = std::string(booleanNode.getSourceRange(sourceCode));
-    if (boolValue == "true") {
-        return "true";
-    }
-    else {
-        return "false";
-    }
-}
-
 int GameSpecificationParser::parseInteger(ts::Node integerNode) {
     if (getNodeType(integerNode) == NodeType::Integer) {
         return std::stoi(std::string(integerNode.getSourceRange(sourceCode)));
@@ -340,7 +292,6 @@ std::unique_ptr<ValueMap> GameSpecificationParser::parseSection(enum SectionType
             return nullptr;
     }
 
-    // std::cout << "Parsing section: " << sectionName << std::endl; // uncommnt to debug
     auto sectionNode = root->getChildByFieldName(sectionName);
     if (sectionNode.isNull()) {
         std::cerr << "no " << sectionName << " in the file" << std::endl;

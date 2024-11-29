@@ -25,7 +25,7 @@ add_library(perser)
 target_sources(perser
   PUBLIC
     GameSpecificationParser.cpp
-    #Configuration.cpp
+    Configuration.cpp
     GameManager.cpp
     SetupRule.cpp
     SectionValueMap.cpp
@@ -33,7 +33,7 @@ target_sources(perser
     RuleFactory.cpp
     GameContext.cpp
     GameManager.cpp
-    # add here
+    ParserUtility.cpp
 )
 
 target_include_directories(perser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

@@ -1,73 +1,38 @@
-// If moving forward with refactoring, delete this file or move new implementation from .h into here
+#include "Configuration.h"
+#include "Utility.h"
+#include "ParserUtility.h"
 
-// #include "Configuration.h"
-// #include <sstream>
-// #include <iostream>
+Configuration::Configuration(ts::Node configurationNode, const std::string& sourceCode) {
+    auto nameNode = configurationNode.getChildByFieldName("name");
+    name = nameNode.getSourceRange(sourceCode);
 
-// Configuration::Configuration(const std::string& name, std::pair<int, int> playerRange, bool hasAudience)
-//     : name(name), playerRange(playerRange), hasAudience(hasAudience) {}
+    auto playerRangeNode = configurationNode.getChildByFieldName("player_range");
+    playerRange = parserUtility::parseNumberRange(playerRangeNode, sourceCode);
 
-// // Getters
-// std::string Configuration::getName() const {
-//     return name;
-// }
+    auto hasAudienceNode = configurationNode.getChildByFieldName("has_audience");
+    hasAudience = utility::evaluateBoolean(hasAudienceNode.getSourceRange(sourceCode)).value_or(false);
 
-// std::pair<int, int> Configuration::getPlayerRange() const {
-//     return playerRange;
-// }
+    // Add setup rules
+    auto setupRuleNode = configurationNode.getNamedChild(3);
+    while (!setupRuleNode.isNull() && setupRuleNode.isNamed()) {
+        SetupRule setupRule(setupRuleNode, sourceCode);
+        setupRules.emplace_back(setupRule);
+        setupRuleNode = setupRuleNode.getNextSibling();
+    }
+}
 
-// bool Configuration::hasAudienceMembers() const {
-//     return hasAudience;
-// }
+std::string Configuration::getName() const {
+    return name;
+}
 
-// const std::vector<SetupRule>& Configuration::getSetupRules() const {
-//     return setupRules;
-// }
+std::pair<int, int> Configuration::getPlayerRange() const {
+    return playerRange;
+}
 
-// // Debug
-// void Configuration::printPlayerRange() {
-//         std::cout << "(" << playerRange.first << ", " << playerRange.second << ")" << std::endl;
-//     }
+bool Configuration::hasAudienceMembers() const {
+    return hasAudience;
+}
 
-// void Configuration::printHasAudience() {
-//         std::cout << std::boolalpha << hasAudience << std::endl;
-//     }
-
-// // Setters
-// void Configuration::setName(std::string_view n) {
-//     name = n;
-// }
-
-// // Expects input like "(2, 4)"
-// void Configuration::setPlayerRange(std::string_view playerRangeStr) {
-
-//     std::string str = std::string(playerRangeStr);
-//     if (str.front() == '(') str.erase(0, 1);
-//     if (str.back() == ')') str.pop_back();
-
-//     std::stringstream ss(str);
-//     std::string token;
-//     int first, second;
-
-//     if (std::getline(ss, token, ',')) {
-//         first = std::stoi(token);
-//     }
-//     if (std::getline(ss, token, ',')) {
-//         second = std::stoi(token);
-//     }
-
-//     playerRange = {first, second};
-// }
-
-// // Expects "true" or "false"
-// void Configuration::setHasAudience(std::string_view hasAudienceStr) {
-//     if (hasAudienceStr == "true") {
-//         hasAudience = true;
-//     } else if (hasAudienceStr == "false") {
-//         hasAudience = false;
-//     }
-// }
-
-// void Configuration::addSetupRule(const SetupRule& rule) {
-//     setupRules.push_back(rule);
-// }
+const std::vector<SetupRule>& Configuration::getSetupRules() const {
+    return setupRules;
+}
