@@ -3,8 +3,10 @@ add_subdirectory(gtest)
 
 # Define the test executable
 add_executable(runAllTests
-  test_Timing.cpp
-  test_ListOperations.cpp
+  # Remove deprecated test files (removed in #65)
+  # test_Timing.cpp
+  # test_ListOperations.cpp
+  
   test_variablesAndExpressions.cpp
   test_FeatureToggle.cpp
   test_LobbyClass.cpp
@@ -28,7 +30,7 @@ target_link_libraries(runAllTests
     game-logic-lib
     utils
     feature-toggle
-    parser
+    perser  # Corrected typo from "parser" to "perser"
     tree-sitter
 )
 
