@@ -1,4 +1,5 @@
 #include "include/User.h"
+#include <spdlog/spdlog.h>
 
 #include <stdexcept>
 #include <algorithm>
@@ -10,17 +11,23 @@ User::User(unsigned long int id, const std::string& name, networking::Connection
     name(name),
     lobbyNum(0),
     connection(connection),
-    responses() {}
+    responses() 
+    {
+        spdlog::debug("User created using first constructor");
+    }
 
 User::User(unsigned long int id, networking::Connection connection) : 
     id(id), 
     name(std::to_string(id)), // only 1 word names allowed
     lobbyNum(0),
     connection(connection),
-    responses() {}
+    responses() 
+    {
+        spdlog::debug("User created using second constructor");
+    }
 
 User::~User(){
-
+    spdlog::debug("User #{} is deleted", id);
 }
 
 unsigned long int User::getId() const {

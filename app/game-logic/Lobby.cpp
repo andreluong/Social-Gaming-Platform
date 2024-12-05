@@ -2,19 +2,20 @@
 #include "Lobby.h"
 #include "User.h"
 #include <algorithm>
+#include <spdlog/spdlog.h>
 
 static unsigned int nextLobbyId = 0;
 
 Lobby::Lobby() : inviteCode(tokenGenerator()), lobbyNumber(nextLobbyId++)
 {
-  std::cout << "yay u created the lobby " << lobbyNumber << std::endl;
+  spdlog::debug("Created a new lobby #{}", lobbyNumber);
 }
 
 Lobby::~Lobby()
 {
-  std::cout << "yay u deleted the lobby " << lobbyNumber << std::endl;
+  spdlog::debug("Deleted lobby #{}", lobbyNumber);
   std::for_each(userIDs.begin(), userIDs.end(), [](unsigned int num){
-    std::cout << "players in this lobby: " << num << std::endl;
+    spdlog::debug("Kicked player #{}, to reception", num);
   });
 }
 
@@ -40,22 +41,6 @@ std::string Lobby::tokenGenerator()
   return token;
 }
 
-// void Lobby::addUser(User *user)
-// {
-//   users.push_back(user);
-// }
-
-// void Lobby::removeUser(User *user)
-// {
-//   auto userErase = std::remove(users.begin(), users.end(), user);
-//   users.erase(userErase);
-// }
-
-// std::vector<User *> Lobby::getUsers()
-// {
-//   return users;
-// }
-
 void Lobby::addUser(unsigned int userID){
   userIDs.push_back(userID);
 }
@@ -65,7 +50,7 @@ void Lobby::removeUser(unsigned int userID){
   userIDs.erase(toRemove, userIDs.end());
 }
 
-const std::vector<unsigned int>& Lobby::getUsers() const{
+std::vector<unsigned int> Lobby::getUsers() const{
   return userIDs;
 }
 
