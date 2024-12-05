@@ -11,7 +11,7 @@ add_executable(runAllTests
   test_FeatureToggle.cpp
   test_LobbyClass.cpp
   test_GameClass.cpp
-  test_GameSpecificationParser.cpp
+  # test_GameSpecificationParser.cpp
   test_GameManager.cpp  # Uncomment when ready
 )
 

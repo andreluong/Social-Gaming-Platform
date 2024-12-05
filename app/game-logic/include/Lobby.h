@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include "User.h"
+#include <spdlog/spdlog.h>
 
 class User;
 
@@ -19,7 +20,7 @@ class Lobby{
         // std::vector<User*> getUsers();
         void addUser(unsigned int userID);
         void removeUser(unsigned int userID);
-        const std::vector<unsigned int>& getUsers() const;
+        std::vector<unsigned int> getUsers() const;
         unsigned int getLobbyNum() const;
 
         bool operator==(const Lobby& other) const;

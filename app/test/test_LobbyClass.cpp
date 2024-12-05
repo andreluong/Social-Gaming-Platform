@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "../game-logic/include/Lobby.h"
-#include "../game-logic/include/User.h"
+#include "Lobby.h"
+#include "User.h"
 
 // Create a fixture for Lobby tests
 class LobbyTests : public ::testing::Test {

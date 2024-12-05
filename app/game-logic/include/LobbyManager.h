@@ -2,8 +2,16 @@
 #define LOBBYMANAGER_H
 
 #include "Lobby.h"
+#include <spdlog/spdlog.h>
 class Lobby;
 class User;
+
+// DNE = Does not exist
+enum class JoinResult{
+    SUCCESS,
+    LOBBYFULL,
+    DNE
+};
 
 class LobbyManager{
     public:
@@ -15,9 +23,11 @@ class LobbyManager{
         void deleteUser(uintptr_t cid);
         const std::vector<std::unique_ptr<User>>& getUsers() const;
         std::vector<std::unique_ptr<User>>::iterator findUserIt(uintptr_t cid);
+        JoinResult joinLobby(unsigned int lobbyNum, uintptr_t cid);
+        void leaveLobby(uintptr_t cid);
 
         // Lobby operations
-        unsigned int createLobby();
+        unsigned int createLobby(uintptr_t cid);
         void deleteLobby(unsigned int lobbyNum);
         void deleteIfLobbyEmpty(unsigned int lobbyNum);
         std::vector<std::unique_ptr<Lobby>>::iterator findLobby(unsigned int lobbyNum);
