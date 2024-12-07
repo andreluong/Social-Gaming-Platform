@@ -12,8 +12,6 @@
 #include "ChatWindow.h"
 #include "Client.h"
 #include "string_utils.h"
-#include "ChatClientLogic.h"
-
 
 int
 main(int argc, char* argv[]) {
