@@ -30,6 +30,7 @@ add_subdirectory(game-logic)
 add_subdirectory(lib)
 add_subdirectory(web-socket-networking)
 add_subdirectory(feature-toggle)
+add_subdirectory(chatclient-logic)
 
 # Optional game specification directory
 add_subdirectory(game-specification)

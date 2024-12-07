@@ -12,15 +12,7 @@
 #include <functional>
 #include <memory>
 #include <string>
-
-enum class MessageType {
-    Other = 1,   // Corresponds to color pair 1
-    Self = 2,        // Corresponds to color pair 2
-    Server = 3,      // Corresponds to color pair 3
-    GameState = 4,    // Corresponds to color pair 4
-    Error = 5
-};
-
+#include "ChatClientLogic.h"
 // Note: The ncurses state needs to be hidden from the public interface
 // due to macro conflicts with boost asio. Thus, we hide the implementation
 // requiring state behind indirection for a compilation firewall.

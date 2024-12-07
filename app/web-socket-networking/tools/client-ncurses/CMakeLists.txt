@@ -17,6 +17,7 @@ find_package(Threads REQUIRED)
 target_link_libraries(client-ncurses
   networking
   string_utils
+  chatclient-logic
   ${CURSES_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
 )
@@ -24,4 +25,3 @@ target_link_libraries(client-ncurses
 install(TARGETS client-ncurses
   RUNTIME DESTINATION bin
 )
-
