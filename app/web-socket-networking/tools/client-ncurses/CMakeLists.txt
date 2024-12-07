@@ -25,4 +25,3 @@ target_link_libraries(client-ncurses
 install(TARGETS client-ncurses
   RUNTIME DESTINATION bin
 )
-

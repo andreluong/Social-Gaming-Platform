@@ -13,7 +13,7 @@ add_executable(runAllTests
   test_GameClass.cpp
   # test_GameSpecificationParser.cpp
   test_GameManager.cpp  # Uncomment when ready
-  test_chatclient.cpp
+  test_ChatClient.cpp
 )
 
 # Add include directories

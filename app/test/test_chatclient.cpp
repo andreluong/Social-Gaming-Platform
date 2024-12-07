@@ -82,6 +82,14 @@ TEST_F(GetMessageTypeTest, MessageTypeSelfWithNameDefined) {
     EXPECT_EQ(messageType, MessageType::Self);
 }
 
+TEST_F(GetMessageTypeTest, MessageTypeSelfInLobby) {
+    clientData.connectionId = "12345";
+    clientData.name = "John";
+    messages = {"lobby:", "1" ,"John>", "Hello!"};
+    auto messageType = getMessageType(messages, clientData);
+    EXPECT_EQ(messageType, MessageType::Self);
+}
+
 TEST_F(GetMessageTypeTest, MessageTypeServer) {
     messages = {"Server>", "Hello!"};
     auto messageType = getMessageType(messages, clientData);
