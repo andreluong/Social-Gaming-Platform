@@ -13,6 +13,7 @@ add_executable(runAllTests
   test_GameClass.cpp
   # test_GameSpecificationParser.cpp
   test_GameManager.cpp  # Uncomment when ready
+  test_chatclient.cpp
 )
 
 # Add include directories
@@ -32,6 +33,7 @@ target_link_libraries(runAllTests
     feature-toggle
     perser  # Corrected typo from "parser" to "perser"
     tree-sitter
+    chatclient-logic
 )
 
 # Add the test
